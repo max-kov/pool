@@ -1,7 +1,4 @@
-import pygame
-
-
-
+import pygame,physics
 
 class Game_Window():
     def __init__(self,vertical_size,horizontal_size,*args,**kwargs):
@@ -17,27 +14,51 @@ class Planet():
         self.mass = planet_mass
         self.x = planet_x
         self.y = planet_y
+        self.dx = 0
+        self.dy = 0
 
         pygame.draw.circle(game_window.surface,(255,255,255),(planet_x,planet_y),3)
 
     def move_to(self,game_window,pos_x,pos_y):
-        pygame.draw.circle(game_window.surface, (0,0,0), (self.x, self.y), 3)
-        pygame.draw.circle(game_window.surface, (255, 255, 255), (pos_x, pos_y), 3)
+        pygame.draw.circle(game_window.surface, (0,0,0), (int(self.x), int(self.y)), 3)
+        pygame.draw.circle(game_window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), 3)
 
         self.x = pos_x
         self.y = pos_y
 
+    def add_force(self,delta_x,delta_y):
+        self.dx += delta_x
+        self.dy += delta_y
+
+    def move_once(self,game_window):
+        tempx = self.x + (self.dx/self.mass)
+        tempy = self.y + (self.dy/self.mass)
+        self.move_to(game_window,tempx,tempy)
+
 #opened for testing
 if __name__=='__main__':
     pygame.init()
-    window = Game_Window(500,500)
-    mars = Planet(window,100,50,50)
+    window = Game_Window(1000,1000)
     window.update()
     fps_clock = pygame.time.Clock()
     fps_limit = 60
+    pygame.draw.circle(window.surface,(255,255,255),(500,500),3)
 
-    for coord in range(50,400):
-        mars.move_to(window,coord,coord)
-        window.update()
+    mars = Planet(window, 5, 500, 600)
+    mars.add_force(3.6,-0.6)
+
+    earth = Planet(window,50,500,500)
+    earth.add_force(-0.6, 0.6)
+
+
+    while 1:
+
+        mars.add_force(*physics.gravity_force(mars,earth))
+        earth.add_force(*physics.gravity_force(earth,mars))
+        earth.move_once(window)
+        mars.move_once(window)
+        pygame.display.update()
+
 
         fps_clock.tick(fps_limit)
+
