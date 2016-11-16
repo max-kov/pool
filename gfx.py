@@ -44,17 +44,18 @@ if __name__=='__main__':
     fps_limit = 60
     pygame.draw.circle(window.surface,(255,255,255),(500,500),3)
 
-    mars = Planet(window, 5, 500, 600)
-    mars.add_force(3.6,-0.6)
+    mars = Planet(window, 1, 500, 550)
+    mars.add_force(0.9,-0.6)
 
-    earth = Planet(window,50,500,500)
+    earth = Planet(window,80,500,500)
     earth.add_force(-0.6, 0.6)
 
 
     while 1:
+        force = physics.gravity_force(mars,earth)
 
-        mars.add_force(*physics.gravity_force(mars,earth))
-        earth.add_force(*physics.gravity_force(earth,mars))
+        mars.add_force(*force)
+        earth.add_force(-force[0],-force[1])
         earth.move_once(window)
         mars.move_once(window)
         pygame.display.update()
