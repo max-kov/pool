@@ -7,10 +7,11 @@ class Planet():
         self.y = planet_y
         self.dx = 0
         self.dy = 0
+        self.size = planet_mass**0.3
 
     def move_to(self,game_window,pos_x,pos_y):
-        pygame.draw.circle(game_window.surface, (0,0,0), (int(self.x), int(self.y)), int(self.mass/10))
-        pygame.draw.circle(game_window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.mass/10))
+        pygame.draw.circle(game_window.surface, (0,0,0), (int(self.x), int(self.y)), int(self.size))
+        pygame.draw.circle(game_window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size))
 
         self.x = pos_x
         self.y = pos_y
@@ -24,9 +25,13 @@ class Planet():
         tempy = self.y + (self.dy/self.mass)
         self.move_to(game_window,tempx,tempy)
 
-    def stop_moving(self):
+    def merge(self,planet):
+        self.x = planet.x
+        self.y = planet.y
         self.dx = 0
         self.dy = 0
+        self.mass += planet.mass
+        self.size = self.mass**0.3
 
 
 def planet_distance(pl1,pl2):

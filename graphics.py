@@ -1,4 +1,4 @@
-import pygame,physics
+import pygame
 
 class Game_Window():
     def __init__(self, vertical_size, horizontal_size, *args, **kwargs):
