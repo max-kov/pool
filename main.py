@@ -3,6 +3,17 @@ import physics as phsx
 
 planets = []
 
+def destroy_if_close():
+    for y in range(0,len(planets)-1):
+        for x in range(y,len(planets)-1):
+            if phsx.planet_distance(planets[x],planets[x+1])<5:
+                #deletes a planet if it comes close to another planet
+                #and then adds up the masses into one big planet
+                added_mass = planets.pop(x+1).mass
+                planets[x].mass += added_mass
+                planets[x].stop_moving()
+
+
 def attract_once():
     for y in range(0,len(planets)-1):
         for x in range(y,len(planets)-1):
@@ -26,5 +37,6 @@ window = gfx.Game_Window(1000, 1000)
 setup_default()
 
 while 1:
+    destroy_if_close()
     attract_once()
     window.move_all_once(planets)

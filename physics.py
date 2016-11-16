@@ -8,11 +8,9 @@ class Planet():
         self.dx = 0
         self.dy = 0
 
-        pygame.draw.circle(game_window.surface,(255,255,255),(planet_x,planet_y),3)
-
     def move_to(self,game_window,pos_x,pos_y):
-        pygame.draw.circle(game_window.surface, (0,0,0), (int(self.x), int(self.y)), 3)
-        pygame.draw.circle(game_window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), 3)
+        pygame.draw.circle(game_window.surface, (0,0,0), (int(self.x), int(self.y)), int(self.mass/10))
+        pygame.draw.circle(game_window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.mass/10))
 
         self.x = pos_x
         self.y = pos_y
@@ -25,6 +23,11 @@ class Planet():
         tempx = self.x + (self.dx/self.mass)
         tempy = self.y + (self.dy/self.mass)
         self.move_to(game_window,tempx,tempy)
+
+    def stop_moving(self):
+        self.dx = 0
+        self.dy = 0
+
 
 def planet_distance(pl1,pl2):
     # using pythaoreas to calculate the range between planets
