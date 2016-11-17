@@ -46,7 +46,11 @@ def gravity_force(pl1,pl2):
     dist_y = (pl1.y-pl2.y)
     dist = planet_distance(pl1,pl2)
     #using newtonian model for gravitational attraction
-    force = (pl1.mass*pl2.mass)/(dist**2)
-    force_x = force*(dist_x/dist)
-    force_y = force*(dist_y/dist)
-    return -force_x, -force_y
+    try:
+        #dist = 0
+        force = (pl1.mass*pl2.mass)/(dist**2)
+        force_x = force*(dist_x/dist)
+        force_y = force*(dist_y/dist)
+        return -force_x, -force_y
+    except:
+        return 0
