@@ -6,18 +6,25 @@ planets = []
 
 
 def check_for_collision():
+    was_changed = False
     for y in range(0, len(planets) - 1):
         for x in range(y, len(planets) - 1):
-            if phsx.planet_distance(planets[x], planets[x + 1]) <= planets[x].size:
-                # deletes a planet if it comes close to another planet
-                # and then adds up the masses into one big planet
-                planets[x].merge(planets.pop(x + 1))
+            if not was_changed:
+                if phsx.planet_distance(planets[x], planets[x + 1]) <= planets[x].size:
+                    # deletes a planet if it comes close to another planet
+                    # and then adds up the masses into one big planet
+                    gfx.undraw(window, planets[x+1])
+                    gfx.undraw(window, planets[x])
+                    planets[x].merge(planets.pop(x + 1))
+                    was_changed = True
 
         #checks if planet out of the screen and destroys it if it is
-        if planets[y].x>window.size_x or planets[y].x<0 or \
+        if not was_changed:
+            if planets[y].x>window.size_x or planets[y].x<0 or \
                         planets[y].y > window.size_y or planets[y].y < 0:
-            gfx.undraw(window,planets[y])
-            planets.pop(y)
+                gfx.undraw(window,planets[y])
+                planets.pop(y)
+                was_changed=True
 
 
 def attract_once():
@@ -32,7 +39,7 @@ def attract_once():
 def default_setup():
     planets.append(phsx.Planet(window, 1, 500, 430))
     planets.append(phsx.Planet(window, 100, 500, 400))
-    planets.append(phsx.Planet(window, 800, 500, 300))
+    planets.append(phsx.Planet(window, 100, 500, 300))
 
     planets[0].add_force(7, 0)
     planets[1].add_force(340, 0)
