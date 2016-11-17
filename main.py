@@ -36,7 +36,7 @@ def setup_default():
 window = gfx.Game_Window(1000, 500)
 setup_default()
 
-while 1:
+while not gfx.is_closed():
     destroy_if_close()
     attract_once()
     window.move_all_once(planets)

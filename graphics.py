@@ -21,4 +21,12 @@ class Game_Window():
         self.fps_clock.tick(self.fps_limit)
 
 
+def is_closed():
+    was_closed = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            was_closed = True
+        elif event.type == pygame.KEYDOWN:
+            was_closed = True
+    return was_closed
 
