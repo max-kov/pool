@@ -21,12 +21,23 @@ class Game_Window():
         self.fps_clock.tick(self.fps_limit)
 
 
-def is_closed():
+def get_events():
     was_closed = False
+    was_clicked = False
+    mouse_pos = (0,0)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             was_closed = True
         elif event.type == pygame.KEYDOWN:
             was_closed = True
-    return was_closed
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = event.pos
+            was_clicked=True
 
+    return {"was_closed":was_closed,
+            "was_clicked":was_clicked,
+            "mouse_pos":mouse_pos}
+
+def undraw(game_window,planet):
+    pygame.draw.circle(game_window.surface, (0,0,0), (int(planet.x), int(planet.y)), int(planet.size))
