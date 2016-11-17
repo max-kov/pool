@@ -1,6 +1,8 @@
 import graphics as gfx
 import physics as phsx
 import math
+import time
+import pygame
 
 planets = []
 
@@ -29,24 +31,35 @@ def check_for_collision():
 
 def attract_once():
     for y in range(0, len(planets) - 1):
-        for x in range(y, len(planets) - 1):
-            force = phsx.gravity_force(planets[x], planets[x + 1])
+        for x in range(y+1, len(planets)):
+            force = phsx.gravity_force(planets[y], planets[x])
 
-            planets[x].add_force(*force)
-            planets[x + 1].add_force(-force[0], -force[1])
+            planets[y].add_force(*force)
+            planets[x].add_force(-force[0], -force[1])
 
 
 def default_setup():
     planets.append(phsx.Planet(window, 1, 500, 430))
     planets.append(phsx.Planet(window, 100, 500, 400))
-    planets.append(phsx.Planet(window, 100, 500, 300))
+    planets.append(phsx.Planet(window, 800, 500, 300))
 
     planets[0].add_force(7, 0)
     planets[1].add_force(340, 0)
     planets[2].add_force(-400, 0)
 
-def place_planet(mouse_pos):
-    planets.append(phsx.Planet(window, 1, mouse_pos[0], mouse_pos[1]))
+def place_planet():
+    start_pos = pygame.mouse.get_pos()
+
+    planets.append(phsx.Planet(window, 1, start_pos[0], start_pos[1]))
+
+    #function waits while user upresses the screen
+    while pygame.mouse.get_pressed()[0]:
+        pygame.event.get()
+
+    end_pos = pygame.mouse.get_pos()
+
+    planets[len(planets)-1].add_force((end_pos[0]-start_pos[0])/10,
+                                      (end_pos[1]-start_pos[1])/10)
 
 
 window = gfx.Game_Window(1000, 500)
@@ -54,9 +67,9 @@ default_setup()
 
 events = gfx.get_events()
 
-
 planet_num = len(planets)
-planet_num_temp = planet_num
+planet_num_temp = len(planets)
+
 
 while not events["was_closed"]:
     check_for_collision()
@@ -66,9 +79,9 @@ while not events["was_closed"]:
     events = gfx.get_events()
 
     if events["was_clicked"]:
-        place_planet(events["mouse_pos"])
+        place_planet()
 
-    planet_num_temp = planet_num
     planet_num = len(planets)
     if not planet_num==planet_num_temp:
+        planet_num_temp = planet_num
         print planet_num
