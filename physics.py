@@ -26,10 +26,8 @@ class Planet():
         self.move_to(game_window,tempx,tempy)
 
     def merge(self,planet):
-        self.x = planet.x
-        self.y = planet.y
-        self.dx = 0
-        self.dy = 0
+        self.dx += planet.dx*(planet.mass**0.5)/10
+        self.dy += planet.dy*(planet.mass**0.5)/10
         self.mass += planet.mass
         self.size = self.mass**0.3
 
