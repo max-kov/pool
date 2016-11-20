@@ -1,8 +1,10 @@
 import pygame
+from os import path
 
 
 class game_window():
     def __init__(self, vertical_size, horizontal_size, *args, **kwargs):
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()
         pygame.display.set_caption("Gravity Simulator")
 
@@ -27,7 +29,7 @@ class game_window():
         text_color = (255,255,255)
         text_selected_color = (0, 0, 255)
         font_name = pygame.font.get_default_font()
-        title_font = pygame.font.Font(font_name,32)
+        title_font = pygame.font.Font(font_name,40)
         options_font = pygame.font.Font(font_name,20)
 
         title_text = "Gravity simulator"
@@ -80,7 +82,7 @@ class game_window():
             self.update()
             events = get_events()
 
-            for num in range(0, len(options)):
+            for num in range(1, len(options)):
                 if events["mouse_pos"][0] in range(text_place[num][0]-spacing,text_ending_place[num][0]+spacing) and \
                     events["mouse_pos"][1] in range(text_place[num][1]-spacing, text_ending_place[num][1]+spacing):
                     if events["was_clicked"]:

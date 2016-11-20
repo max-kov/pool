@@ -2,9 +2,9 @@ import graphics as gfx
 import physics as phsx
 import time
 import pygame
+from os import path
 
 planets = []
-
 
 def check_for_collision():
     # this is used to avoid errors after removing a planet
@@ -21,6 +21,7 @@ def check_for_collision():
                     gfx.undraw(window, planets[x])
                     planets[x].merge(planets.pop(x + 1))
                     was_changed = True
+                    destruction_sound.play()
 
         # checks if put of the screen and destroys it if it is
         if not was_changed:
@@ -75,6 +76,10 @@ if __name__ == "__main__":
     window = gfx.game_window(1000, 500)
 
     window.main_menu()
+
+    selection_sound = pygame.mixer.Sound(path.join('resources', 'reload.ogg'))
+    selection_sound.play()
+    destruction_sound = pygame.mixer.Sound(path.join('resources', 'boom.wav'))
 
     default_setup()
 
