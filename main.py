@@ -73,6 +73,9 @@ def place_planet():
 
 if __name__ == "__main__":
     window = gfx.game_window(1000, 500)
+
+    window.main_menu()
+
     default_setup()
 
     events = gfx.get_events()
