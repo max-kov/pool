@@ -78,20 +78,23 @@ class game_window():
 
         while 1:
             self.update()
-            pygame.event.get()
-            mouse_pos = pygame.mouse.get_pos()
+            events = get_events()
 
             for num in range(0, len(options)):
-                if mouse_pos[0] in range(text_place[num][0]-spacing,text_ending_place[num][0]+spacing) and \
-                    mouse_pos[1] in range(text_place[num][1]-spacing, text_ending_place[num][1]+spacing):
-                    self.surface.blit(options[num][1],text_place[num])
+                if events["mouse_pos"][0] in range(text_place[num][0]-spacing,text_ending_place[num][0]+spacing) and \
+                    events["mouse_pos"][1] in range(text_place[num][1]-spacing, text_ending_place[num][1]+spacing):
+                    if events["was_clicked"]:
+                        self.surface.fill((0,0,0))
+                        return num
+                    else:
+                        self.surface.blit(options[num][1],text_place[num])
                 else:
                     self.surface.blit(options[num][0], text_place[num])
 
 def get_events():
     was_closed = False
     was_clicked = False
-    mouse_pos = (0, 0)
+    mouse_pos = pygame.mouse.get_pos()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -99,7 +102,6 @@ def get_events():
         elif event.type == pygame.KEYDOWN:
             was_closed = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = event.pos
             was_clicked = True
 
     return {"was_closed": was_closed,
