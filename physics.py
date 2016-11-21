@@ -27,8 +27,8 @@ class Planet():
         self.move_to(game_window, tempx, tempy)
 
     def merge(self, planet):
-        self.dx += planet.dx * (planet.mass ** 0.5) / 10
-        self.dy += planet.dy * (planet.mass ** 0.5) / 10
+        self.dx += (planet.dx * (planet.mass / 100))/ self.mass
+        self.dy += (planet.dy * (planet.mass / 100))/ self.mass
         self.mass += planet.mass
         self.size = self.mass ** 0.3
 
@@ -47,7 +47,7 @@ def gravity_force(pl1, pl2):
     # using newtonian model for gravitational attraction
     try:
         # dist = 0 div error
-        force = (pl1.mass * pl2.mass) / (dist ** 2)
+        force = ((pl1.mass * pl2.mass) / (dist ** 2))
         force_x = force * (dist_x / dist)
         force_y = force * (dist_y / dist)
         return -force_x, -force_y
