@@ -33,9 +33,9 @@ class game_window():
         options_font = pygame.font.Font(font_name,20)
 
         title_text = "Gravity simulator"
-        option_one_text = "Standart setup"
+        option_one_text = "Standard setup"
         option_two_text = "Fully random"
-        option_three_text = "Load from file"
+        option_three_text = "Bonus - Bouncy balls!"
 
         title = title_font.render(title_text, False, text_color)
         option_one = options_font.render(option_one_text, False, text_color)
