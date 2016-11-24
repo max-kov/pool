@@ -8,35 +8,53 @@ from random import randint
 planets = []
 
 
-def check_for_collision():
+def check_for_collision(is_bouncy):
     # this is used to avoid errors after removing a planet
     was_changed = False
 
-    for y in range(0, len(planets)):
-        for x in range(y, len(planets)):
-            if not was_changed and not x == y:
+    for counter1 in range(0, len(planets)):
+
+        pl1 = planets[counter1]
+
+        for counter2 in range(counter1, len(planets)):
+            pl2 = planets[counter2]
+
+            if not was_changed and not counter2 == counter1:
                 # this checks if the distance from 2 planets is less that their size
-                if phsx.planet_distance(planets[y], planets[x]) < (planets[x].size + planets[y].size):
-                    # deletes a planet if it comes close to another planet
-                    # and then adds up the masses into one big planet
-                    gfx.undraw(window, planets[y])
-                    gfx.undraw(window, planets[x])
-                    if planets[x].is_moveable:
-                        temp = x
-                        x = y
-                        y = temp
-                    planets[y].merge(planets.pop(x))
-                    was_changed = True
-                    destruction_sound.play()
+                if phsx.planet_distance(pl1, pl2) < (pl2.size + pl1.size):
+                    if is_bouncy:
+                        #one more collision test for this one
+                        #if phsx.direction_test(pl1,pl2):
+                            phsx.collide_bouncy(pl1, pl2)
+                    else:
+                        # deletes a planet if it comes close to another planet
+                        # and then adds up the masses into one big planet
+                        gfx.undraw(window, pl1)
+                        gfx.undraw(window, pl2)
+                        if pl2.is_moveable:
+                            temp = counter2
+                            counter2 = counter1
+                            counter1 = temp
+                        pl1.merge(planets.pop(counter2))
+                        was_changed = True
+                        destruction_sound.play()
 
         # checks if put of the screen and destroys it if it is
         if not was_changed:
-            if planets[y].x - planets[y].size > window.size_x or planets[y].x + planets[y].size < 0 or \
-                                    planets[y].y - planets[y].size > window.size_y or planets[y].y + planets[
-                y].size < 0:
-                gfx.undraw(window, planets[y])
-                planets.pop(y)
-                was_changed = True
+            if is_bouncy:
+                if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size<0:
+                    if (pl1.x + pl1.size > window.size_x and not pl1.dx < 0) or (
+                                        pl1.x - pl1.size < 0 and not pl1.dx > 0):
+                        pl1.set_vector(-pl1.dx, pl1.dy)
+                if pl1.y + pl1.size > window.size_y or pl1.y - pl1.size<0:
+                    if (pl1.y + pl1.size > window.size_y and not pl1.dy<0) or (pl1.y - pl1.size<0 and not pl1.dy>0):
+                        pl1.set_vector(pl1.dx, -pl1.dy)
+            else:
+                if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size < 0 or \
+                    pl1.y + pl1.size > window.size_y or pl1.y - pl1.size < 0:
+                    gfx.undraw(window, pl1)
+                    planets.pop(counter1)
+                    was_changed = True
 
 
 def attract_once():
@@ -104,7 +122,7 @@ def random_setup(window):
         add_random_planet(window)
 
 
-def place_planet():
+def place_planet(is_bouncy):
     start_pos = pygame.mouse.get_pos()
     is_right_click = bool(pygame.mouse.get_pressed()[2])
 
@@ -121,9 +139,10 @@ def place_planet():
 
     end_pos = pygame.mouse.get_pos()
     if is_right_click:
-        planets.append(phsx.Planet(size, start_pos[0], start_pos[1], is_moveable=True))
+        planets.append(phsx.Planet(size, start_pos[0], start_pos[1],
+                                   not_moveable=True, is_bouncy=is_bouncy))
     else:
-        planets.append(phsx.Planet(size, start_pos[0], start_pos[1]))
+        planets.append(phsx.Planet(size, start_pos[0], start_pos[1], is_bouncy=is_bouncy))
         planets[len(planets) - 1].add_force(size * (end_pos[0] - start_pos[0]) / 10,
                                             size * (end_pos[1] - start_pos[1]) / 10)
 
@@ -137,21 +156,49 @@ if __name__ == "__main__":
     selection_sound.play()
     destruction_sound = pygame.mixer.Sound(path.join('resources', 'boom.wav'))
 
-    if selected == 1:
-        default_setup()
-    elif selected == 2:
-        random_setup(window)
-
     events = gfx.get_events()
 
-    while not events["was_closed"]:
-        check_for_collision()
-        attract_once()
-        window.move_all_once(planets)
+    if selected == 1:
+        #normal mode selected in menu
+        default_setup()
 
-        events = gfx.get_events()
+        while not events["was_closed"]:
+            check_for_collision(False)
+            attract_once()
+            window.move_all_once(planets)
 
-        if events["was_clicked"]:
-            place_planet()
-        if len(planets) < 5 and selected == 2:
-            add_random_planet(window)
+            events = gfx.get_events()
+
+            if events["was_clicked"]:
+                place_planet(False)
+
+    elif selected == 2:
+        #random stars selected in menu
+        random_setup(window)
+
+        while not events["was_closed"]:
+            check_for_collision(False)
+            attract_once()
+            window.move_all_once(planets)
+
+            events = gfx.get_events()
+
+            if events["was_clicked"]:
+                place_planet(False)
+            if len(planets) < 5:
+                add_random_planet(window)
+
+    elif selected == 3:
+        #bouncy balls mode selected in menu
+
+        planets.append(phsx.Planet(10, 111, 111, is_bouncy=True))
+        while not events["was_closed"]:
+            check_for_collision(True)
+            window.move_all_once(planets)
+
+            events = gfx.get_events()
+
+            if events["was_clicked"]:
+                place_planet(True)
+
+    pygame.quit()
