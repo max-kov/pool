@@ -105,9 +105,10 @@ def gravity_force(pl1, pl2):
         return 0
 
 def direction_test(pl1,pl2):
-
-    if (pl1.dx>=0 and pl2.dx>=0) or (pl1.dx<=0 and pl2.dx<=0):
-        if (pl1.dy>=0 and pl2.dy>=0) or (pl1.dy<=0 and pl2.dy<=0):
+    distance_vector_x = pl2.x-pl1.x
+    distance_vector_y = pl2.y-pl1.y
+    
+    if (pl1.dx * distance_vector_x > 0) and (pl1.dy * distance_vector_y > 0):
             return True
     else:
         return False
