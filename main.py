@@ -8,7 +8,7 @@ from random import randint
 planets = []
 
 
-def check_for_collision(is_bouncy):
+def check_for_collision():
     # this is used to avoid errors after removing a planet
     was_changed = False
 
@@ -22,39 +22,44 @@ def check_for_collision(is_bouncy):
             if not was_changed and not counter2 == counter1:
                 # this checks if the distance from 2 planets is less that their size
                 if phsx.planet_distance(pl1, pl2) < (pl2.size + pl1.size):
-                    if is_bouncy:
-                        #one more collision test for this one
-                        #if phsx.direction_test(pl1,pl2):
-                            phsx.collide_bouncy(pl1, pl2)
-                    else:
-                        # deletes a planet if it comes close to another planet
-                        # and then adds up the masses into one big planet
-                        gfx.undraw(window, pl1)
-                        gfx.undraw(window, pl2)
-                        if pl2.is_moveable:
-                            temp = counter2
-                            counter2 = counter1
-                            counter1 = temp
-                        pl1.merge(planets.pop(counter2))
-                        was_changed = True
-                        destruction_sound.play()
+                    # deletes a planet if it comes close to another planet
+                    # and then adds up the masses into one big planet
+                    gfx.undraw(window, pl1)
+                    gfx.undraw(window, pl2)
+                    if pl2.is_moveable:
+                        temp = counter2
+                        counter2 = counter1
+                        counter1 = temp
+                    pl1.merge(planets.pop(counter2))
+                    was_changed = True
+                    destruction_sound.play()
 
         # checks if put of the screen and destroys it if it is
         if not was_changed:
-            if is_bouncy:
-                if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size<0:
-                    if (pl1.x + pl1.size > window.size_x and not pl1.dx < 0) or (
+            if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size < 0 or \
+                pl1.y + pl1.size > window.size_y or pl1.y - pl1.size < 0:
+                gfx.undraw(window, pl1)
+                planets.pop(counter1)
+                was_changed = True
+
+def check_for_collision_bouncy():
+    for counter1 in range(0, len(planets)):
+
+        pl1 = planets[counter1]
+
+        for counter2 in range(counter1, len(planets)):
+            pl2 = planets[counter2]
+            if phsx.collision_test(pl1,pl2):
+                phsx.collide_bouncy(pl1, pl2)
+
+
+        if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size<0:
+            if (pl1.x + pl1.size > window.size_x and not pl1.dx < 0) or (
                                         pl1.x - pl1.size < 0 and not pl1.dx > 0):
-                        pl1.set_vector(-pl1.dx, pl1.dy)
-                if pl1.y + pl1.size > window.size_y or pl1.y - pl1.size<0:
-                    if (pl1.y + pl1.size > window.size_y and not pl1.dy<0) or (pl1.y - pl1.size<0 and not pl1.dy>0):
-                        pl1.set_vector(pl1.dx, -pl1.dy)
-            else:
-                if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size < 0 or \
-                    pl1.y + pl1.size > window.size_y or pl1.y - pl1.size < 0:
-                    gfx.undraw(window, pl1)
-                    planets.pop(counter1)
-                    was_changed = True
+                pl1.set_vector(-pl1.dx, pl1.dy)
+        if pl1.y + pl1.size > window.size_y or pl1.y - pl1.size<0:
+            if (pl1.y + pl1.size > window.size_y and not pl1.dy<0) or (pl1.y - pl1.size<0 and not pl1.dy>0):
+                pl1.set_vector(pl1.dx, -pl1.dy)
 
 
 def attract_once():
@@ -131,7 +136,10 @@ def place_planet(is_bouncy):
     while pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         pygame.event.get()
         # this draws the circle while the user still presses the button
-        pygame.draw.circle(window.surface, (255, 255, 255), start_pos, int(size ** 0.3))
+        if is_bouncy:
+            pygame.draw.circle(window.surface, (255, 255, 255), start_pos, int(size))
+        else:
+            pygame.draw.circle(window.surface, (255, 255, 255), start_pos, int(size ** 0.3))
         window.update()
         # increases the size every 0.1 of a second
         size += 5
@@ -143,8 +151,8 @@ def place_planet(is_bouncy):
                                    not_moveable=True, is_bouncy=is_bouncy))
     else:
         planets.append(phsx.Planet(size, start_pos[0], start_pos[1], is_bouncy=is_bouncy))
-        planets[len(planets) - 1].add_force(size * (end_pos[0] - start_pos[0]) / 10,
-                                            size * (end_pos[1] - start_pos[1]) / 10)
+        planets[len(planets) - 1].add_force(size * (end_pos[0] - start_pos[0]) / 500,
+                                            size * (end_pos[1] - start_pos[1]) / 500)
 
 
 if __name__ == "__main__":
@@ -163,7 +171,7 @@ if __name__ == "__main__":
         default_setup()
 
         while not events["was_closed"]:
-            check_for_collision(False)
+            check_for_collision()
             attract_once()
             window.move_all_once(planets)
 
@@ -177,7 +185,7 @@ if __name__ == "__main__":
         random_setup(window)
 
         while not events["was_closed"]:
-            check_for_collision(False)
+            check_for_collision()
             attract_once()
             window.move_all_once(planets)
 
@@ -191,9 +199,14 @@ if __name__ == "__main__":
     elif selected == 3:
         #bouncy balls mode selected in menu
 
-        planets.append(phsx.Planet(10, 111, 111, is_bouncy=True))
+        planets.append(phsx.Planet(15, 200, 200, is_bouncy=True))
+        planets[0].add_force(0, 1)
+
+        planets.append(phsx.Planet(15, 300, 300, is_bouncy=True))
+        planets[1].add_force(-1, 0)
+
         while not events["was_closed"]:
-            check_for_collision(True)
+            check_for_collision_bouncy()
             window.move_all_once(planets)
 
             events = gfx.get_events()
