@@ -13,7 +13,7 @@ class Planet():
         self.is_bouncy = False
 
         for key in kwargs:
-            if key == "is_moveable":
+            if key == "not_moveable":
                 self.not_moveable = kwargs[key]
             if key == "is_bouncy":
                 self.is_bouncy = kwargs[key]
@@ -34,8 +34,8 @@ class Planet():
 
     def add_force(self, delta_x, delta_y):
         if not self.not_moveable:
-            self.dx += delta_x
-            self.dy += delta_y
+            self.dx += delta_x / self.mass
+            self.dy += delta_y / self.mass
 
     def move_once(self, game_window):
         tempx = self.x + self.dx
@@ -44,8 +44,8 @@ class Planet():
 
     def merge(self, planet):
         if not self.not_moveable:
-            self.dx += (planet.dx * (planet.mass / 100)) / self.mass
-            self.dy += (planet.dy * (planet.mass / 100)) / self.mass
+            self.dx += (planet.dx * (planet.mass)) / self.mass
+            self.dy += (planet.dy * (planet.mass)) / self.mass
         self.mass += planet.mass
         self.size = self.mass ** 0.3
 
