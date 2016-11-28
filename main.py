@@ -6,7 +6,7 @@ from os import path
 from random import randint
 
 planets = []
-
+window = gfx.game_window(1000, 500)
 
 def check_for_collision():
     # this is used to avoid errors after removing a planet
@@ -49,8 +49,9 @@ def check_for_collision_bouncy():
 
         for counter2 in range(counter1, len(planets)):
             pl2 = planets[counter2]
-            if phsx.collision_test(pl1,pl2):
-                phsx.collide_bouncy(pl1, pl2)
+            if not counter1==counter2:
+                if phsx.collision_test(pl1,pl2):
+                    phsx.collide_bouncy(pl1, pl2)
 
 
         if pl1.x + pl1.size > window.size_x or pl1.x - pl1.size<0:
@@ -88,7 +89,7 @@ def default_setup():
     planets[4].add_force(0, 10)
 
 
-def add_random_planet(window):
+def add_random_planet():
     side = randint(1, 4)
     size = randint(1, 1000)
 
@@ -122,7 +123,7 @@ def add_random_planet(window):
     planets[len(planets) - 1].add_force(dx, dy)
 
 
-def random_setup(window):
+def random_setup():
     for x in range(0, 10):
         add_random_planet(window)
 
@@ -156,8 +157,6 @@ def place_planet(is_bouncy):
 
 
 if __name__ == "__main__":
-    window = gfx.game_window(1000, 500)
-
     selected = window.main_menu()
 
     selection_sound = pygame.mixer.Sound(path.join('resources', 'reload.ogg'))
@@ -199,11 +198,11 @@ if __name__ == "__main__":
     elif selected == 3:
         #bouncy balls mode selected in menu
 
-        planets.append(phsx.Planet(15, 200, 200, is_bouncy=True))
-        planets[0].add_force(0, 1)
+        planets.append(phsx.Planet(40, 300, 300, is_bouncy=True))
+        planets[0].add_force(-1, 0.01)
 
-        planets.append(phsx.Planet(15, 300, 300, is_bouncy=True))
-        planets[1].add_force(-1, 0)
+        planets.append(phsx.Planet(10, 400, 290, is_bouncy=True))
+        planets[1].add_force(-2, 0)
 
         while not events["was_closed"]:
             check_for_collision_bouncy()

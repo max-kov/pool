@@ -1,4 +1,5 @@
 import math, pygame
+import main
 
 
 class Planet():
@@ -23,10 +24,10 @@ class Planet():
             self.size = planet_mass ** 0.3
 
 
-    def move_to(self, game_window, pos_x, pos_y):
+    def move_to(self , pos_x, pos_y):
 
-        pygame.draw.circle(game_window.surface, (0, 0, 0), (int(self.x), int(self.y)), int(self.size))
-        pygame.draw.circle(game_window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size))
+        pygame.draw.circle(main.window.surface, (0, 0, 0), (int(self.x), int(self.y)), int(self.size))
+        pygame.draw.circle(main.window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size))
 
         self.x = pos_x
         self.y = pos_y
@@ -37,9 +38,9 @@ class Planet():
             self.dy += delta_y
 
     def move_once(self, game_window):
-        tempx = self.x + (self.dx)
-        tempy = self.y + (self.dy)
-        self.move_to(game_window, tempx, tempy)
+        tempx = self.x + self.dx
+        tempy = self.y + self.dy
+        self.move_to(tempx, tempy)
 
     def merge(self, planet):
         if not self.not_moveable:
@@ -59,6 +60,16 @@ def planet_distance(pl1, pl2):
     dist_y = (pl1.y - pl2.y)
     return math.sqrt(dist_x ** 2 + dist_y ** 2)
 
+def normalise_vector(x,y,magnitude):
+    try:
+        nx = x/magnitude
+        ny = y/magnitude
+    except:
+        #division by 0
+        return 0,0
+    else:
+        return nx,ny
+
 def collide_bouncy(pl1,pl2):
     # a detailed explanation of how resultant vectors of ball collision is derived
 
@@ -77,23 +88,36 @@ def collide_bouncy(pl1,pl2):
 
     dist = planet_distance(pl1,pl2)
     #calculating normalised (sub 1 values) difference vector
-    try:
-        #dist can =0
-        nx = (pl1.x-pl2.x) / dist
-        ny = (pl1.y-pl2.y) / dist
-    except:
-        nx=0
-        ny=0
+    nx, ny = normalise_vector((pl1.x-pl2.x),(pl1.y-pl2.y),dist)
 
     #calculating the p value
     p =  2*(pl1.dx*nx + pl1.dy*ny - pl2.dx * nx - pl2.dy * ny)/(pl1.mass+pl2.mass)
-    resultant_x1 = pl1.dx - p * pl1.mass * nx
-    resultant_y1 = pl1.dy - p * pl1.mass * ny
-    resultant_x2 = pl2.dx + p * pl2.mass * nx
-    resultant_y2 = pl2.dy + p * pl2.mass * ny
+    resultant_x1 = pl1.dx - p * pl2.mass * nx
+    resultant_y1 = pl1.dy - p * pl2.mass * ny
+    resultant_x2 = pl2.dx + p * pl1.mass * nx
+    resultant_y2 = pl2.dy + p * pl1.mass * ny
 
     pl1.set_vector(resultant_x1,resultant_y1)
     pl2.set_vector(resultant_x2,resultant_y2)
+
+    next_x_1 = pl1.x + resultant_x1
+    next_y_1 = pl1.y + resultant_y1
+    next_x_2 = pl2.x + resultant_x2
+    next_y_2 = pl2.y + resultant_y2
+
+    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)
+
+    if (next_dist<pl1.size+pl2.size):
+        #checks if in the next frames the blass will be inside each other
+        #and if they are moves them away using normalised difference vector
+        fixed_x_1 = pl1.x + nx*(next_dist/2)
+        fixed_y_1 = pl1.y + ny * (next_dist / 2)
+        fixed_x_2 = pl2.x - nx * (next_dist / 2)
+        fixed_y_2 = pl2.y - ny * (next_dist / 2)
+
+        pl1.move_to(fixed_x_1,fixed_y_1)
+        pl2.move_to(fixed_x_2, fixed_y_2)
+
 
 
 def gravity_force(pl1, pl2):
@@ -113,18 +137,7 @@ def gravity_force(pl1, pl2):
 def collision_test(pl1,pl2):
     dist = planet_distance(pl1, pl2)
 
-    distance_vec1_x = pl2.x-pl1.x
-    distance_vec1_y = pl2.y - pl1.y
-
-    distance_vec2_x = pl1.x-pl2.x
-    distance_vec2_y = pl1.y - pl2.y
-    #testing if they will collide in the next frame
     if dist-pl1.size-pl2.size<=0:
-        if (distance_vec1_y*pl1.dy>=0 or distance_vec1_x*pl1.dx>=0) and \
-                (distance_vec2_y * pl2.dy >= 0 or distance_vec2_x * pl2.dx >= 0):
-            return True
-        else:
-            print "leelle"
-            return False
+        return True
     else:
         return False
