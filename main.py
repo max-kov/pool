@@ -171,6 +171,19 @@ def place_planet_bouncy():
                                             size * (end_pos[1] - start_pos[1]) / 500)
 
 
+def set_pool_table(x,y,ball_size):
+    planets.append(phsx.Planet(ball_size, 300, 320, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 300, 300, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 300, 280, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 300, 260, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 283, 310, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 283, 290, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 283, 270, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 266, 300, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 266, 280, is_bouncy=True))
+    planets.append(phsx.Planet(ball_size, 249, 290, is_bouncy=True))
+
+
 if __name__ == "__main__":
     selected = window.main_menu()
 
@@ -213,11 +226,7 @@ if __name__ == "__main__":
     elif selected == 3:
         #bouncy balls mode selected in menu
 
-        planets.append(phsx.Planet(40, 300, 300, is_bouncy=True))
-        planets[0].set_vector(-1, 0.01)
-
-        planets.append(phsx.Planet(10, 400, 290, is_bouncy=True))
-        planets[1].set_vector(-2, 0)
+        set_pool_table()
 
         while not events["was_closed"]:
             check_for_collision_bouncy()

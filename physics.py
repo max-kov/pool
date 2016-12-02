@@ -105,12 +105,13 @@ def collide_bouncy(pl1,pl2):
     next_x_2 = pl2.x + resultant_x2
     next_y_2 = pl2.y + resultant_y2
 
-    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)
+    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)-pl1.size-pl2.size
 
-    if (next_dist<pl1.size+pl2.size):
+    if (next_dist<0):
         #checks if in the next frames the blass will be inside each other
         #and if they are moves them away using normalised difference vector
-        fixed_x_1 = pl1.x + nx*(next_dist/2)
+        next_dist = -1*next_dist
+        fixed_x_1 = pl1.x + nx * (next_dist / 2)
         fixed_y_1 = pl1.y + ny * (next_dist / 2)
         fixed_x_2 = pl2.x - nx * (next_dist / 2)
         fixed_y_2 = pl2.y - ny * (next_dist / 2)
@@ -138,6 +139,9 @@ def collision_test(pl1,pl2):
     dist = planet_distance(pl1, pl2)
 
     if dist-pl1.size-pl2.size<=0:
-        return True
+        if (pl1.dx==0) and (pl1.dy==0) and (pl2.dx==0) and (pl2.dy==0):
+            return False
+        else:
+            return True
     else:
         return False
