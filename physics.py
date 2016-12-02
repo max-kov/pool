@@ -9,19 +9,8 @@ class Planet():
         self.y = planet_y
         self.dx = 0
         self.dy = 0
-        self.not_moveable = False
-        self.is_bouncy = False
 
-        for key in kwargs:
-            if key == "not_moveable":
-                self.not_moveable = kwargs[key]
-            if key == "is_bouncy":
-                self.is_bouncy = kwargs[key]
-
-        if self.is_bouncy:
-            self.size = planet_mass
-        else:
-            self.size = planet_mass ** 0.3
+        self.size = planet_mass
 
 
     def move_to(self , pos_x, pos_y):
@@ -33,21 +22,13 @@ class Planet():
         self.y = pos_y
 
     def add_force(self, delta_x, delta_y):
-        if not self.not_moveable:
-            self.dx += delta_x / self.mass
-            self.dy += delta_y / self.mass
+        self.dx += delta_x / self.mass
+        self.dy += delta_y / self.mass
 
     def move_once(self, game_window):
         tempx = self.x + self.dx
         tempy = self.y + self.dy
         self.move_to(tempx, tempy)
-
-    def merge(self, planet):
-        if not self.not_moveable:
-            self.dx += (planet.dx * (planet.mass)) / self.mass
-            self.dy += (planet.dy * (planet.mass)) / self.mass
-        self.mass += planet.mass
-        self.size = self.mass ** 0.3
 
 
     def set_vector(self, delta_x, delta_y):
@@ -120,20 +101,6 @@ def collide_bouncy(pl1,pl2):
         pl2.move_to(fixed_x_2, fixed_y_2)
 
 
-
-def gravity_force(pl1, pl2):
-    dist_x = (pl1.x - pl2.x)
-    dist_y = (pl1.y - pl2.y)
-    dist = planet_distance(pl1, pl2)
-    # using newtonian model for gravitational attraction
-    try:
-        # dist = 0 div error
-        force = ((pl1.mass * pl2.mass) / (dist ** 2)) / 2
-        force_x = force * (dist_x / dist)
-        force_y = force * (dist_y / dist)
-        return -force_x, -force_y
-    except:
-        return 0
 
 def collision_test(pl1,pl2):
     dist = planet_distance(pl1, pl2)
