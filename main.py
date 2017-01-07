@@ -8,14 +8,33 @@ import math
 resolution = [1000, 500]
 balls = []
 window = graphics.GameWindow(1000, 500)
+table_margin = 40
+ball_size = 13
 
-def check_if_collided(collisions_made,ball_num):
-    temp=False
-    for y in range(ball_num):
-        for x in range(ball_num):
-            if collisions_made[y][x]:
-                temp=True
-    return temp
+def table_collision(ball,ball_id,lower_x,upper_x,lower_y,upper_y):
+    if ball.x + ball.size > upper_x or ball.x - ball.size < lower_x:
+        if (ball.x + ball.size > upper_x and not ball.dx < 0) or (
+                            ball.x - ball.size < lower_x and not ball.dx > 0):
+            #if the direction of the ball if from the wall, there is no need to change the direction
+            ball.set_vector(-ball.dx, ball.dy)
+    if ball.y + ball.size > upper_y or ball.y - ball.size < lower_y:
+        if (ball.y + ball.size > upper_y and not ball.dy < 0) or (
+                            ball.y - ball.size < lower_y and not ball.dy > 0):
+            ball.set_vector(ball.dx, -ball.dy)
+
+    table_holes = [(table_margin, table_margin),
+                   (window.size_x-table_margin, table_margin),
+                   (table_margin, window.size_y - table_margin),
+                   (window.size_x - table_margin, window.size_y - table_margin),
+                   (window.size_x / 2, table_margin),
+                   (window.size_x / 2, window.size_y - table_margin)]
+
+    for hole in table_holes:
+        posx,posy=hole
+        if physics.distance_test(posx,posy,ball.x,ball.y,table_margin/2):
+            balls.pop(ball_id)
+
+
 
 def check_for_collision_bouncy():
         for counter1 in range(0, len(balls)):
@@ -28,32 +47,28 @@ def check_for_collision_bouncy():
                     if physics.collision_test(ball1, ball2):
                         collision_list.append(counter2)
 
+            #collided with one ball only
             if len(collision_list)<=1:
                 for index,ballnum in enumerate(collision_list):
-                    print(counter1, ' ', collision_list)
                     physics.collide_balls(ball1,balls[ballnum])
             else:
+            #collided with several balls, this will only be used at the beginning of the game
                 if ball1.dy<0:
+                    #collidion at a positive angle
                     collision_list.reverse()
                     for index, ballnum in enumerate(collision_list):
-                        print(counter1, ' ', collision_list)
                         physics.collide_balls(ball1, balls[ballnum])
                 elif ball1.dy>0:
+                    # collidion at a negative angle
                     for index, ballnum in enumerate(collision_list):
-                        print(counter1, ' ', collision_list)
                         physics.collide_balls(ball1, balls[ballnum])
                 else:
+                    #angle of collision = 0
                     physics.perfect_break(ball1,balls[collision_list[0]],balls[collision_list[1]])
 
 
-            if ball1.x + ball1.size > window.size_x or ball1.x - ball1.size < 0:
-                if (ball1.x + ball1.size > window.size_x and not ball1.dx < 0) or (
-                                    ball1.x - ball1.size < 0 and not ball1.dx > 0):
-                    ball1.set_vector(-ball1.dx, ball1.dy)
-            if ball1.y + ball1.size > window.size_y or ball1.y - ball1.size < 0:
-                if (ball1.y + ball1.size > window.size_y and not ball1.dy < 0) or (
-                            ball1.y - ball1.size < 0 and not ball1.dy > 0):
-                    ball1.set_vector(ball1.dx, -ball1.dy)
+            table_collision(ball1,counter1,0 +table_margin, window.size_x -table_margin,
+                                  0 +table_margin, window.size_y-table_margin)
 
 def place_planet_bouncy(ball_size):
     start_pos = pygame.mouse.get_pos()
@@ -114,16 +129,17 @@ if __name__ == "__main__":
     # get events
     events = graphics.events()
 
+
+
     if selected == 1:
         # bouncy balls mode selected in menu
-        ball_size = 30
         set_pool_table(ball_size,250,resolution[1]/2,10)
         balls.append(physics.Planet(ball_size, ball_size,  resolution[1]/2))
         balls[len(balls)-1].add_force(5.0, 0)
         while not events["closed"]:
             check_for_collision_bouncy()
             window.move_all_once(balls)
-
+            window.draw_table(table_margin)
             events = graphics.events()
 
             if events["clicked"]:

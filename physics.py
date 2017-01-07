@@ -40,11 +40,11 @@ def ball_distance(ball1, ball2):
     return math.sqrt(dist_x ** 2 + dist_y ** 2)
 
 
-def distance_test(ball1, ball2, distance):
+def distance_test(x1,y1, x2,y2, distance):
     # comparing distance without using square root to improve accuracy and speed
 
-    dist_x = (ball1.x - ball2.x)
-    dist_y = (ball1.y - ball2.y)
+    dist_x = (x1 - x2)
+    dist_y = (y1 - y2)
 
     if distance ** 2 <= (dist_x ** 2 + dist_y ** 2):
         return False
@@ -154,7 +154,7 @@ def collision_test(pl1,pl2):
     vector_difference_x = pl1.dx - pl2.dx
     vector_difference_y = pl1.dy - pl2.dy
 
-    if distance_test(pl1,pl2,pl1.size+pl2.size-0.1):
+    if distance_test(pl1.x,pl1.y,pl2.x,pl2.y,pl1.size+pl2.size-0.1):
         if (pl1.dx==0 and pl1.dy==0) and (pl2.dx==0 and pl2.dy==0):
             return False
         else:

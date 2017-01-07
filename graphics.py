@@ -99,6 +99,21 @@ class GameWindow:
         self.surface.fill((0, 100, 0))
         return button_clicked
 
+    def draw_table(self, margin):
+        table_color = (200, 200, 0)
+
+        pygame.draw.rect(self.surface, table_color, (0, 0, self.size_x, margin))
+        pygame.draw.rect(self.surface, table_color, (self.size_x - margin, 0, self.size_x, self.size_y))
+        pygame.draw.rect(self.surface, table_color, (0, self.size_y - margin, self.size_x, self.size_y))
+        pygame.draw.rect(self.surface, table_color, (0, 0, margin, self.size_y))
+
+        pygame.draw.circle(self.surface, (0, 0, 0), (margin, margin), margin/2)
+        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x-margin, margin), margin/2)
+        pygame.draw.circle(self.surface, (0, 0, 0), (margin, self.size_y-margin), margin/2)
+        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x-margin, self.size_y-margin), margin/2)
+        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x/2 , margin), margin/2)
+        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x/2, self.size_y - margin), margin/2)
+
 
 def events():
     closed = False
