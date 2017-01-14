@@ -1,6 +1,7 @@
 import math, pygame
 import main
 
+friction_coeff = 0.999
 
 class Planet():
     def __init__(self, ball_mass, planet_x, planet_y):
@@ -13,7 +14,7 @@ class Planet():
         self.size = ball_mass
 
     def move_to(self, pos_x, pos_y):
-        pygame.draw.circle(main.window.surface, (0, 100, 0), (int(self.x), int(self.y)), int(self.size))
+        pygame.draw.circle(main.window.surface, main.table_color, (int(self.x), int(self.y)), int(self.size))
         pygame.draw.circle(main.window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size))
 
         self.x = pos_x
@@ -27,10 +28,21 @@ class Planet():
         tempx = self.x + self.dx*scale
         tempy = self.y + self.dy*scale
         self.move_to(tempx, tempy)
+        self.dx = self.dx*friction_coeff
+        self.dy = self.dy*friction_coeff
+
+        if self.dy<0.5:
+            self.dy = 0
+
+        if self.dx < 0.5:
+            self.dx = 0
 
     def set_vector(self, delta_x, delta_y):
         self.dx = delta_x
         self.dy = delta_y
+
+    def destroy(self,color):
+        pygame.draw.circle(main.window.surface, color, (int(self.x), int(self.y)), int(self.size))
 
 
 def ball_distance(ball1, ball2):

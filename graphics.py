@@ -23,7 +23,7 @@ class GameWindow:
         self.update()
         self.fps_clock.tick()
 
-    def main_menu(self):
+    def main_menu(self,table_color):
         def check_mouse_pos(text_starting_place, text_ending_place, spacing, button_num):
             mouse_pos = pygame.mouse.get_pos()
             if (text_starting_place[button_num][0] - spacing < mouse_pos[0] < text_ending_place[button_num][
@@ -96,23 +96,18 @@ class GameWindow:
                 else:
                     self.surface.blit(buttons[num][0], text_starting_place[num])
 
-        self.surface.fill((0, 100, 0))
+        self.surface.fill(table_color)
         return button_clicked
 
-    def draw_table(self, margin):
-        table_color = (200, 200, 0)
+    def draw_table_holes(self, table_holes, rad):
+        for table_hole in table_holes:
+            pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(rad))
 
-        pygame.draw.rect(self.surface, table_color, (0, 0, self.size_x, margin))
-        pygame.draw.rect(self.surface, table_color, (self.size_x - margin, 0, self.size_x, self.size_y))
-        pygame.draw.rect(self.surface, table_color, (0, self.size_y - margin, self.size_x, self.size_y))
-        pygame.draw.rect(self.surface, table_color, (0, 0, margin, self.size_y))
-
-        pygame.draw.circle(self.surface, (0, 0, 0), (margin, margin), margin/2)
-        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x-margin, margin), margin/2)
-        pygame.draw.circle(self.surface, (0, 0, 0), (margin, self.size_y-margin), margin/2)
-        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x-margin, self.size_y-margin), margin/2)
-        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x/2 , margin), margin/2)
-        pygame.draw.circle(self.surface, (0, 0, 0), (self.size_x/2, self.size_y - margin), margin/2)
+    def draw_table_sides(self,margin,side_color):
+        pygame.draw.rect(self.surface, side_color, (0, 0, self.size_x, margin))
+        pygame.draw.rect(self.surface, side_color, (self.size_x - margin, 0, self.size_x, self.size_y))
+        pygame.draw.rect(self.surface, side_color, (0, self.size_y - margin, self.size_x, self.size_y))
+        pygame.draw.rect(self.surface, side_color, (0, 0, margin, self.size_y))
 
 
 def events():
