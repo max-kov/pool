@@ -83,6 +83,22 @@ def set_cue(ball_id):
 
         return points
 
+    def draw_lines(ball, angle, color):
+        line_dist = 5
+        sin_a = math.sin(math.radians(angle))
+        cos_a = math.cos(math.radians(angle))
+        line_x = ball.x + ball.size*cos_a*2
+        line_y = ball.y + ball.size*sin_a*2
+        count =1
+        while (line_x>table_margin) and (line_x<window.size_x-table_margin) and\
+            (line_y>table_margin) and (line_y<window.size_y-table_margin):
+            pygame.draw.line(window.surface,color,(line_x,line_y),(line_x + line_dist*cos_a,line_y+line_dist*sin_a))
+            line_x = line_x+ 2*line_dist * cos_a
+            line_y = line_y + 2*line_dist * sin_a
+            count+=1
+        window.update()
+
+
     ball = balls[ball_id]
     angle = 0
     prev_angle = angle
@@ -120,7 +136,9 @@ def set_cue(ball_id):
                     angle -= 180
                 if not (prev_angle == angle) or not (prev_displacement == displacement):
                     delete_cue(ball_id, prev_angle, prev_displacement-ball_size-inital_displacement)
+                    draw_lines(ball, prev_angle + 180, table_color)
                     rect_pointlist = draw_cue(ball_id, angle, displacement-ball_size-inital_displacement)
+                    draw_lines(ball, angle+180,(255,255,255))
                     prev_angle = angle
                     prev_displacement = displacement
 
@@ -128,6 +146,7 @@ def set_cue(ball_id):
             if (displacement - ball_size - inital_displacement <= 0):
                 done=False
 
+    draw_lines(ball, prev_angle + 180, table_color)
     # small hitting animation
     prev_n = displacement
     for n in range(int(displacement),0,-1):
@@ -305,7 +324,6 @@ if __name__ == "__main__":
             events = graphics.events()
 
             while are_all_not_moving():
-                print('hi')
                 set_cue(len(balls) - 1)
 
     pygame.quit()
