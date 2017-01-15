@@ -13,20 +13,26 @@ ball_size = 13
 side_color = (200, 200, 0)
 table_color = (0, 100, 0)
 
+
 def are_all_not_moving():
-    return_value=True
+    return_value = True
     for ball in balls:
-        if not (ball.dx==0 and ball.dy==0):
+        if not (ball.dx == 0 and ball.dy == 0):
             return_value = False
             break
     return return_value
 
+
 def set_cue(ball_id):
-    def draw_cue(ball_id, cue_angle,displacement):
-        cue_length = 10
-        cue_thickness = 10
+    cue_length = 300
+    cue_thickness = 3
+
+    def delete_cue(ball_id, cue_angle, displacement):
         ball = balls[ball_id]
-        cue_displacement = displacement + ball.size
+        if displacement>0:
+            cue_displacement = displacement + ball.size
+        else:
+            cue_displacement = ball.size
 
         # dy/dx = sin(a)/cos(s) = tan(a)
         cos_a = math.cos(math.radians(cue_angle))
@@ -39,38 +45,102 @@ def set_cue(ball_id):
              ball.y + cue_displacement * sin_a - y_constant),
             (ball.x + cue_displacement * cos_a - x_constant,
              ball.y + cue_displacement * sin_a + y_constant),
-            (ball.x + cue_length * cue_displacement * cos_a - x_constant,
-             ball.y + cue_length * cue_displacement * sin_a + y_constant),
-            (ball.x + cue_length * cue_displacement * cos_a + x_constant,
-             ball.y + cue_length * cue_displacement * sin_a - y_constant)
+            (ball.x + cue_length * cos_a + cue_displacement * cos_a - x_constant,
+             ball.y + cue_length * sin_a + cue_displacement * sin_a + y_constant),
+            (ball.x + cue_length * cos_a + cue_displacement * cos_a + x_constant,
+             ball.y + cue_length * sin_a + cue_displacement * sin_a - y_constant)
+        ]
+
+        pygame.draw.polygon(window.surface, table_color, points)
+        window.draw_table_sides(table_margin, side_color)
+        window.draw_table_holes(table_holes, table_margin / 2)
+        window.redraw_balls(balls)
+
+    def draw_cue(ball_id, cue_angle, displacement):
+        ball = balls[ball_id]
+        if displacement>0:
+            cue_displacement = displacement + ball.size
+        else:
+            cue_displacement = ball.size
+        # dy/dx = sin(a)/cos(s) = tan(a)
+        cos_a = math.cos(math.radians(cue_angle))
+        sin_a = math.sin(math.radians(cue_angle))
+        x_constant = sin_a * cue_thickness
+        y_constant = cos_a * cue_thickness
+
+        points = [
+            (ball.x + cue_displacement * cos_a + x_constant,
+             ball.y + cue_displacement * sin_a - y_constant),
+            (ball.x + cue_displacement * cos_a - x_constant,
+             ball.y + cue_displacement * sin_a + y_constant),
+            (ball.x + cue_length * cos_a + cue_displacement * cos_a - x_constant,
+             ball.y + cue_length * sin_a + cue_displacement * sin_a + y_constant),
+            (ball.x + cue_length * cos_a + cue_displacement * cos_a + x_constant,
+             ball.y + cue_length * sin_a + cue_displacement * sin_a - y_constant)
         ]
 
         pygame.draw.polygon(window.surface, (255, 0, 0), points)
+
         return points
 
-    rect_pointlist = draw_cue(ball_id,0,0)
-    window.update()
     ball = balls[ball_id]
+    angle = 0
+    prev_angle = angle
+    rect_pointlist = draw_cue(ball_id, angle, 0)
+    window.update()
+
+    start_pos = pygame.mouse.get_pos()
+    final_pos = start_pos
+    displacement = 0
 
     done = False
     while not done:
-        mouse_pos = pygame.mouse.get_pos()
+        start_pos = pygame.mouse.get_pos()
         pygame.event.get()
-        print physics.is_point_in_rect(rect_pointlist, mouse_pos)
-        if pygame.mouse.get_pressed()[0] and physics.is_point_in_rect(rect_pointlist,mouse_pos):
-            dx = ball.x - mouse_pos[0] -0.1
-            dy = ball.y - mouse_pos[1] -0.1
+        if pygame.mouse.get_pressed()[0] and physics.is_point_in_rect(rect_pointlist, start_pos):
+            done = True
+            final_pos = start_pos
+            inital_displacement = physics.point_distance(start_pos, (ball.x, ball.y))
+            prev_displacement = inital_displacement
+            # cue was displaced from the cue ball
+            while pygame.mouse.get_pressed()[0]:
+                pygame.event.get()
+                final_pos = pygame.mouse.get_pos()
+                dx = ball.x - final_pos[0] - 0.1
+                dy = ball.y - final_pos[1] - 0.1
 
-            if dx==0:
-                #div by zero exception
-                angle=90
-            else:
-                angle = math.degrees(math.atan(dy/dx))
-            if dx>0:
-                angle-=180
-            # rect_pointlist = draw_cue(ball_id, angle, 0)
-            window.update()
+                displacement = physics.point_distance(final_pos, (ball.x, ball.y))
 
+                if dx == 0:
+                    # div by zero exception
+                    angle = 90
+                else:
+                    angle = math.degrees(math.atan(dy / dx))
+                if dx > 0:
+                    angle -= 180
+                if not (prev_angle == angle) or not (prev_displacement == displacement):
+                    delete_cue(ball_id, prev_angle, prev_displacement-ball_size-inital_displacement)
+                    rect_pointlist = draw_cue(ball_id, angle, displacement-ball_size-inital_displacement)
+                    prev_angle = angle
+                    prev_displacement = displacement
+
+                window.update()
+            if (displacement - ball_size - inital_displacement <= 0):
+                done=False
+
+    # small hitting animation
+    prev_n = displacement
+    for n in range(int(displacement),0,-1):
+        delete_cue(ball_id, prev_angle, prev_n - ball_size - inital_displacement)
+        draw_cue(ball_id, angle, n - ball_size - inital_displacement)
+        window.update()
+        prev_n=n
+        # time.sleep(0.5)
+    delete_cue(ball_id, prev_angle, 0 - ball_size - inital_displacement)
+
+    sin_a = math.sin(math.radians(angle))
+    cos_a = math.cos(math.radians(angle))
+    ball.add_force((displacement*cos_a) * -60 / window.fps(), (displacement*sin_a) * -60 / window.fps())
 
 
 
@@ -179,24 +249,6 @@ def check_for_collision(table_holes):
         balls.pop(ball)
 
 
-def place_ball(ball_size):
-    start_pos = pygame.mouse.get_pos()
-
-    size = 1
-    # function waits while user unpresses the screen
-    while pygame.mouse.get_pressed()[0]:
-        pygame.event.get()
-        # this draws the circle while the user still presses the button
-        pygame.draw.circle(window.surface, (255, 255, 255), start_pos, ball_size)
-        window.update()
-        time.sleep(0.1)
-
-    end_pos = pygame.mouse.get_pos()
-    balls.append(physics.Planet(ball_size + 0.1, start_pos[0], start_pos[1]))
-    balls[len(balls) - 1].add_force((end_pos[0] - start_pos[0]) * 60 / window.fps()
-                                    , (end_pos[1] - start_pos[1]) * 60 / window.fps())
-
-
 def set_pool_table(ball_size, x, y, ballnum):
     sixty_degrees = math.radians(60)
     # this is used to avoid to the balls touch at all times
@@ -243,7 +295,7 @@ if __name__ == "__main__":
     window.draw_table_sides(table_margin, side_color)
     if selected == 1:
         # bouncy balls mode selected in menu
-        set_pool_table(ball_size, 250, resolution[1] / 2, 10)
+        set_pool_table(ball_size, 700, resolution[1] / 2, 10)
         balls.append(physics.Planet(ball_size, 100, resolution[1] / 2))
         balls[len(balls) - 1].add_force(5.0, 0)
         while not events["closed"]:
@@ -252,8 +304,6 @@ if __name__ == "__main__":
             window.move_all_once(balls)
             events = graphics.events()
 
-            if events["clicked"]:
-                place_ball(ball_size)
             while are_all_not_moving():
                 print('hi')
                 set_cue(len(balls) - 1)

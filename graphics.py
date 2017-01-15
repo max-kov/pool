@@ -17,9 +17,15 @@ class GameWindow:
     def fps(self):
         return self.fps_clock.get_fps()
 
-    def move_all_once(self, planets):
-        for planet in planets:
-            planet.move_once()
+    def redraw_balls(self,balls):
+        for ball in balls:
+            # this doesnt move the ball anywhere, just resets it
+            ball.move_to(ball.x,ball.y)
+        self.update()
+
+    def move_all_once(self, balls):
+        for ball in balls:
+            ball.move_once()
         self.update()
         self.fps_clock.tick()
 
