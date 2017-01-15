@@ -46,20 +46,31 @@ def set_cue(ball_id):
         ]
 
         pygame.draw.polygon(window.surface, (255, 0, 0), points)
+        return points
 
-    mouse_pos = pygame.mouse.get_pos()
+    rect_pointlist = draw_cue(ball_id,0,0)
+    window.update()
     ball = balls[ball_id]
-    dx = ball.x - mouse_pos[0] -0.1
-    dy = ball.y - mouse_pos[1] -0.1
 
-    if dx==0:
-        #div by zero exception
-        angle=90
-    else:
-        angle = math.degrees(math.atan(dy/dx))
-    if dx>0:
-        angle-=180
-    draw_cue(ball_id,angle,0)
+    done = False
+    while not done:
+        mouse_pos = pygame.mouse.get_pos()
+        pygame.event.get()
+        print physics.is_point_in_rect(rect_pointlist, mouse_pos)
+        if pygame.mouse.get_pressed()[0] and physics.is_point_in_rect(rect_pointlist,mouse_pos):
+            dx = ball.x - mouse_pos[0] -0.1
+            dy = ball.y - mouse_pos[1] -0.1
+
+            if dx==0:
+                #div by zero exception
+                angle=90
+            else:
+                angle = math.degrees(math.atan(dy/dx))
+            if dx>0:
+                angle-=180
+            # rect_pointlist = draw_cue(ball_id, angle, 0)
+            window.update()
+
 
 
 
@@ -234,7 +245,7 @@ if __name__ == "__main__":
         # bouncy balls mode selected in menu
         set_pool_table(ball_size, 250, resolution[1] / 2, 10)
         balls.append(physics.Planet(ball_size, 100, resolution[1] / 2))
-        # balls[len(balls) - 1].add_force(5.0, 0)
+        balls[len(balls) - 1].add_force(5.0, 0)
         while not events["closed"]:
             check_for_collision(table_holes)
             window.draw_table_holes(table_holes, table_margin / 2)
@@ -243,7 +254,8 @@ if __name__ == "__main__":
 
             if events["clicked"]:
                 place_ball(ball_size)
-            if are_all_not_moving():
+            while are_all_not_moving():
+                print('hi')
                 set_cue(len(balls) - 1)
 
     pygame.quit()

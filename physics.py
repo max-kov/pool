@@ -31,10 +31,10 @@ class Planet():
         self.dx = self.dx*friction_coeff
         self.dy = self.dy*friction_coeff
 
-        if self.dy<0.5:
+        if abs(self.dy)<0.01:
             self.dy = 0
 
-        if self.dx < 0.5:
+        if abs(self.dx) < 0.01:
             self.dx = 0
 
     def set_vector(self, delta_x, delta_y):
@@ -49,6 +49,11 @@ def ball_distance(ball1, ball2):
     # using pythaoreas to calculate the range between planets
     dist_x = (ball1.x - ball2.x)
     dist_y = (ball1.y - ball2.y)
+    return math.sqrt(dist_x ** 2 + dist_y ** 2)
+
+def point_distance(p1,p2):
+    dist_x = (p1[0] - p2[0])
+    dist_y = (p1[1] - p2[1])
     return math.sqrt(dist_x ** 2 + dist_y ** 2)
 
 
@@ -177,3 +182,27 @@ def collision_test(pl1,pl2):
                 return False
     else:
         return False
+
+def triangle_area(side1,side2,side3):
+    # herons formula
+    half_perimetre = abs((side1+side2+side3)*0.5)
+    return math.sqrt(half_perimetre*(half_perimetre-abs(side1))*(half_perimetre-abs(side2))*(half_perimetre-abs(side3)))
+
+def is_point_in_rect(rect_pointlist,point):
+    # this algorithm splits up the rectangle into 4 triangles using the point provided
+    # if the point provided is inside the triangle the sum of triangle areas should be equal to that of the rectangle
+
+    #calculating rect sides
+    rect_sides = [point_distance(rect_pointlist[point_num-1], rect_pointlist[point_num]) for point_num in range(1,len(rect_pointlist))]
+    rect_sides.append(point_distance(rect_pointlist[3], rect_pointlist[0]))
+    # calculating inside triangle sides
+    # which are between the point and the rectangle points
+    triangle_sides = [point_distance(rpoint,point) for rpoint in rect_pointlist]
+    # sums up the area of the triangles
+    triangle_areas = [triangle_area(triangle_sides[side - 1], triangle_sides[side], rect_sides[side - 1])
+     for side in range(1, len(rect_pointlist))]
+    triangle_areas.append(triangle_area(triangle_sides[3], triangle_sides[0], rect_sides[3]))
+    inside_area = sum(triangle_areas)
+    # and compares it to the area of the rectangle itself
+    rect_area = rect_sides[0]*rect_sides[1]
+    return (rect_area-inside_area+4>=0)
