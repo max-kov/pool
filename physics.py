@@ -4,7 +4,7 @@ import main
 friction_coeff = 0.999
 
 class Planet():
-    def __init__(self, ball_mass, planet_x, planet_y):
+    def __init__(self, ball_mass, planet_x, planet_y,is_striped,color,number,number_text):
         self.mass = ball_mass
         self.x = planet_x
         self.y = planet_y
@@ -13,9 +13,26 @@ class Planet():
 
         self.size = ball_mass
 
+        self.is_striped = is_striped
+        self.color = color
+        self.number = number
+        self.number_info = number_text
+
     def move_to(self, pos_x, pos_y):
         pygame.draw.circle(main.window.surface, main.table_color, (int(self.x), int(self.y)), int(self.size))
-        pygame.draw.circle(main.window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size))
+        pygame.draw.circle(main.window.surface, self.color, (int(pos_x), int(pos_y)), int(self.size))
+
+        if self.is_striped and not self.number==0:
+            point_list = [(int(pos_x) + math.cos(math.radians(angle))*self.size*0.8,
+                           int(pos_y) +math.sin(math.radians(angle))*self.size*0.8) for angle
+                          in range(20,-20,-1)]
+            point_list+=[(int(pos_x)+ math.cos(math.radians(angle))*self.size*0.8,
+                                   int(pos_y) +math.sin(math.radians(angle))*self.size*0.8)  for angle
+                          in range(200,160,-1)]
+            pygame.draw.polygon(main.window.surface, (255,255,255), point_list)
+        pygame.draw.circle(main.window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size / 2))
+        main.window.surface.blit(self.number_info[0],(self.x -self.number_info[1][0]/2,self.y -self.number_info[1][1]/2))
+
 
         self.x = pos_x
         self.y = pos_y

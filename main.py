@@ -8,10 +8,11 @@ import math
 resolution = [1000, 500]
 balls = []
 window = graphics.GameWindow(1000, 500)
-table_margin = 40
+table_margin = 60
 ball_size = 13
 side_color = (200, 200, 0)
 table_color = (0, 100, 0)
+cue_color = (100, 100, 100)
 
 
 def are_all_not_moving():
@@ -27,39 +28,13 @@ def set_cue(ball_id):
     cue_length = 300
     cue_thickness = 3
 
-    def delete_cue(ball_id, cue_angle, displacement):
+    def draw_cue(ball_id, cue_angle, displacement, color):
         ball = balls[ball_id]
-        if displacement>0:
-            cue_displacement = displacement + ball.size
-        else:
-            cue_displacement = ball.size
-
-        # dy/dx = sin(a)/cos(s) = tan(a)
-        cos_a = math.cos(math.radians(cue_angle))
-        sin_a = math.sin(math.radians(cue_angle))
-        x_constant = sin_a * cue_thickness
-        y_constant = cos_a * cue_thickness
-
-        points = [
-            (ball.x + cue_displacement * cos_a + x_constant,
-             ball.y + cue_displacement * sin_a - y_constant),
-            (ball.x + cue_displacement * cos_a - x_constant,
-             ball.y + cue_displacement * sin_a + y_constant),
-            (ball.x + cue_length * cos_a + cue_displacement * cos_a - x_constant,
-             ball.y + cue_length * sin_a + cue_displacement * sin_a + y_constant),
-            (ball.x + cue_length * cos_a + cue_displacement * cos_a + x_constant,
-             ball.y + cue_length * sin_a + cue_displacement * sin_a - y_constant)
-        ]
-
-        pygame.draw.polygon(window.surface, table_color, points)
-        window.draw_table_sides(table_margin, side_color)
-        window.draw_table_holes(table_holes, table_margin / 2)
-        window.redraw_balls(balls)
-
-    def draw_cue(ball_id, cue_angle, displacement):
-        ball = balls[ball_id]
-        if displacement>0:
-            cue_displacement = displacement + ball.size
+        if displacement > 0:
+            if displacement > 100:
+                cue_displacement = 100
+            else:
+                cue_displacement = displacement + ball.size
         else:
             cue_displacement = ball.size
         # dy/dx = sin(a)/cos(s) = tan(a)
@@ -79,30 +54,37 @@ def set_cue(ball_id):
              ball.y + cue_length * sin_a + cue_displacement * sin_a - y_constant)
         ]
 
-        pygame.draw.polygon(window.surface, (255, 0, 0), points)
+        pygame.draw.polygon(window.surface, color, points)
 
         return points
+
+    def delete_cue(ball_id, angle, displacement):
+        draw_cue(ball_id, angle, displacement,
+                 table_color)
+        window.draw_table_sides(table_margin, side_color)
+        window.draw_table_holes(table_holes, table_margin / 3)
+        window.redraw_balls(balls)
 
     def draw_lines(ball, angle, color):
         line_dist = 5
         sin_a = math.sin(math.radians(angle))
         cos_a = math.cos(math.radians(angle))
-        line_x = ball.x + ball.size*cos_a*2
-        line_y = ball.y + ball.size*sin_a*2
-        count =1
-        while (line_x>table_margin) and (line_x<window.size_x-table_margin) and\
-            (line_y>table_margin) and (line_y<window.size_y-table_margin):
-            pygame.draw.line(window.surface,color,(line_x,line_y),(line_x + line_dist*cos_a,line_y+line_dist*sin_a))
-            line_x = line_x+ 2*line_dist * cos_a
-            line_y = line_y + 2*line_dist * sin_a
-            count+=1
+        line_x = ball.x + ball.size * cos_a * 2
+        line_y = ball.y + ball.size * sin_a * 2
+        count = 1
+        while (line_x > table_margin) and (line_x < window.size_x - table_margin) and \
+                (line_y > table_margin) and (line_y < window.size_y - table_margin):
+            pygame.draw.line(window.surface, color, (line_x, line_y),
+                             (line_x + line_dist * cos_a, line_y + line_dist * sin_a))
+            line_x = line_x + 2 * line_dist * cos_a
+            line_y = line_y + 2 * line_dist * sin_a
+            count += 1
         window.update()
-
 
     ball = balls[ball_id]
     angle = 0
     prev_angle = angle
-    rect_pointlist = draw_cue(ball_id, angle, 0)
+    rect_pointlist = draw_cue(ball_id, angle, 0, (100, 100, 100))
     window.update()
 
     start_pos = pygame.mouse.get_pos()
@@ -135,42 +117,40 @@ def set_cue(ball_id):
                 if dx > 0:
                     angle -= 180
                 if not (prev_angle == angle) or not (prev_displacement == displacement):
-                    delete_cue(ball_id, prev_angle, prev_displacement-ball_size-inital_displacement)
+                    delete_cue(ball_id, prev_angle, prev_displacement - ball_size - inital_displacement)
                     draw_lines(ball, prev_angle + 180, table_color)
-                    rect_pointlist = draw_cue(ball_id, angle, displacement-ball_size-inital_displacement)
-                    draw_lines(ball, angle+180,(255,255,255))
+                    rect_pointlist = draw_cue(ball_id, angle, displacement - ball_size - inital_displacement, cue_color)
+                    draw_lines(ball, angle + 180, (255, 255, 255))
                     prev_angle = angle
                     prev_displacement = displacement
 
                 window.update()
             if (displacement - ball_size - inital_displacement <= 0):
-                done=False
+                done = False
 
     draw_lines(ball, prev_angle + 180, table_color)
     # small hitting animation
     prev_n = displacement
-    for n in range(int(displacement),0,-1):
-        delete_cue(ball_id, prev_angle, prev_n - ball_size - inital_displacement)
-        draw_cue(ball_id, angle, n - ball_size - inital_displacement)
+    for n in range(int(displacement), 0, -1):
+        delete_cue(ball_id, angle, prev_n - ball_size - inital_displacement)
+        draw_cue(ball_id, angle, n - ball_size - inital_displacement, cue_color)
         window.update()
-        prev_n=n
+        prev_n = n
         # time.sleep(0.5)
     delete_cue(ball_id, prev_angle, 0 - ball_size - inital_displacement)
 
     sin_a = math.sin(math.radians(angle))
     cos_a = math.cos(math.radians(angle))
-    ball.add_force((displacement*cos_a) * -60 / window.fps(), (displacement*sin_a) * -60 / window.fps())
-
-
+    ball.add_force((displacement * cos_a) / -10, (displacement * sin_a) / -10)
 
 
 def create_table_holes():
-    table_holes = [(int(table_margin * 1.2), int(table_margin * 1.2)),
-                   (int(window.size_x - table_margin * 1.2), int(table_margin * 1.2)),
-                   (int(table_margin * 1.2), int(window.size_y - table_margin * 1.2)),
-                   (int(window.size_x - table_margin), int(window.size_y - table_margin * 1.2)),
-                   (int(window.size_x / 2), int(table_margin)),
-                   (int(window.size_x / 2), int(window.size_y - table_margin))]
+    table_holes = [(int(table_margin * 1), int(table_margin * 1)),
+                   (int(window.size_x - table_margin * 1), int(table_margin * 1)),
+                   (int(table_margin * 1), int(window.size_y - table_margin * 1)),
+                   (int(window.size_x - table_margin), int(window.size_y - table_margin * 1)),
+                   (int(window.size_x / 2), int(table_margin) - 5),
+                   (int(window.size_x / 2), int(window.size_y - table_margin) + 5)]
     return table_holes
 
 
@@ -178,10 +158,10 @@ def table_collision(table_holes, ball, ball_id, lower_x, upper_x, lower_y, upper
     def is_near_table_holes():
         window_x_mid = window.size_x / 2
         # edge holes
-        if (ball.x < table_margin * 1.5 and ball.y < table_margin * 1.5) or \
-                (ball.x > window.size_x - table_margin * 1.5 and ball.y > window.size_y - table_margin * 1.5) or \
-                (ball.x < table_margin * 1.5 and ball.y > window.size_y - table_margin * 1.5) or \
-                (ball.x > window.size_x - table_margin * 1.5 and ball.y < table_margin * 1.5):
+        if (ball.x < table_margin * 1.2 and ball.y < table_margin * 1.5) or \
+                (ball.x > window.size_x - table_margin * 1.2 and ball.y > window.size_y - table_margin * 1.2) or \
+                (ball.x < table_margin * 1.2 and ball.y > window.size_y - table_margin * 1.2) or \
+                (ball.x > window.size_x - table_margin * 1.2 and ball.y < table_margin * 1.2):
             return True
         else:
             # midlle holes
@@ -224,7 +204,7 @@ def table_collision(table_holes, ball, ball_id, lower_x, upper_x, lower_y, upper
 
     for hole in table_holes:
         posx, posy = hole
-        if physics.distance_test(posx, posy, ball.x, ball.y, table_margin / 2):
+        if physics.distance_test(posx, posy, ball.x, ball.y, ball_size * 1.7):
             was_deleted = True
     return was_deleted
 
@@ -268,7 +248,7 @@ def check_for_collision(table_holes):
         balls.pop(ball)
 
 
-def set_pool_table(ball_size, x, y, ballnum):
+def set_pool_balls(ball_size, x, y,ball_num_txt):
     sixty_degrees = math.radians(60)
     # this is used to avoid to the balls touch at all times
     sin_60 = math.sin(sixty_degrees)
@@ -279,13 +259,35 @@ def set_pool_table(ball_size, x, y, ballnum):
     ballx = 0
     bally = 0
 
-    for ball in range(ballnum):
-        balls.append(physics.Planet(ball_size, x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx)))
-        if bally == ballx:
-            ballx += 1
-            bally = 0
-        else:
-            bally += 1
+    new_balls = [physics.Planet(ball_size, 100, resolution[1] / 2, False, (255, 255, 255),0,ball_num_txt[0])]
+
+    ball_colors = [
+        (0, 200, 200),
+        (0, 0, 200),
+        (150, 0, 0),
+        (200, 0, 200),
+        (200, 0, 0),
+        (50, 0, 0),
+        (100, 0, 0)
+    ]
+    for i, color in enumerate(ball_colors):
+        new_balls.append(physics.Planet(ball_size, 100, resolution[1] / 2, False, color, i + 1,ball_num_txt[i+1]))
+
+    new_balls.append(physics.Planet(ball_size, 100, resolution[1] / 2, False, (0, 0, 0),8,ball_num_txt[i+1]))
+
+    for i, color in enumerate(ball_colors):
+        new_balls.append(physics.Planet(ball_size, 100, resolution[1] / 2, True, color, i + 9,ball_num_txt[i+1]))
+
+    for i, ball in enumerate(new_balls):
+        if not i == 0:
+            ball.move_to(x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
+            if bally == ballx:
+                ballx += 1
+                bally = 0
+            else:
+                bally += 1
+
+    return new_balls
 
 
 def sound_setup():
@@ -312,18 +314,19 @@ if __name__ == "__main__":
     events = graphics.events()
     # draw table sides
     window.draw_table_sides(table_margin, side_color)
+
+    fontObj = pygame.font.Font(pygame.font.get_default_font(), 10)
+    ball_num_txt = [(fontObj.render(str(num), False, (0, 0, 0)), fontObj.size(str(num))) for num in range(16)]
     if selected == 1:
         # bouncy balls mode selected in menu
-        set_pool_table(ball_size, 700, resolution[1] / 2, 10)
-        balls.append(physics.Planet(ball_size, 100, resolution[1] / 2))
-        balls[len(balls) - 1].add_force(5.0, 0)
+        balls = set_pool_balls(ball_size, 700, resolution[1] / 2,ball_num_txt)
         while not events["closed"]:
             check_for_collision(table_holes)
-            window.draw_table_holes(table_holes, table_margin / 2)
+            window.draw_table_holes(table_holes, table_margin / 3)
             window.move_all_once(balls)
             events = graphics.events()
 
             while are_all_not_moving():
-                set_cue(len(balls) - 1)
+                set_cue(0)
 
     pygame.quit()
