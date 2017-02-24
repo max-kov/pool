@@ -1,7 +1,7 @@
 import pygame
 
 
-class GameWindow:
+class Canvas:
     def __init__(self, vertical_size, horizontal_size, *args, **kwargs):
         self.surface = pygame.display.set_mode((vertical_size, horizontal_size), *args, **kwargs)
         self.size_x = vertical_size
@@ -29,17 +29,7 @@ class GameWindow:
         self.update()
         self.fps_clock.tick()
 
-    def main_menu(self,table_color):
-        def check_mouse_pos(text_starting_place, text_ending_place, spacing, button_num):
-            mouse_pos = pygame.mouse.get_pos()
-            if (text_starting_place[button_num][0] - spacing < mouse_pos[0] < text_ending_place[button_num][
-                0] + spacing) and \
-                    (text_starting_place[button_num][1] - spacing < mouse_pos[1] < text_ending_place[button_num][
-                        1] + spacing):
-                return True
-            else:
-                return False
-
+    def draw_main_menu(self,table_color):
         text_color = (255, 255, 255)
         text_selected_color = (0, 0, 255)
         font_name = pygame.font.get_default_font()
@@ -85,35 +75,19 @@ class GameWindow:
                                  (text_starting_place[num][0] - spacing, text_starting_place[num][1] - spacing,
                                   button_size[num][0] + spacing * 2, button_size[num][1] + spacing * 2), 1)
 
-        was_clicked = False
-        button_clicked = 0
+        return text_starting_place, text_ending_place, spacing, buttons
 
-        while not was_clicked:
-            self.update()
-            user_events = events()
 
-            for num in range(1, len(buttons)):
-                if check_mouse_pos(text_starting_place, text_ending_place, spacing, num):
-                    if user_events["clicked"]:
-                        was_clicked = True
-                        button_clicked = num
-                    else:
-                        self.surface.blit(buttons[num][1], text_starting_place[num])
-                else:
-                    self.surface.blit(buttons[num][0], text_starting_place[num])
-
-        self.surface.fill(table_color)
-        return button_clicked
 
     def draw_table_holes(self, table_holes, rad):
         for table_hole in table_holes:
             pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(rad))
 
-    def draw_table_sides(self,margin,side_color):
-        pygame.draw.rect(self.surface, side_color, (0, 0, self.size_x, margin))
-        pygame.draw.rect(self.surface, side_color, (self.size_x - margin, 0, self.size_x, self.size_y))
-        pygame.draw.rect(self.surface, side_color, (0, self.size_y - margin, self.size_x, self.size_y))
-        pygame.draw.rect(self.surface, side_color, (0, 0, margin, self.size_y))
+    def draw_table_sides(self,gameState):
+        pygame.draw.rect(self.surface, gameState.side_color, (0, 0, self.size_x, gameState.table_margin))
+        pygame.draw.rect(self.surface, gameState.side_color, (self.size_x - gameState.table_margin, 0, self.size_x, self.size_y))
+        pygame.draw.rect(self.surface, gameState.side_color, (0, self.size_y - gameState.table_margin, self.size_x, self.size_y))
+        pygame.draw.rect(self.surface, gameState.side_color, (0, 0, gameState.table_margin, self.size_y))
 
 
 def events():

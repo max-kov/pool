@@ -7,7 +7,7 @@ import math
 
 resolution = [1000, 500]
 balls = []
-window = graphics.GameWindow(1000, 500)
+window = graphics.Canvas(1000, 500)
 table_margin = 60
 ball_size = 13
 side_color = (200, 200, 0)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
     pygame.display.set_caption("Gravity Simulator")
-    window = graphics.GameWindow(*resolution)
+    window = graphics.Canvas(*resolution)
     # table holes
     table_holes = create_table_holes()
     # get clicked menu option
