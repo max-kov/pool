@@ -259,7 +259,7 @@ def set_pool_balls(ball_size, x, y,ball_num_txt):
     ballx = 0
     bally = 0
 
-    new_balls = [physics.Planet(ball_size, 100, resolution[1] / 2, False, (255, 255, 255),0,ball_num_txt[0])]
+    new_balls = [physics.Ball(ball_size, 100, resolution[1] / 2, False, (255, 255, 255), 0, ball_num_txt[0])]
 
     ball_colors = [
         (0, 200, 200),
@@ -271,12 +271,12 @@ def set_pool_balls(ball_size, x, y,ball_num_txt):
         (100, 0, 0)
     ]
     for i, color in enumerate(ball_colors):
-        new_balls.append(physics.Planet(ball_size, 100, resolution[1] / 2, False, color, i + 1,ball_num_txt[i+1]))
+        new_balls.append(physics.Ball(ball_size, 100, resolution[1] / 2, False, color, i + 1, ball_num_txt[i + 1]))
 
-    new_balls.append(physics.Planet(ball_size, 100, resolution[1] / 2, False, (0, 0, 0),8,ball_num_txt[i+1]))
+    new_balls.append(physics.Ball(ball_size, 100, resolution[1] / 2, False, (0, 0, 0), 8, ball_num_txt[i + 1]))
 
     for i, color in enumerate(ball_colors):
-        new_balls.append(physics.Planet(ball_size, 100, resolution[1] / 2, True, color, i + 9,ball_num_txt[i+1]))
+        new_balls.append(physics.Ball(ball_size, 100, resolution[1] / 2, True, color, i + 9, ball_num_txt[i + 1]))
 
     for i, ball in enumerate(new_balls):
         if not i == 0:

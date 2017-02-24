@@ -11,12 +11,14 @@ events = graphics.events()
 if (button_pressed==1):
     game.start_pool()
     while not events["closed"]:
-        check_for_collision(table_holes)
-        window.draw_table_holes(table_holes, table_margin / 3)
-        window.move_all_once(balls)
+        game.check_for_collision()
+        # window.draw_table_holes(table_holes, table_margin / 3)
+        # window.move_all_once(balls)
+        game.do_one_frame()
         events = graphics.events()
 
-        while are_all_not_moving():
-            set_cue(0)
+        while game.all_not_moving():
+            # set_cue(0)
+            pass
 
 pygame.quit()

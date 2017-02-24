@@ -3,7 +3,7 @@ import main
 
 friction_coeff = 0.999
 
-class Planet():
+class Ball():
     def __init__(self, ball_mass, planet_x, planet_y,is_striped,color,number,number_text):
         self.mass = ball_mass
         self.x = planet_x

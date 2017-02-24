@@ -11,8 +11,8 @@ class Canvas:
         self.fps_clock = pygame.time.Clock()
         self.fps_limit = 200
 
-    def update(self):
-        pygame.display.update()
+    # def update(self):
+    #     pygame.display.update()
 
     def fps(self):
         return self.fps_clock.get_fps()
@@ -23,11 +23,11 @@ class Canvas:
             ball.move_to(ball.x,ball.y)
         self.update()
 
-    def move_all_once(self, balls):
-        for ball in balls:
-            ball.move_once()
-        self.update()
-        self.fps_clock.tick()
+    # def move_all_once(self, balls):
+    #     for ball in balls:
+    #         ball.move_once()
+    #     self.update()
+    #     self.fps_clock.tick()
 
     def draw_main_menu(self,table_color):
         text_color = (255, 255, 255)
@@ -79,9 +79,9 @@ class Canvas:
 
 
 
-    def draw_table_holes(self, table_holes, rad):
-        for table_hole in table_holes:
-            pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(rad))
+    def draw_table_holes(self, gameState):
+        for table_hole in gameState.table_holes:
+            pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(gameState.hole_rad))
 
     def draw_table_sides(self,gameState):
         pygame.draw.rect(self.surface, gameState.side_color, (0, 0, self.size_x, gameState.table_margin))
