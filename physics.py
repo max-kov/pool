@@ -56,9 +56,6 @@ class Ball():
         self.dx = delta_x
         self.dy = delta_y
 
-    def destroy(self,color):
-        pygame.draw.circle(main.window.surface, color, (int(self.x), int(self.y)), int(self.size))
-
 
 def ball_distance(ball1, ball2):
     # using pythaoreas to calculate the range between planets

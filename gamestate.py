@@ -44,6 +44,14 @@ class GameState:
             (200, 0, 200),
             (200, 0, 0),
             (50, 0, 0),
+            (100, 0, 0),
+            (0,0,0),
+            (0, 200, 200),
+            (0, 0, 200),
+            (150, 0, 0),
+            (200, 0, 200),
+            (200, 0, 0),
+            (50, 0, 0),
             (100, 0, 0)
         ]
 
@@ -56,10 +64,7 @@ class GameState:
 
         for i, color in enumerate(ball_colors):
             self.balls.append(
-                physics.Ball(self.ball_size, 100, self.resolution[1] / 2, False, color, i + 1, ball_num_txt[i + 1]))
-
-        self.balls.append(
-            physics.Ball(self.ball_size, 100, self.resolution[1] / 2, False, (0, 0, 0), 8, ball_num_txt[i + 1]))
+                physics.Ball(self.ball_size, 100, self.resolution[1] / 2, False, color, i + 1, ball_num_txt[i]))
 
 
     def set_pool_balls(self, x, y):
@@ -120,8 +125,8 @@ class GameState:
         #generates numbers
         ball_num_txt = [(self.fontObj.render(str(num), False, (0, 0, 0)), self.fontObj.size(str(num))) for num in range(16)]
 
-        table_y_middle = self.resolution[1] / 2
-        table_x_quarter = 3/4 * self.resolution[0]
+        table_y_middle = self.resolution[1] / 2.0
+        table_x_quarter = 3.0/4 * self.resolution[0]
 
         self.create_balls(ball_num_txt)
         self.set_pool_balls(table_x_quarter, table_y_middle)

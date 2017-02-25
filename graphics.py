@@ -21,7 +21,7 @@ class Canvas:
         for ball in balls:
             # this doesnt move the ball anywhere, just resets it
             ball.move_to(ball.x,ball.y)
-        self.update()
+        pygame.display.update()
 
     # def move_all_once(self, balls):
     #     for ball in balls:
@@ -84,6 +84,7 @@ class Canvas:
             pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(gameState.hole_rad))
 
     def draw_table_sides(self,gameState):
+        self.surface.fill(gameState.table_color)
         pygame.draw.rect(self.surface, gameState.side_color, (0, 0, self.size_x, gameState.table_margin))
         pygame.draw.rect(self.surface, gameState.side_color, (self.size_x - gameState.table_margin, 0, self.size_x, self.size_y))
         pygame.draw.rect(self.surface, gameState.side_color, (0, self.size_y - gameState.table_margin, self.size_x, self.size_y))
