@@ -77,25 +77,25 @@ def check_for_collision(gameState):
         # collided with one ball only
         if len(collision_list) <= 1:
             for index, ballnum in enumerate(collision_list):
-                physics.collide_balls(ball1, balls[ballnum])
+                physics.collide_balls(gameState,ball1, balls[ballnum])
         else:
             # collided with several balls, this will only be used at the beginning of the game
             if ball1.dy < 0:
                 # collidion at a positive angle
                 collision_list.reverse()
                 for index, ballnum in enumerate(collision_list):
-                    physics.collide_balls(ball1, balls[ballnum])
+                    physics.collide_balls(gameState,ball1, balls[ballnum])
             elif ball1.dy > 0:
                 # collidion at a negative angle
                 for index, ballnum in enumerate(collision_list):
-                    physics.collide_balls(ball1, balls[ballnum])
+                    physics.collide_balls(gameState,ball1, balls[ballnum])
             else:
                 # angle of collision = 0
-                physics.perfect_break(ball1, balls[collision_list[0]], balls[collision_list[1]])
+                physics.perfect_break(gameState,ball1, balls[collision_list[0]], balls[collision_list[1]])
 
         if table_collision(gameState, ball1, counter1):
             balls_to_delete.append(counter1)
 
     for ball in balls_to_delete:
-        balls[ball].destroy(gameState.table_color)
+        balls[ball].destroy(gameState)
         balls.pop(ball)

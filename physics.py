@@ -1,7 +1,8 @@
 import math, pygame
-import main
+import graphics
 
-friction_coeff = 0.999
+
+friction_coeff = 0.997
 
 class Ball():
     def __init__(self, ball_mass, planet_x, planet_y,is_striped,color,number,number_text):
@@ -16,33 +17,22 @@ class Ball():
         self.number = number
         self.number_info = number_text
 
-    def move_to(self, pos_x, pos_y):
-        pygame.draw.circle(main.window.surface, main.table_color, (int(self.x), int(self.y)), int(self.size))
-        pygame.draw.circle(main.window.surface, self.color, (int(pos_x), int(pos_y)), int(self.size))
-
-        if self.is_striped and not self.number==0:
-            point_list = [(int(pos_x) + math.cos(math.radians(angle))*self.size*0.8,
-                           int(pos_y) +math.sin(math.radians(angle))*self.size*0.8) for angle
-                          in range(20,-20,-1)]
-            point_list+=[(int(pos_x)+ math.cos(math.radians(angle))*self.size*0.8,
-                                   int(pos_y) +math.sin(math.radians(angle))*self.size*0.8)  for angle
-                          in range(200,160,-1)]
-            pygame.draw.polygon(main.window.surface, (255,255,255), point_list)
-        pygame.draw.circle(main.window.surface, (255, 255, 255), (int(pos_x), int(pos_y)), int(self.size / 2))
-        main.window.surface.blit(self.number_info[0],(self.x -self.number_info[1][0]/2,self.y -self.number_info[1][1]/2))
-
+    def move_to(self,gameState, pos_x, pos_y):
+        gameState.canvas.delete_ball(gameState,self)
 
         self.x = pos_x
         self.y = pos_y
+
+        gameState.canvas.draw_ball(gameState, self)
 
     def add_force(self, delta_x, delta_y):
         self.dx += delta_x / self.mass
         self.dy += delta_y / self.mass
 
-    def move_once(self, scale=1):
+    def move_once(self,gameState, scale=1):
         tempx = self.x + self.dx*scale
         tempy = self.y + self.dy*scale
-        self.move_to(tempx, tempy)
+        self.move_to(gameState,tempx, tempy)
         self.dx = self.dx*friction_coeff
         self.dy = self.dy*friction_coeff
 
@@ -55,6 +45,9 @@ class Ball():
     def set_vector(self, delta_x, delta_y):
         self.dx = delta_x
         self.dy = delta_y
+
+    def destroy(self,gameState):
+        gameState.canvas.delete_ball(gameState,self)
 
 
 def ball_distance(ball1, ball2):
@@ -92,7 +85,7 @@ def normalise_vector(x, y, magnitude):
         return nx, ny
 
 
-def collide_balls(pl1,pl2):
+def collide_balls(gameState,pl1,pl2):
 
     dist = ball_distance(pl1,pl2)
     #calculating normalised (sub 1 values) difference vector
@@ -124,10 +117,10 @@ def collide_balls(pl1,pl2):
         fixed_x_2 = pl2.x - nx * (next_dist / 2)
         fixed_y_2 = pl2.y - ny * (next_dist / 2)
 
-        pl1.move_to(fixed_x_1,fixed_y_1)
-        pl2.move_to(fixed_x_2, fixed_y_2)
+        pl1.move_to(gameState,fixed_x_1,fixed_y_1)
+        pl2.move_to(gameState,fixed_x_2, fixed_y_2)
 
-def perfect_break(pl1,pl2,pl3):
+def perfect_break(gameState,pl1,pl2,pl3):
     dist = ball_distance(pl1,pl2)
     #calculating normalised (sub 1 values) difference vector
     nx, ny = normalise_vector((pl1.x-pl2.x),(pl1.y-pl2.y),dist)
@@ -159,8 +152,8 @@ def perfect_break(pl1,pl2,pl3):
         fixed_x_2 = pl2.x - nx * (next_dist / 2)
         fixed_y_2 = pl2.y - ny * (next_dist / 2)
 
-        pl1.move_to(fixed_x_1,fixed_y_1)
-        pl2.move_to(fixed_x_2, fixed_y_2)
+        pl1.move_to(gameState,fixed_x_1,fixed_y_1)
+        pl2.move_to(gameState,fixed_x_2, fixed_y_2)
 
 
 def collision_test(pl1,pl2):

@@ -4,6 +4,7 @@ import physics
 
 
 def set_cue(gameState,ball_id):
+    hit_power = 1/3.0
     cue_length = 300
     cue_thickness = 3
 
@@ -34,7 +35,7 @@ def set_cue(gameState,ball_id):
                  gameState.table_color)
         gameState.canvas.draw_table_sides(gameState)
         gameState.canvas.draw_table_holes(gameState)
-        gameState.canvas.redraw_balls(gameState.balls)
+        gameState.canvas.redraw_balls(gameState)
 
     def draw_lines(ball, angle, color):
         #draws the aiming dotted lines
@@ -51,7 +52,6 @@ def set_cue(gameState,ball_id):
             line_x = line_x + 2 * line_dist * cos_a
             line_y = line_y + 2 * line_dist * sin_a
             count += 1
-        pygame.display.update()
 
     def get_cue_displacement(mouse_pos, ball, initial_distance):
         displacement = physics.point_distance(mouse_pos, (ball.x, ball.y)) - initial_distance + ball.size
@@ -105,10 +105,11 @@ def set_cue(gameState,ball_id):
                     draw_lines(ball, prev_angle + 180, gameState.table_color)
                     rect_pointlist = draw_cue(ball_id, angle, displacement, gameState.cue_color)
                     draw_lines(ball, angle + 180, (255, 255, 255))
+                    pygame.display.update()
                     prev_angle = angle
                     prev_displacement = displacement
 
-                pygame.display.update()
+
             if (displacement == ball.size):
                 done = False
 
@@ -125,4 +126,4 @@ def set_cue(gameState,ball_id):
 
     sin_a = math.sin(math.radians(angle))
     cos_a = math.cos(math.radians(angle))
-    ball.add_force((displacement * cos_a) / -10, (displacement * sin_a) / -10)
+    ball.add_force(-(displacement * cos_a)*hit_power, -(displacement * sin_a)*hit_power)

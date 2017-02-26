@@ -80,7 +80,7 @@ class GameState:
 
         for i, ball in enumerate(self.balls):
             if not i == 0:
-                ball.move_to(x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
+                ball.move_to(self,x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
                 if bally == ballx:
                     ballx += 1
                     bally = 0
@@ -137,7 +137,7 @@ class GameState:
     def do_one_frame(self):
         self.canvas.draw_table_holes(self)
         for ball in self.balls:
-            ball.move_once()
+            ball.move_once(self)
         pygame.display.update()
         # self.fps_clock.tick() <----------------------- FIX FPS PLEASE ------------------------------------------
 

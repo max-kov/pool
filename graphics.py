@@ -1,5 +1,5 @@
 import pygame
-
+import math
 
 class Canvas:
     def __init__(self, vertical_size, horizontal_size, *args, **kwargs):
@@ -11,23 +11,33 @@ class Canvas:
         self.fps_clock = pygame.time.Clock()
         self.fps_limit = 200
 
-    # def update(self):
-    #     pygame.display.update()
 
     def fps(self):
         return self.fps_clock.get_fps()
 
-    def redraw_balls(self,balls):
-        for ball in balls:
-            # this doesnt move the ball anywhere, just resets it
-            ball.move_to(ball.x,ball.y)
-        pygame.display.update()
+    def delete_ball(self,gameState,ball):
+        pygame.draw.circle(self.surface, gameState.table_color, (int(ball.x), int(ball.y)), int(ball.size))
 
-    # def move_all_once(self, balls):
-    #     for ball in balls:
-    #         ball.move_once()
-    #     self.update()
-    #     self.fps_clock.tick()
+    def draw_ball(self,gameState,ball):
+        pygame.draw.circle(gameState.canvas.surface, ball.color, (int(ball.x), int(ball.y)), int(ball.size))
+
+        if ball.is_striped and not ball.number==0:
+            point_list = [(int(ball.x) + math.cos(math.radians(angle))*ball.size*0.8,
+                           int(ball.y) +math.sin(math.radians(angle))*ball.size*0.8) for angle
+                          in range(20,-20,-1)]
+            point_list+=[(int(ball.x)+ math.cos(math.radians(angle))*ball.size*0.8,
+                                   int(ball.y) +math.sin(math.radians(angle))*ball.size*0.8)  for angle
+                          in range(200,160,-1)]
+            pygame.draw.polygon(gameState.canvas.surface, (255, 255, 255), point_list)
+        pygame.draw.circle(gameState.canvas.surface, (255, 255, 255), (int(ball.x), int(ball.y)), int(ball.size / 2))
+        gameState.canvas.surface.blit(ball.number_info[0], (ball.x - ball.number_info[1][0] / 2, ball.y - ball.number_info[1][1] / 2))
+
+    def redraw_balls(self,gameState):
+        for ball in gameState.balls:
+            self.delete_ball(gameState, ball)
+            self.draw_ball(gameState, ball)
+
+        pygame.display.update()
 
     def draw_main_menu(self,table_color):
         text_color = (255, 255, 255)
