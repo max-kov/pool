@@ -7,14 +7,6 @@ class Canvas:
         self.size_x = vertical_size
         self.size_y = horizontal_size
 
-        # fps control
-        self.fps_clock = pygame.time.Clock()
-        self.fps_limit = 200
-
-
-    def fps(self):
-        return self.fps_clock.get_fps()
-
     def delete_ball(self,gameState,ball):
         pygame.draw.circle(self.surface, gameState.table_color, (int(ball.x), int(ball.y)), int(ball.size))
 
@@ -115,7 +107,3 @@ def events():
     return {"closed": closed,
             "clicked": clicked,
             "mouse_pos": mouse_pos}
-
-
-def undraw(game_window, planet):
-    pygame.draw.circle(game_window.surface, (0, 0, 0), (int(planet.x), int(planet.y)), int(planet.size))

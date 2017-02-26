@@ -1,9 +1,11 @@
 import graphics
-import physics
+import ballinfo
 import math
 import pygame
 import collisiontests
 import itertools
+import physics
+import ball
 
 class GameState:
     def __init__(self):
@@ -18,7 +20,6 @@ class GameState:
         pygame.display.set_caption("Gravity Simulator")
 
         # ball constants
-        self.fontObj = pygame.font.Font(pygame.font.get_default_font(), 10)
         self.balls = []
         self.ball_size = 13
 
@@ -33,38 +34,23 @@ class GameState:
         self.cue_color = (100, 100, 100)
         self.hole_rad = 13
 
-
         self.canvas = graphics.Canvas(*self.resolution)
 
-    def create_balls(self,ball_num_txt):
-        ball_colors = [
-            (0, 200, 200),
-            (0, 0, 200),
-            (150, 0, 0),
-            (200, 0, 200),
-            (200, 0, 0),
-            (50, 0, 0),
-            (100, 0, 0),
-            (0,0,0),
-            (0, 200, 200),
-            (0, 0, 200),
-            (150, 0, 0),
-            (200, 0, 200),
-            (200, 0, 0),
-            (50, 0, 0),
-            (100, 0, 0)
-        ]
+        # fps control
+        self.fps_clock = pygame.time.Clock()
+        self.fps_limit = 100
 
-        self.balls = []
+    def get_fps(self):
+        return self.fps_clock.get_fps()
 
-        #ball number 0 - players ball
-        self.balls.append(
-            physics.Ball(self.ball_size, 100, self.resolution[1] / 2, False, (255, 255, 255), 0, ball_num_txt[0])
-        )
+    def mark_one_frame(self):
+        self.fps_clock.tick(self.fps_limit)
 
-        for i, color in enumerate(ball_colors):
+    def create_balls(self):
+        for i in range(self.total_ball_num):
+            ball_data = ballinfo.BallInfo(i)
             self.balls.append(
-                physics.Ball(self.ball_size, 100, self.resolution[1] / 2, False, color, i + 1, ball_num_txt[i]))
+                ball.Ball(ball_data.ball_size, 0, 0, ball_data.is_striped, ball_data.ball_color, i, ball_data.ball_num_txt))
 
 
     def set_pool_balls(self, x, y):
@@ -77,6 +63,8 @@ class GameState:
 
         ballx = 0
         bally = 0
+
+        self.balls[0].move_to(self, 0.3*self.resolution[0], self.resolution[1]/2.0)
 
         for i, ball in enumerate(self.balls):
             if not i == 0:
@@ -121,14 +109,14 @@ class GameState:
         return button_clicked
 
     def start_pool(self):
+        self.total_ball_num = 16
+
         self.canvas.draw_table_sides(self)
-        #generates numbers
-        ball_num_txt = [(self.fontObj.render(str(num), False, (0, 0, 0)), self.fontObj.size(str(num))) for num in range(16)]
 
         table_y_middle = self.resolution[1] / 2.0
         table_x_quarter = 3.0/4 * self.resolution[0]
 
-        self.create_balls(ball_num_txt)
+        self.create_balls()
         self.set_pool_balls(table_x_quarter, table_y_middle)
 
     def check_for_collision(self):
@@ -139,7 +127,7 @@ class GameState:
         for ball in self.balls:
             ball.move_once(self)
         pygame.display.update()
-        # self.fps_clock.tick() <----------------------- FIX FPS PLEASE ------------------------------------------
+        self.mark_one_frame()
 
     def all_not_moving(self):
         return_value = True
