@@ -14,22 +14,22 @@ class Ball():
         self.number = number
         self.number_info = number_text
 
-    def move_to(self,gameState, pos_x, pos_y):
-        gameState.canvas.delete_ball(gameState,self)
+    def move_to(self, game_state, pos_x, pos_y):
+        game_state.canvas.delete_ball(game_state, self)
 
         self.x = pos_x
         self.y = pos_y
 
-        gameState.canvas.draw_ball(gameState, self)
+        game_state.canvas.draw_ball(game_state, self)
 
     def add_force(self, delta_x, delta_y):
         self.dx += delta_x / self.mass
         self.dy += delta_y / self.mass
 
-    def move_once(self,gameState, scale=1):
+    def move_once(self, game_state, scale=1):
         tempx = self.x + self.dx*scale
         tempy = self.y + self.dy*scale
-        self.move_to(gameState,tempx, tempy)
+        self.move_to(game_state, tempx, tempy)
         self.dx = self.dx*friction_coeff
         self.dy = self.dy*friction_coeff
 
@@ -43,5 +43,5 @@ class Ball():
         self.dx = delta_x
         self.dy = delta_y
 
-    def destroy(self,gameState):
-        gameState.canvas.delete_ball(gameState,self)
+    def destroy(self, game_state):
+        game_state.canvas.delete_ball(game_state, self)

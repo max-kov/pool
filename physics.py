@@ -35,7 +35,7 @@ def normalise_vector(x, y, magnitude):
         return nx, ny
 
 
-def collide_balls(gameState,pl1,pl2):
+def collide_balls(game_state, pl1, pl2):
 
     dist = ball_distance(pl1,pl2)
     #calculating normalised (sub 1 values) difference vector
@@ -67,10 +67,10 @@ def collide_balls(gameState,pl1,pl2):
         fixed_x_2 = pl2.x - nx * (next_dist / 2)
         fixed_y_2 = pl2.y - ny * (next_dist / 2)
 
-        pl1.move_to(gameState,fixed_x_1,fixed_y_1)
-        pl2.move_to(gameState,fixed_x_2, fixed_y_2)
+        pl1.move_to(game_state, fixed_x_1, fixed_y_1)
+        pl2.move_to(game_state, fixed_x_2, fixed_y_2)
 
-def perfect_break(gameState,pl1,pl2,pl3):
+def perfect_break(game_state, pl1, pl2, pl3):
     dist = ball_distance(pl1,pl2)
     #calculating normalised (sub 1 values) difference vector
     nx, ny = normalise_vector((pl1.x-pl2.x),(pl1.y-pl2.y),dist)
@@ -102,8 +102,8 @@ def perfect_break(gameState,pl1,pl2,pl3):
         fixed_x_2 = pl2.x - nx * (next_dist / 2)
         fixed_y_2 = pl2.y - ny * (next_dist / 2)
 
-        pl1.move_to(gameState,fixed_x_1,fixed_y_1)
-        pl2.move_to(gameState,fixed_x_2, fixed_y_2)
+        pl1.move_to(game_state, fixed_x_1, fixed_y_1)
+        pl2.move_to(game_state, fixed_x_2, fixed_y_2)
 
 
 def collision_test(pl1,pl2):

@@ -1,19 +1,19 @@
 import pygame
 import gamestate
-import graphics
 import cuestick
+import collisiontests
 
 game = gamestate.GameState()
 button_pressed = game.main_menu()
 
-events = graphics.events()
+events = game.events()
 
 if (button_pressed==1):
     game.start_pool()
     while not events["closed"]:
-        game.check_for_collision()
+        collisiontests.check_for_collision(game)
         game.do_one_frame()
-        events = graphics.events()
+        events = game.events()
 
         while game.all_not_moving():
             cuestick.set_cue(game,0)

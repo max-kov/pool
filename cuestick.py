@@ -3,12 +3,12 @@ import pygame
 import physics
 
 
-def set_cue(gameState,ball_id):
+def set_cue(game_state, ball_id):
     hit_power = 0.8
     cue_length = 300
     cue_thickness = 3
 
-    def draw_cue( cue_angle, displacement, color):
+    def draw_cue(cue_angle, displacement, color):
         # dy/dx = sin(a)/cos(s) = tan(a)
         cos_a = math.cos(math.radians(cue_angle))
         sin_a = math.sin(math.radians(cue_angle))
@@ -26,16 +26,16 @@ def set_cue(gameState,ball_id):
              ball.y + cue_length * sin_a + displacement * sin_a - y_constant)
         ]
 
-        pygame.draw.polygon(gameState.canvas.surface, color, points)
+        pygame.draw.polygon(game_state.canvas.surface, color, points)
 
         return points
 
-    def delete_cue( angle, displacement):
-        draw_cue( angle, displacement,
-                 gameState.table_color)
-        gameState.canvas.draw_table_sides(gameState)
-        gameState.canvas.draw_table_holes(gameState)
-        gameState.canvas.redraw_balls(gameState)
+    def delete_cue(angle, displacement):
+        draw_cue(angle, displacement,
+                 game_state.table_color)
+        game_state.canvas.draw_table_sides(game_state)
+        game_state.canvas.draw_table_holes(game_state)
+        game_state.canvas.redraw_balls(game_state)
 
     def draw_lines(ball, angle, color):
         #draws the aiming dotted lines
@@ -45,9 +45,9 @@ def set_cue(gameState,ball_id):
         line_x = ball.x + ball.size * cos_a * 2
         line_y = ball.y + ball.size * sin_a * 2
         count = 1
-        while (line_x > gameState.table_margin) and (line_x < gameState.canvas.size_x - gameState.table_margin) and \
-                (line_y > gameState.table_margin) and (line_y < gameState.canvas.size_y - gameState.table_margin):
-            pygame.draw.line(gameState.canvas.surface, color, (line_x, line_y),
+        while (line_x > game_state.table_margin) and (line_x < game_state.canvas.size_x - game_state.table_margin) and \
+                (line_y > game_state.table_margin) and (line_y < game_state.canvas.size_y - game_state.table_margin):
+            pygame.draw.line(game_state.canvas.surface, color, (line_x, line_y),
                              (line_x + line_dist * cos_a, line_y + line_dist * sin_a))
             line_x += 2 * line_dist * cos_a
             line_y += 2 * line_dist * sin_a
@@ -65,7 +65,7 @@ def set_cue(gameState,ball_id):
 
         return cue_displacement
 
-    ball = gameState.balls[ball_id]
+    ball = game_state.balls[ball_id]
     angle = 0
     prev_angle = angle
     rect_pointlist = draw_cue(angle, ball.size, (100, 100, 100))
@@ -82,7 +82,7 @@ def set_cue(gameState,ball_id):
             done = True
             inital_mouse_dist = physics.point_distance(start_pos, (ball.x, ball.y))
             prev_displacement = ball.size
-            gameState.mark_one_frame()
+            game_state.mark_one_frame()
 
             # cue was displaced from the cue ball
             while pygame.mouse.get_pressed()[0]:
@@ -102,27 +102,27 @@ def set_cue(gameState,ball_id):
                     angle -= 180
                 if not (prev_angle == angle) or not (prev_displacement == displacement):
                     delete_cue( prev_angle, prev_displacement)
-                    draw_lines(ball, prev_angle + 180, gameState.table_color)
-                    rect_pointlist = draw_cue(angle, displacement, gameState.cue_color)
+                    draw_lines(ball, prev_angle + 180, game_state.table_color)
+                    rect_pointlist = draw_cue(angle, displacement, game_state.cue_color)
                     draw_lines(ball, angle + 180, (255, 255, 255))
                     pygame.display.update()
                     prev_angle = angle
                     prev_displacement = displacement
 
-                gameState.mark_one_frame()
+                game_state.mark_one_frame()
 
             if (displacement == ball.size):
                 done = False
 
-    draw_lines(ball, prev_angle + 180, gameState.table_color)
+    draw_lines(ball, prev_angle + 180, game_state.table_color)
     # hitting animation
     prev_n = displacement
     for n in range(int(displacement), ball.size, -1):
         delete_cue(angle, prev_n)
-        draw_cue(angle, n, gameState.cue_color)
+        draw_cue(angle, n, game_state.cue_color)
         pygame.display.update()
         prev_n = n
-    delete_cue(prev_angle, gameState.ball_size)
+    delete_cue(prev_angle, game_state.ball_size)
 
     sin_a = math.sin(math.radians(angle))
     cos_a = math.cos(math.radians(angle))

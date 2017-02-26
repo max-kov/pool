@@ -1,25 +1,25 @@
 import physics
 
 
-def table_collision(gameState, ball, ball_id):
+def table_collision(game_state, ball, ball_id):
 
-    lower_x = gameState.table_margin
-    upper_x = gameState.resolution[0] - gameState.table_margin
-    lower_y = gameState.table_margin
-    upper_y = gameState.resolution[1] - gameState.table_margin
+    lower_x = game_state.table_margin
+    upper_x = game_state.resolution[0] - game_state.table_margin
+    lower_y = game_state.table_margin
+    upper_y = game_state.resolution[1] - game_state.table_margin
 
     def is_near_table_holes():
-        window_x_mid = gameState.resolution[0] / 2
+        window_x_mid = game_state.resolution[0] / 2
         # edge holes
-        if (ball.x < gameState.table_margin * 1.2 and ball.y < gameState.table_margin * 1.5) or \
-                (ball.x > gameState.resolution[0] - gameState.table_margin * 1.2 and ball.y > gameState.resolution[1] - gameState.table_margin * 1.2) or \
-                (ball.x < gameState.table_margin * 1.2 and ball.y > gameState.resolution[1] - gameState.table_margin * 1.2) or \
-                (ball.x > gameState.resolution[0] - gameState.table_margin * 1.2 and ball.y < gameState.table_margin * 1.2):
+        if (ball.x < game_state.table_margin * 1.2 and ball.y < game_state.table_margin * 1.5) or \
+                (ball.x > game_state.resolution[0] - game_state.table_margin * 1.2 and ball.y > game_state.resolution[1] - game_state.table_margin * 1.2) or \
+                (ball.x < game_state.table_margin * 1.2 and ball.y > game_state.resolution[1] - game_state.table_margin * 1.2) or \
+                (ball.x > game_state.resolution[0] - game_state.table_margin * 1.2 and ball.y < game_state.table_margin * 1.2):
             return True
         else:
             # midlle holes
-            if (ball.x < window_x_mid + gameState.table_margin / 2 and ball.x > window_x_mid - gameState.table_margin / 2) and \
-                    (ball.y > gameState.resolution[1] - gameState.table_margin or ball.y < gameState.table_margin):
+            if (ball.x < window_x_mid + game_state.table_margin / 2 and ball.x > window_x_mid - game_state.table_margin / 2) and \
+                    (ball.y > game_state.resolution[1] - game_state.table_margin or ball.y < game_state.table_margin):
                 return True
             else:
                 return False
@@ -55,15 +55,15 @@ def table_collision(gameState, ball, ball_id):
         if is_hitting_ceilings():
             ball.set_vector(ball.dx, -ball.dy)
 
-    for hole in gameState.table_holes:
+    for hole in game_state.table_holes:
         posx, posy = hole
-        if physics.distance_test(posx, posy, ball.x, ball.y, gameState.ball_size * 1.7):
+        if physics.distance_test(posx, posy, ball.x, ball.y, game_state.ball_size * 1.7):
             was_deleted = True
     return was_deleted
 
 
-def check_for_collision(gameState):
-    balls = gameState.balls
+def check_for_collision(game_state):
+    balls = game_state.balls
     balls_to_delete = []
     for counter1 in range(0, len(balls)):
         ball1 = balls[counter1]
@@ -77,25 +77,25 @@ def check_for_collision(gameState):
         # collided with one ball only
         if len(collision_list) <= 1:
             for index, ballnum in enumerate(collision_list):
-                physics.collide_balls(gameState,ball1, balls[ballnum])
+                physics.collide_balls(game_state, ball1, balls[ballnum])
         else:
             # collided with several balls, this will only be used at the beginning of the game
             if ball1.dy < 0:
                 # collidion at a positive angle
                 collision_list.reverse()
                 for index, ballnum in enumerate(collision_list):
-                    physics.collide_balls(gameState,ball1, balls[ballnum])
+                    physics.collide_balls(game_state, ball1, balls[ballnum])
             elif ball1.dy > 0:
                 # collidion at a negative angle
                 for index, ballnum in enumerate(collision_list):
-                    physics.collide_balls(gameState,ball1, balls[ballnum])
+                    physics.collide_balls(game_state, ball1, balls[ballnum])
             else:
                 # angle of collision = 0
-                physics.perfect_break(gameState,ball1, balls[collision_list[0]], balls[collision_list[1]])
+                physics.perfect_break(game_state, ball1, balls[collision_list[0]], balls[collision_list[1]])
 
-        if table_collision(gameState, ball1, counter1):
+        if table_collision(game_state, ball1, counter1):
             balls_to_delete.append(counter1)
 
     for ball in balls_to_delete:
-        balls[ball].destroy(gameState)
+        balls[ball].destroy(game_state)
         balls.pop(ball)

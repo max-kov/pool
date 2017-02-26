@@ -2,18 +2,17 @@ import graphics
 import ballinfo
 import math
 import pygame
-import collisiontests
 import itertools
-import physics
 import ball
+
 
 class GameState:
     def __init__(self):
         def get_holes(self):
-            #stores all possible xs and yss
+            # stores all possible xs and yss
             holes_x = [self.table_margin, self.resolution[0] - self.table_margin, self.resolution[0] / 2]
             holes_y = [self.table_margin, self.resolution[1] - self.table_margin]
-            #generates hole locations
+            # generates hole locations
             return list(itertools.product(holes_x, holes_y))
 
         pygame.init()
@@ -50,8 +49,8 @@ class GameState:
         for i in range(self.total_ball_num):
             ball_data = ballinfo.BallInfo(i)
             self.balls.append(
-                ball.Ball(ball_data.ball_size, 0, 0, ball_data.is_striped, ball_data.ball_color, i, ball_data.ball_num_txt))
-
+                ball.Ball(ball_data.ball_size, 0, 0, ball_data.is_striped, ball_data.ball_color, i,
+                          ball_data.ball_num_txt))
 
     def set_pool_balls(self, x, y):
         sixty_degrees = math.radians(60)
@@ -64,37 +63,36 @@ class GameState:
         ballx = 0
         bally = 0
 
-        self.balls[0].move_to(self, 0.3*self.resolution[0], self.resolution[1]/2.0)
+        self.balls[0].move_to(self, 0.3 * self.resolution[0], self.resolution[1] / 2.0)
 
         for i, ball in enumerate(self.balls):
             if not i == 0:
-                ball.move_to(self,x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
+                ball.move_to(self, x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
                 if bally == ballx:
                     ballx += 1
                     bally = 0
                 else:
                     bally += 1
 
-
     def main_menu(self):
-        #checks if mouse is in a button
+        # checks if mouse is in a button
         def check_mouse_pos(text_starting_place, text_ending_place, spacing, button_num):
             mouse_pos = pygame.mouse.get_pos()
             return (text_starting_place[button_num][0] - spacing < mouse_pos[0] < text_ending_place[button_num][
                 0] + spacing) and \
-                    (text_starting_place[button_num][1] - spacing < mouse_pos[1] < text_ending_place[button_num][
-                        1] + spacing)
+                   (text_starting_place[button_num][1] - spacing < mouse_pos[1] < text_ending_place[button_num][
+                       1] + spacing)
 
-        #draws main menu and returns all the variables needed to check button clicks
+        # draws main menu and returns all the variables needed to check button clicks
         text_starting_place, text_ending_place, spacing, buttons = self.canvas.draw_main_menu(self.table_color)
 
         was_clicked = False
         button_clicked = 0
 
-        #while a button was not clicked checks if mouse is in the button and if so changes its colour
+        # while a button was not clicked checks if mouse is in the button and if so changes its colour
         while not was_clicked:
             pygame.display.update()
-            user_events = graphics.events()
+            user_events = self.events()
 
             for num in range(1, len(buttons)):
                 if check_mouse_pos(text_starting_place, text_ending_place, spacing, num):
@@ -114,13 +112,10 @@ class GameState:
         self.canvas.draw_table_sides(self)
 
         table_y_middle = self.resolution[1] / 2.0
-        table_x_quarter = 3.0/4 * self.resolution[0]
+        table_x_quarter = 3.0 / 4 * self.resolution[0]
 
         self.create_balls()
         self.set_pool_balls(table_x_quarter, table_y_middle)
-
-    def check_for_collision(self):
-        collisiontests.check_for_collision(self)
 
     def do_one_frame(self):
         self.canvas.draw_table_holes(self)
@@ -136,3 +131,18 @@ class GameState:
                 return_value = False
                 break
         return return_value
+
+    def events(self):
+        closed = False
+        clicked = False
+        mouse_pos = pygame.mouse.get_pos()
+
+        for event in pygame.event.get():
+            if event.type in [pygame.QUIT, pygame.KEYDOWN]:
+                closed = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                clicked = True
+
+        return {"closed": closed,
+                "clicked": clicked,
+                "mouse_pos": mouse_pos}
