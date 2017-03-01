@@ -56,7 +56,7 @@ def collide_balls(game_state, pl1, pl2):
     next_x_2 = pl2.x + resultant_x2
     next_y_2 = pl2.y + resultant_y2
 
-    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)-pl1.size-pl2.size
+    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)-pl1.radius-pl2.radius
 
     if (next_dist<=0):
         #checks if in the next frames the blass will be inside each other
@@ -91,7 +91,7 @@ def perfect_break(game_state, pl1, pl2, pl3):
     next_x_2 = pl2.x + resultant_x2
     next_y_2 = pl2.y + resultant_y2
 
-    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)-pl1.size-pl2.size
+    next_dist = math.sqrt((next_x_1 - next_x_2)**2 + (next_y_1 - next_y_2)**2)-pl1.radius-pl2.radius
 
     if (next_dist<=0):
         #checks if in the next frames the blass will be inside each other
@@ -112,7 +112,7 @@ def collision_test(pl1,pl2):
     vector_difference_x = pl1.dx - pl2.dx
     vector_difference_y = pl1.dy - pl2.dy
 
-    if distance_test(pl1.x,pl1.y,pl2.x,pl2.y,pl1.size+pl2.size-0.1):
+    if distance_test(pl1.x,pl1.y,pl2.x,pl2.y,pl1.radius+pl2.radius-0.1):
         if (pl1.dx==0 and pl1.dy==0) and (pl2.dx==0 and pl2.dy==0):
             return False
         else:

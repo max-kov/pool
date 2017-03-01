@@ -16,6 +16,6 @@ if (button_pressed==1):
         events = game.events()
 
         while game.all_not_moving():
-            cuestick.set_cue(game,0)
+            cuestick.set_cue(game)
 
 pygame.quit()

@@ -4,6 +4,7 @@ import math
 import pygame
 import itertools
 import ball
+import table_sprites
 
 
 class GameState:
@@ -13,27 +14,30 @@ class GameState:
             holes_x = [self.table_margin, self.resolution[0] - self.table_margin, self.resolution[0] / 2]
             holes_y = [self.table_margin, self.resolution[1] - self.table_margin]
             # generates hole locations
-            return list(itertools.product(holes_x, holes_y))
+            for i, hole in enumerate(list(itertools.product(holes_x, holes_y))):
+                self.holes.add(table_sprites.Hole(*hole,radius=self.hole_rad))
 
         pygame.init()
         pygame.display.set_caption("Gravity Simulator")
 
         # ball constants
-        self.balls = []
+        self.balls = pygame.sprite.Group()
         self.ball_size = 13
 
         # table and canvas constants
+        self.holes = pygame.sprite.Group()
+        get_holes(self)
         self.resolution = [1000, 500]
         self.table_margin = 60
         self.side_color = (200, 200, 0)
         self.table_color = (0, 100, 0)
-        self.table_holes = get_holes(self)
 
         # other constants
         self.cue_color = (100, 100, 100)
         self.hole_rad = 13
 
-        self.canvas = graphics.Canvas(*self.resolution)
+        self.canvas = graphics.Canvas(*self.resolution,background_color=self.table_color)
+
 
         # fps control
         self.fps_clock = pygame.time.Clock()
@@ -48,7 +52,7 @@ class GameState:
     def create_balls(self):
         for i in range(self.total_ball_num):
             ball_data = ballinfo.BallInfo(i)
-            self.balls.append(
+            self.balls.add(
                 ball.Ball(ball_data.ball_size, 0, 0, ball_data.is_striped, ball_data.ball_color, i,
                           ball_data.ball_num_txt))
 
@@ -63,16 +67,17 @@ class GameState:
         ballx = 0
         bally = 0
 
-        self.balls[0].move_to(self, 0.3 * self.resolution[0], self.resolution[1] / 2.0)
-
         for i, ball in enumerate(self.balls):
-            if not i == 0:
+            if not ball.number == 0:
                 ball.move_to(self, x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
                 if bally == ballx:
                     ballx += 1
                     bally = 0
                 else:
                     bally += 1
+            else:
+                ball.move_to(self, 0.3 * self.resolution[0], self.resolution[1] / 2.0)
+                self.zero_ball = ball
 
     def main_menu(self):
         # checks if mouse is in a button
@@ -117,10 +122,16 @@ class GameState:
         self.create_balls()
         self.set_pool_balls(table_x_quarter, table_y_middle)
 
+        self.balls.clear(self.canvas.surface, (0,0,0))
+        self.balls.update(self)
+        self.balls.draw(self.canvas.surface)
+
+
     def do_one_frame(self):
         self.canvas.draw_table_holes(self)
-        for ball in self.balls:
-            ball.move_once(self)
+        self.balls.clear(self.canvas.surface,self.canvas.background)
+        self.balls.update(self)
+        self.balls.draw(self.canvas.surface)
         pygame.display.update()
         self.mark_one_frame()
 

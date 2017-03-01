@@ -3,7 +3,7 @@ import pygame
 import physics
 
 
-def set_cue(game_state, ball_id):
+def set_cue(game_state):
     hit_power = 0.8
     cue_length = 300
     cue_thickness = 3
@@ -35,15 +35,17 @@ def set_cue(game_state, ball_id):
                  game_state.table_color)
         game_state.canvas.draw_table_sides(game_state)
         game_state.canvas.draw_table_holes(game_state)
-        game_state.canvas.redraw_balls(game_state)
+        # game_state.canvas.redraw_balls(game_state)
+        # game_state.balls.update()
+
 
     def draw_lines(ball, angle, color):
         #draws the aiming dotted lines
         line_dist = 5
         sin_a = math.sin(math.radians(angle))
         cos_a = math.cos(math.radians(angle))
-        line_x = ball.x + ball.size * cos_a * 2
-        line_y = ball.y + ball.size * sin_a * 2
+        line_x = ball.x + ball.radius * cos_a * 2
+        line_y = ball.y + ball.radius * sin_a * 2
         count = 1
         while (line_x > game_state.table_margin) and (line_x < game_state.canvas.size_x - game_state.table_margin) and \
                 (line_y > game_state.table_margin) and (line_y < game_state.canvas.size_y - game_state.table_margin):
@@ -54,21 +56,21 @@ def set_cue(game_state, ball_id):
             count += 1
 
     def get_cue_displacement(mouse_pos, ball, initial_distance):
-        displacement = physics.point_distance(mouse_pos, (ball.x, ball.y)) - initial_distance + ball.size
+        displacement = physics.point_distance(mouse_pos, (ball.x, ball.y)) - initial_distance + ball.radius
         if displacement > 0:
-            if displacement > 100+ball.size:
+            if displacement > 100+ball.radius:
                 cue_displacement = 100
             else:
                 cue_displacement = displacement
         else:
-            cue_displacement = ball.size
+            cue_displacement = ball.radius
 
         return cue_displacement
 
-    ball = game_state.balls[ball_id]
+    ball = game_state.zero_ball
     angle = 0
     prev_angle = angle
-    rect_pointlist = draw_cue(angle, ball.size, (100, 100, 100))
+    rect_pointlist = draw_cue(angle, ball.radius, (100, 100, 100))
     pygame.display.update()
 
     start_pos = pygame.mouse.get_pos()
@@ -81,7 +83,7 @@ def set_cue(game_state, ball_id):
         if pygame.mouse.get_pressed()[0] and physics.is_point_in_rect(rect_pointlist, start_pos):
             done = True
             inital_mouse_dist = physics.point_distance(start_pos, (ball.x, ball.y))
-            prev_displacement = ball.size
+            prev_displacement = ball.radius
             game_state.mark_one_frame()
 
             # cue was displaced from the cue ball
@@ -111,13 +113,13 @@ def set_cue(game_state, ball_id):
 
                 game_state.mark_one_frame()
 
-            if (displacement == ball.size):
+            if (displacement == ball.radius):
                 done = False
 
     draw_lines(ball, prev_angle + 180, game_state.table_color)
     # hitting animation
     prev_n = displacement
-    for n in range(int(displacement), ball.size, -1):
+    for n in range(int(displacement), ball.radius, -1):
         delete_cue(angle, prev_n)
         draw_cue(angle, n, game_state.cue_color)
         pygame.display.update()

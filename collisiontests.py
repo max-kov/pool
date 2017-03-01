@@ -18,34 +18,23 @@ def table_collision(game_state, ball, ball_id):
             return True
         else:
             # midlle holes
-            if (ball.x < window_x_mid + game_state.table_margin / 2 and ball.x > window_x_mid - game_state.table_margin / 2) and \
-                    (ball.y > game_state.resolution[1] - game_state.table_margin or ball.y < game_state.table_margin):
-                return True
-            else:
-                return False
+            return (ball.x < window_x_mid + game_state.table_margin / 2 and ball.x > window_x_mid - game_state.table_margin / 2) and \
+                    (ball.y > game_state.resolution[1] - game_state.table_margin or ball.y < game_state.table_margin)
 
     def is_hitting_sides():
-        if ball.x + ball.size > upper_x or ball.x - ball.size < lower_x:
-            # 1st is location check
-            if (ball.x + ball.size > upper_x and not ball.dx < 0) or (
-                                ball.x - ball.size < lower_x and not ball.dx > 0):
-                # 2nd is vector check
-                # if the direction of the ball if from the wall, there is no need to change the direction
-                return True
-            else:
-                return False
-        else:
-            return False
+        # 1st is location check
+        return ball.x + ball.radius > upper_x or ball.x - ball.radius < lower_x and \
+            (ball.x + ball.radius > upper_x and not ball.dx < 0) or (
+            ball.x - ball.radius < lower_x and not ball.dx > 0)
+        # 2nd is vector check
+        # if the direction of the ball if from the wall, there is no need to change the direction
+
 
     def is_hitting_ceilings():
-        if ball.y + ball.size > upper_y or ball.y - ball.size < lower_y:
-            if (ball.y + ball.size > upper_y and not ball.dy < 0) or (
-                                ball.y - ball.size < lower_y and not ball.dy > 0):
-                return True
-            else:
-                return False
-        else:
-            return False
+        return \
+            (ball.y + ball.radius > upper_y or ball.y - ball.radius < lower_y) and\
+        (ball.y + ball.radius > upper_y and not ball.dy < 0) or (ball.y - ball.radius < lower_y and not ball.dy > 0)
+
 
     was_deleted = False
     if not is_near_table_holes():
@@ -65,11 +54,9 @@ def table_collision(game_state, ball, ball_id):
 def check_for_collision(game_state):
     balls = game_state.balls
     balls_to_delete = []
-    for counter1 in range(0, len(balls)):
-        ball1 = balls[counter1]
+    for counter1, ball1 in enumerate(balls):
         collision_list = []
-        for counter2 in range(counter1, len(balls)):
-            ball2 = balls[counter2]
+        for counter2, ball2 in enumerate(balls):
             if not counter1 == counter2:
                 if physics.collision_test(ball1, ball2):
                     collision_list.append(counter2)

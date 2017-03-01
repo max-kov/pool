@@ -2,34 +2,17 @@ import pygame
 import math
 
 class Canvas:
-    def __init__(self, vertical_size, horizontal_size, *args, **kwargs):
+    def __init__(self, vertical_size, horizontal_size, background_color, *args, **kwargs):
         self.surface = pygame.display.set_mode((vertical_size, horizontal_size), *args, **kwargs)
         self.size_x = vertical_size
         self.size_y = horizontal_size
 
-    def delete_ball(self, game_state, ball):
-        pygame.draw.circle(self.surface, game_state.table_color, (int(ball.x), int(ball.y)), int(ball.size))
+        self.background = pygame.Surface(self.surface.get_size())
+        self.background = self.background.convert()
+        self.background.fill(background_color)
 
-    def draw_ball(self, game_state, ball):
-        pygame.draw.circle(game_state.canvas.surface, ball.color, (int(ball.x), int(ball.y)), int(ball.size))
+        self.surface.blit(self.background, (0, 0))
 
-        if ball.is_striped and not ball.number==0:
-            point_list = [(int(ball.x) + math.cos(math.radians(angle))*ball.size*0.8,
-                           int(ball.y) +math.sin(math.radians(angle))*ball.size*0.8) for angle
-                          in range(20,-20,-1)]
-            point_list+=[(int(ball.x)+ math.cos(math.radians(angle))*ball.size*0.8,
-                                   int(ball.y) +math.sin(math.radians(angle))*ball.size*0.8)  for angle
-                          in range(200,160,-1)]
-            pygame.draw.polygon(game_state.canvas.surface, (255, 255, 255), point_list)
-        pygame.draw.circle(game_state.canvas.surface, (255, 255, 255), (int(ball.x), int(ball.y)), int(ball.size / 2))
-        game_state.canvas.surface.blit(ball.number_info[0], (ball.x - ball.number_info[1][0] / 2, ball.y - ball.number_info[1][1] / 2))
-
-    def redraw_balls(self, game_state):
-        for ball in game_state.balls:
-            self.delete_ball(game_state, ball)
-            self.draw_ball(game_state, ball)
-
-        pygame.display.update()
 
     def draw_main_menu(self,table_color):
         text_color = (255, 255, 255)
@@ -80,13 +63,11 @@ class Canvas:
         return text_starting_place, text_ending_place, spacing, buttons
 
 
-
     def draw_table_holes(self, game_state):
         for table_hole in game_state.table_holes:
             pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(game_state.hole_rad))
 
     def draw_table_sides(self, game_state):
-        self.surface.fill(game_state.table_color)
         pygame.draw.rect(self.surface, game_state.side_color, (0, 0, self.size_x, game_state.table_margin))
         pygame.draw.rect(self.surface, game_state.side_color, (self.size_x - game_state.table_margin, 0, self.size_x, self.size_y))
         pygame.draw.rect(self.surface, game_state.side_color, (0, self.size_y - game_state.table_margin, self.size_x, self.size_y))
