@@ -63,12 +63,12 @@ class Canvas:
         return text_starting_place, text_ending_place, spacing, buttons
 
 
-    def draw_table_holes(self, game_state):
-        for table_hole in game_state.table_holes:
-            pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(game_state.hole_rad))
-
-    def draw_table_sides(self, game_state):
-        pygame.draw.rect(self.surface, game_state.side_color, (0, 0, self.size_x, game_state.table_margin))
-        pygame.draw.rect(self.surface, game_state.side_color, (self.size_x - game_state.table_margin, 0, self.size_x, self.size_y))
-        pygame.draw.rect(self.surface, game_state.side_color, (0, self.size_y - game_state.table_margin, self.size_x, self.size_y))
-        pygame.draw.rect(self.surface, game_state.side_color, (0, 0, game_state.table_margin, self.size_y))
+    # def draw_table_holes(self, game_state):
+    #     for table_hole in game_state.table_holes:
+    #         pygame.draw.circle(self.surface, (0, 0, 0), table_hole, int(game_state.hole_rad))
+    #
+    # def draw_table_sides(self, game_state):
+    #     pygame.draw.rect(self.surface, game_state.side_color, (0, 0, self.size_x, game_state.table_margin))
+    #     pygame.draw.rect(self.surface, game_state.side_color, (self.size_x - game_state.table_margin, 0, self.size_x, self.size_y))
+    #     pygame.draw.rect(self.surface, game_state.side_color, (0, self.size_y - game_state.table_margin, self.size_x, self.size_y))
+    #     pygame.draw.rect(self.surface, game_state.side_color, (0, 0, game_state.table_margin, self.size_y))

@@ -30,11 +30,11 @@ def set_cue(game_state):
 
         return points
 
-    def delete_cue(angle, displacement):
+    def delete_cue(angle, displacement,game_state):
         draw_cue(angle, displacement,
                  game_state.table_color)
-        game_state.canvas.draw_table_sides(game_state)
-        game_state.canvas.draw_table_holes(game_state)
+        game_state.sides.draw(game_state.canvas.surface)
+        game_state.holes.draw(game_state.canvas.surface)
         # game_state.canvas.redraw_balls(game_state)
         # game_state.balls.update()
 
@@ -103,7 +103,7 @@ def set_cue(game_state):
                 if dx > 0:
                     angle -= 180
                 if not (prev_angle == angle) or not (prev_displacement == displacement):
-                    delete_cue( prev_angle, prev_displacement)
+                    delete_cue( prev_angle, prev_displacement,game_state)
                     draw_lines(ball, prev_angle + 180, game_state.table_color)
                     rect_pointlist = draw_cue(angle, displacement, game_state.cue_color)
                     draw_lines(ball, angle + 180, (255, 255, 255))
@@ -120,11 +120,11 @@ def set_cue(game_state):
     # hitting animation
     prev_n = displacement
     for n in range(int(displacement), ball.radius, -1):
-        delete_cue(angle, prev_n)
+        delete_cue(angle, prev_n,game_state)
         draw_cue(angle, n, game_state.cue_color)
         pygame.display.update()
         prev_n = n
-    delete_cue(prev_angle, game_state.ball_size)
+    delete_cue(prev_angle, game_state.ball_size,game_state)
 
     sin_a = math.sin(math.radians(angle))
     cos_a = math.cos(math.radians(angle))

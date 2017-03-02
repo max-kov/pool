@@ -44,8 +44,9 @@ def table_collision(game_state, ball, ball_id):
         if is_hitting_ceilings():
             ball.set_vector(ball.dx, -ball.dy)
 
-    for hole in game_state.table_holes:
-        posx, posy = hole
+    for i, hole in enumerate(game_state.holes):
+        posx = hole.x
+        posy = hole.y
         if physics.distance_test(posx, posy, ball.x, ball.y, game_state.ball_size * 1.7):
             was_deleted = True
     return was_deleted

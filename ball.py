@@ -22,12 +22,10 @@ class Ball(pygame.sprite.Sprite):
         self.update_sprite()
 
     def move_to(self, game_state, pos_x, pos_y):
-        game_state.canvas.delete_ball(game_state, self)
-
         self.x = pos_x
         self.y = pos_y
 
-        # game_state.canvas.draw_ball(game_state, self)
+        self.rect.center = (self.x, self.y)
 
     def add_force(self, delta_x, delta_y):
         self.dx += delta_x / self.mass
@@ -54,8 +52,8 @@ class Ball(pygame.sprite.Sprite):
         self.dx = delta_x
         self.dy = delta_y
 
-    def destroy(self, game_state):
-        game_state.canvas.delete_ball(game_state, self)
+    # def destroy(self, game_state):
+    #     game_state.canvas.delete_ball(game_state, self)
 
     def update_sprite(self):
         new_sprite = pygame.Surface([self.radius * 2, self.radius * 2])

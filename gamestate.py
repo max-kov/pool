@@ -17,6 +17,17 @@ class GameState:
             for i, hole in enumerate(list(itertools.product(holes_x, holes_y))):
                 self.holes.add(table_sprites.Hole(*hole,radius=self.hole_rad))
 
+
+        def get_table_sides(self):
+            sides = [(0, 0, self.resolution[0], self.table_margin),
+                     (self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]),
+                     (0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]),
+                     (0, 0, self.table_margin, self.resolution[1]),
+            ]
+
+            for i, side in enumerate(sides):
+                self.sides.add(table_sprites.TableSide(side, self.side_color))
+
         pygame.init()
         pygame.display.set_caption("Gravity Simulator")
 
@@ -25,8 +36,6 @@ class GameState:
         self.ball_size = 13
 
         # table and canvas constants
-        self.holes = pygame.sprite.Group()
-        get_holes(self)
         self.resolution = [1000, 500]
         self.table_margin = 60
         self.side_color = (200, 200, 0)
@@ -35,6 +44,16 @@ class GameState:
         # other constants
         self.cue_color = (100, 100, 100)
         self.hole_rad = 13
+
+        #sprite groups
+        self.holes = pygame.sprite.Group()
+        self.sides = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group()
+        get_holes(self)
+        get_table_sides(self)
+
+        self.all_sprites.add(self.sides)
+        self.all_sprites.add(self.holes)
 
         self.canvas = graphics.Canvas(*self.resolution,background_color=self.table_color)
 
@@ -114,24 +133,20 @@ class GameState:
     def start_pool(self):
         self.total_ball_num = 16
 
-        self.canvas.draw_table_sides(self)
-
         table_y_middle = self.resolution[1] / 2.0
         table_x_quarter = 3.0 / 4 * self.resolution[0]
 
         self.create_balls()
         self.set_pool_balls(table_x_quarter, table_y_middle)
-
-        self.balls.clear(self.canvas.surface, (0,0,0))
-        self.balls.update(self)
-        self.balls.draw(self.canvas.surface)
+        self.all_sprites.add(self.balls)
 
 
     def do_one_frame(self):
-        self.canvas.draw_table_holes(self)
-        self.balls.clear(self.canvas.surface,self.canvas.background)
-        self.balls.update(self)
-        self.balls.draw(self.canvas.surface)
+        self.all_sprites.clear(self.canvas.surface,self.canvas.background)
+        self.all_sprites.draw(self.canvas.surface)
+        self.all_sprites.update(self)
+
+
         pygame.display.update()
         self.mark_one_frame()
 
