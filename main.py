@@ -1,7 +1,7 @@
 import pygame
 import gamestate
-import cuestick
 import collisiontests
+import cue
 
 game = gamestate.GameState()
 button_pressed = game.main_menu()
@@ -16,6 +16,10 @@ if (button_pressed==1):
         events = game.events()
 
         while game.all_not_moving():
-            cuestick.set_cue(game)
+            game.cue.make_visible()
+            game.do_one_frame()
+            events = game.events()
+            if events["clicked"]:
+                game.cue.check_if_clicked(game,pygame.mouse.get_pos())
 
 pygame.quit()

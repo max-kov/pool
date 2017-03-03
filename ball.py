@@ -52,9 +52,6 @@ class Ball(pygame.sprite.Sprite):
         self.dx = delta_x
         self.dy = delta_y
 
-    # def destroy(self, game_state):
-    #     game_state.canvas.delete_ball(game_state, self)
-
     def update_sprite(self):
         new_sprite = pygame.Surface([self.radius * 2, self.radius * 2])
         new_sprite.fill((200,200,200))

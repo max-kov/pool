@@ -128,22 +128,3 @@ def triangle_area(side1,side2,side3):
     # herons formula
     half_perimetre = abs((side1+side2+side3)*0.5)
     return math.sqrt(half_perimetre*(half_perimetre-abs(side1))*(half_perimetre-abs(side2))*(half_perimetre-abs(side3)))
-
-def is_point_in_rect(rect_pointlist,point):
-    # this algorithm splits up the rectangle into 4 triangles using the point provided
-    # if the point provided is inside the triangle the sum of triangle areas should be equal to that of the rectangle
-
-    #calculating rect sides
-    rect_sides = [point_distance(rect_pointlist[point_num-1], rect_pointlist[point_num]) for point_num in range(1,len(rect_pointlist))]
-    rect_sides.append(point_distance(rect_pointlist[3], rect_pointlist[0]))
-    # calculating inside triangle sides
-    # which are between the point and the rectangle points
-    triangle_sides = [point_distance(rpoint,point) for rpoint in rect_pointlist]
-    # sums up the area of the triangles
-    triangle_areas = [triangle_area(triangle_sides[side - 1], triangle_sides[side], rect_sides[side - 1])
-     for side in range(1, len(rect_pointlist))]
-    triangle_areas.append(triangle_area(triangle_sides[3], triangle_sides[0], rect_sides[3]))
-    inside_area = sum(triangle_areas)
-    # and compares it to the area of the rectangle itself
-    rect_area = rect_sides[0]*rect_sides[1]
-    return (rect_area-inside_area+4>=0)

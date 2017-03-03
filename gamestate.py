@@ -5,11 +5,12 @@ import pygame
 import itertools
 import ball
 import table_sprites
+import cue
 
 
 class GameState:
     def __init__(self):
-        def get_holes(self):
+        def create_holes(self):
             # stores all possible xs and yss
             holes_x = [self.table_margin, self.resolution[0] - self.table_margin, self.resolution[0] / 2]
             holes_y = [self.table_margin, self.resolution[1] - self.table_margin]
@@ -18,7 +19,7 @@ class GameState:
                 self.holes.add(table_sprites.Hole(*hole,radius=self.hole_rad))
 
 
-        def get_table_sides(self):
+        def create_table_sides(self):
             sides = [(0, 0, self.resolution[0], self.table_margin),
                      (self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]),
                      (0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]),
@@ -48,9 +49,10 @@ class GameState:
         #sprite groups
         self.holes = pygame.sprite.Group()
         self.sides = pygame.sprite.Group()
-        self.all_sprites = pygame.sprite.Group()
-        get_holes(self)
-        get_table_sides(self)
+        self.all_sprites = pygame.sprite.OrderedUpdates()
+
+        create_holes(self)
+        create_table_sides(self)
 
         self.all_sprites.add(self.sides)
         self.all_sprites.add(self.holes)
@@ -71,8 +73,7 @@ class GameState:
     def create_balls(self):
         for i in range(self.total_ball_num):
             ball_data = ballinfo.BallInfo(i)
-            self.balls.add(
-                ball.Ball(ball_data.ball_size, 0, 0, ball_data.is_striped, ball_data.ball_color, i,
+            self.balls.add(ball.Ball(ball_data.ball_size, 0, 0, ball_data.is_striped, ball_data.ball_color, i,
                           ball_data.ball_num_txt))
 
     def set_pool_balls(self, x, y):
@@ -140,14 +141,18 @@ class GameState:
         self.set_pool_balls(table_x_quarter, table_y_middle)
         self.all_sprites.add(self.balls)
 
+        #add cuestick
+        self.cue = cue.Cue(self.zero_ball)
+        self.all_sprites.add(self.cue)
 
-    def do_one_frame(self):
+    def redraw_all(self):
         self.all_sprites.clear(self.canvas.surface,self.canvas.background)
         self.all_sprites.draw(self.canvas.surface)
         self.all_sprites.update(self)
+        pygame.display.flip()
 
-
-        pygame.display.update()
+    def do_one_frame(self):
+        self.redraw_all()
         self.mark_one_frame()
 
     def all_not_moving(self):
@@ -172,3 +177,4 @@ class GameState:
         return {"closed": closed,
                 "clicked": clicked,
                 "mouse_pos": mouse_pos}
+
