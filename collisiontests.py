@@ -1,9 +1,12 @@
 import physics
 import pygame
 
+def ball_to_hole_collision(ball,hole):
+    return physics.distance_test(ball.x,ball.y,hole.x,hole.y,hole.radius)
+
 def table_collision(game_state):
     # destroys any circles that are in a hole
-    pygame.sprite.groupcollide (game_state.balls, game_state.holes, True, False)
+    pygame.sprite.groupcollide(game_state.balls, game_state.holes, True, False, ball_to_hole_collision)
 
     for i, side in enumerate(game_state.sides):
         ball = pygame.sprite.spritecollideany(side, game_state.balls)

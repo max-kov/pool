@@ -18,11 +18,7 @@ def distance_test(x1,y1, x2,y2, distance):
     dist_x = (x1 - x2)
     dist_y = (y1 - y2)
 
-    if distance ** 2 <= (dist_x ** 2 + dist_y ** 2):
-        return False
-    else:
-        return True
-
+    return not distance ** 2 <= (dist_x ** 2 + dist_y ** 2)
 
 def normalise_vector(x, y, magnitude):
     try:
@@ -117,10 +113,7 @@ def collision_test(pl1,pl2):
             return False
         else:
             #checks if the balls can collide considering their direction and speed
-            if target_vector_x1*vector_difference_x>0 or target_vector_y1*vector_difference_y>0:
-                return True
-            else:
-                return False
+            return target_vector_x1*vector_difference_x>0 or target_vector_y1*vector_difference_y>0
     else:
         return False
 
