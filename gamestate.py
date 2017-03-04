@@ -20,14 +20,14 @@ class GameState:
 
 
         def create_table_sides(self):
-            sides = [(0, 0, self.resolution[0], self.table_margin),
-                     (self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]),
-                     (0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]),
-                     (0, 0, self.table_margin, self.resolution[1]),
+            sides = [[(0, 0, self.resolution[0], self.table_margin),[1,-1]],
+                     [(self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]),[-1,1]],
+                     [(0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]),[1,-1]],
+                     [(0, 0, self.table_margin, self.resolution[1]),[-1,1]]
             ]
 
             for i, side in enumerate(sides):
-                self.sides.add(table_sprites.TableSide(side, self.side_color))
+                self.sides.add(table_sprites.TableSide(self.side_color, *side))
 
         pygame.init()
         pygame.display.set_caption("Gravity Simulator")
