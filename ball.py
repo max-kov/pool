@@ -1,8 +1,6 @@
 import pygame
 import math
 
-friction_coeff = 0.994
-
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self, ball_mass, planet_x, planet_y,is_striped,color,number,number_text):
@@ -32,11 +30,11 @@ class Ball(pygame.sprite.Sprite):
         self.dy += delta_y / self.mass
 
     def update(self, game_state, scale=1):
-        tempx = self.x + self.dx*scale
-        tempy = self.y + self.dy*scale
-        self.move_to(game_state, tempx, tempy)
-        self.dx = self.dx*friction_coeff
-        self.dy = self.dy*friction_coeff
+        self.x = self.x + self.dx*scale
+        self.y = self.y + self.dy*scale
+
+        self.dx = self.dx*game_state.friction_coeff
+        self.dy = self.dy*game_state.friction_coeff
 
         if abs(self.dy)<0.01:
             self.dy = 0

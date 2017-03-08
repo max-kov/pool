@@ -20,10 +20,10 @@ class GameState:
 
 
         def create_table_sides(self):
-            sides = [[(0, 0, self.resolution[0], self.table_margin),[1,-1]],
-                     [(self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]),[-1,1]],
-                     [(0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]),[1,-1]],
-                     [(0, 0, self.table_margin, self.resolution[1]),[-1,1]]
+            sides = [[(0, 0, self.resolution[0], self.table_margin),False,False],
+                     [(self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]),True,True],
+                     [(0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]),False,True],
+                     [(0, 0, self.table_margin, self.resolution[1]),True,False]
             ]
 
             for i, side in enumerate(sides):
@@ -35,6 +35,7 @@ class GameState:
         # ball constants
         self.balls = pygame.sprite.Group()
         self.ball_size = 13
+        self.friction_coeff = 0.995
 
         # table and canvas constants
         self.resolution = [1000, 500]

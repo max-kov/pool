@@ -1,5 +1,4 @@
 import pygame
-import math
 
 class Canvas:
     def __init__(self, vertical_size, horizontal_size, background_color, *args, **kwargs):

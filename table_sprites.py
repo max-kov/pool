@@ -17,8 +17,11 @@ class Hole(pygame.sprite.Sprite):
         self.y = y
 
 class TableSide(pygame.sprite.Sprite):
-    def __init__(self, color, rect, change_on_hit):
+    def __init__(self, color, rect, is_vertical, trigger_on_min):
         pygame.sprite.Sprite.__init__(self)
+
+        self.is_vertical = is_vertical
+        self.trigger_on_min = trigger_on_min
 
         self.x_min = min(rect[0],rect[2])
         self.y_min = min(rect[1],rect[3])
@@ -37,19 +40,16 @@ class TableSide(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [rect[0] + self.width / 2.0, rect[1] + self.height / 2.0]
 
-        # this multiplies the balls dy, dx by values stored in on hit
-        self.on_hit = change_on_hit
-
     def ball_hit(self,ball):
-        if self.on_hit[0]<0:
-            if ball.x + ball.radius > self.x_min and ball.dx > 0:
-                ball.dx *= self.on_hit[0]
-            elif ball.x - ball.radius < self.x_max and ball.dx < 0:
-                ball.dx *= self.on_hit[0]
+        if self.is_vertical:
+            if ball.x + ball.radius >= self.x_min and ball.dx > 0 and self.trigger_on_min:
+                ball.dx *= -1
+            elif ball.x - ball.radius <= self.x_max and ball.dx < 0 and not self.trigger_on_min:
+                ball.dx *= -1
 
-        if self.on_hit[1]<0:
-            if ball.y + ball.radius > self.y_min and ball.dy > 0:
-                ball.dy *= self.on_hit[1]
-            elif ball.y - ball.radius < self.y_max and ball.dy < 0:
-                ball.dy *= self.on_hit[1]
+        if not self.is_vertical:
+            if ball.y + ball.radius > self.y_min and ball.dy > 0 and self.trigger_on_min:
+                ball.dy *= -1
+            elif ball.y - ball.radius < self.y_max and ball.dy < 0 and not self.trigger_on_min:
+                ball.dy *= -1
 
