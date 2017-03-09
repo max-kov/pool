@@ -1,14 +1,13 @@
 import pygame
 import gamestate
 import collisiontests
-import cue
 
 game = gamestate.GameState()
 button_pressed = game.main_menu()
 
 events = game.events()
 
-if (button_pressed==1):
+if not (button_pressed==3):
     game.start_pool()
     while not events["closed"]:
         game.do_one_frame()

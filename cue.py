@@ -4,14 +4,14 @@ import physics
 
 
 class Cue(pygame.sprite.Sprite):
-    def __init__(self, target):
+    def __init__(self, target,hit_power=0.8):
         pygame.sprite.Sprite.__init__(self)
 
         self.visible = True
 
         self.target_ball = target
 
-        self.hit_power = 0.8
+        self.hit_power = hit_power
         self.cue_length = 250
         self.cue_thickness = 3
         self.cue_color = (50, 50, 50)
@@ -92,7 +92,26 @@ class Cue(pygame.sprite.Sprite):
         self.visible = False
 
     def check_if_clicked(self, game_state, initial_mouse_pos):
+        def draw_lines(target_ball, angle, color):
+            x = target_ball.x
+            y = target_ball.y
+            dy = math.cos(math.radians(angle))
+            dx = math.sin(math.radians(angle))
+
+            line_length = 10
+
+            while game_state.resolution[1]>y>0 and game_state.resolution[0] > x > 0:
+                x+=line_length*dx
+                y+=line_length*dy
+                next_x = x + line_length * dx
+                next_y = y + line_length * dy
+                pygame.draw.line(game_state.canvas.surface,color,(x,y),(next_x,next_y))
+                x=next_x
+                y=next_y
+
         if self.is_point_in_cue(initial_mouse_pos):
+            prev_angle = self.angle
+
             self.visible = 1
 
             initial_mouse_dist = physics.point_distance(initial_mouse_pos, (self.target_ball.x, self.target_ball.y))
@@ -108,33 +127,32 @@ class Cue(pygame.sprite.Sprite):
 
                 self.update_cue_displacement(final_pos, initial_mouse_dist)
 
-                if dx == 0:
-                    # div by zero exception
-                    pass
-                else:
+                prev_angle = self.angle
+                if not dx == 0:
                     self.angle = 90 - math.degrees(math.atan(dy / dx))
-                if dx > 0:
-                    self.angle -= 180
+                    if dx > 0:
+                        self.angle -= 180
 
                 game_state.all_sprites.clear(game_state.canvas.surface, game_state.canvas.background)
                 game_state.all_sprites.draw(game_state.canvas.surface)
                 game_state.all_sprites.update(game_state)
-                # draw_lines(ball, prev_angle + 180, game_state.table_color)
-                # rect_pointlist = draw_cue(angle, displacement, game_state.cue_color)
-                # draw_lines(ball, angle + 180, (255, 255, 255))
+                draw_lines(self.target_ball, prev_angle + 180,game_state.table_color)
+                draw_lines(self.target_ball, self.angle + 180,(255,255,255))
                 pygame.display.flip()
 
                 game_state.mark_one_frame()
 
-        disp_temp = self.displacement - self.target_ball.radius - 1
-        if disp_temp > 0:
-            if self.displacement > self.target_ball.radius:
-                for cur_disp in range(int(self.displacement), self.target_ball.radius, -1):
-                    self.set_displacement(cur_disp)
-                    game_state.redraw_all()
-                    game_state.mark_one_frame()
+            draw_lines(self.target_ball, self.angle + 180, game_state.table_color)
 
-            self.target_ball.add_force(-(disp_temp * math.sin(math.radians(self.angle))) * self.hit_power,
-                                       -(disp_temp * math.cos(math.radians(self.angle))) * self.hit_power)
+            disp_temp = self.displacement - self.target_ball.radius - 1
+            if disp_temp > 0:
+                if self.displacement > self.target_ball.radius:
+                    for cur_disp in range(int(self.displacement), self.target_ball.radius, -1):
+                        self.set_displacement(cur_disp)
+                        game_state.redraw_all()
+                        game_state.mark_one_frame()
 
-            self.make_invisible()
+                self.target_ball.add_force(-(disp_temp * math.sin(math.radians(self.angle))) * self.hit_power,
+                                           -(disp_temp * math.cos(math.radians(self.angle))) * self.hit_power)
+
+                self.make_invisible()

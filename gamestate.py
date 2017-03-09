@@ -46,6 +46,7 @@ class GameState:
         # other constants
         self.cue_color = (100, 100, 100)
         self.hole_rad = 13
+        self.cue_hit_power = 0.8
 
         #sprite groups
         self.holes = pygame.sprite.Group()
@@ -59,7 +60,6 @@ class GameState:
         self.all_sprites.add(self.holes)
 
         self.canvas = graphics.Canvas(*self.resolution,background_color=self.table_color)
-
 
         # fps control
         self.fps_clock = pygame.time.Clock()
@@ -143,7 +143,7 @@ class GameState:
         self.all_sprites.add(self.balls)
 
         #add cuestick
-        self.cue = cue.Cue(self.zero_ball)
+        self.cue = cue.Cue(self.zero_ball, hit_power = self.cue_hit_power)
         self.all_sprites.add(self.cue)
 
     def redraw_all(self):
