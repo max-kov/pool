@@ -46,7 +46,7 @@ class GameState:
 
         # other constants
         self.cue_color = (100, 100, 100)
-        self.hole_rad = 13
+        self.hole_rad = 18
         self.cue_hit_power = 0.8
 
         #sprite groups
