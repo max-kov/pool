@@ -6,6 +6,7 @@ import itertools
 import ball
 import table_sprites
 import cue
+import numpy as np
 
 
 class GameState:
@@ -159,7 +160,7 @@ class GameState:
     def all_not_moving(self):
         return_value = True
         for ball in self.balls:
-            if not (ball.dx == 0 and ball.dy == 0):
+            if np.count_nonzero(ball.velocity)>0:
                 return_value = False
                 break
         return return_value

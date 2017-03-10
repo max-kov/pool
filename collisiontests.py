@@ -1,8 +1,10 @@
 import physics
 import pygame
 
-def ball_to_hole_collision(ball,hole):
-    return physics.distance_test(ball.x,ball.y,hole.x,hole.y,hole.radius)
+
+def ball_to_hole_collision(ball, hole):
+    return physics.distance_test(ball.pos[0], ball.pos[1], hole.x, hole.y, hole.radius)
+
 
 def table_collision(game_state):
     # destroys any circles that are in a hole
@@ -10,7 +12,7 @@ def table_collision(game_state):
 
     for i, side in enumerate(game_state.sides):
         ball = pygame.sprite.spritecollideany(side, game_state.balls)
-        if not (ball==None):
+        if not (ball == None):
             side.ball_hit(ball)
 
 
@@ -32,19 +34,18 @@ def check_for_collision(game_state):
                 physics.collide_balls(game_state, ball1, ball)
         else:
             # collided with several balls, this will only be used at the beginning of the game
-            if ball1.dy < 0:
+            if ball1.velocity[1] < 0:
                 # collidion at a positive angle
                 collision_list.reverse()
                 for index, ball in enumerate(collision_list):
                     physics.collide_balls(game_state, ball1, ball)
-            elif ball1.dy > 0:
+            elif ball1.velocity[1] > 0:
                 # collidion at a negative angle
                 for index, ball in enumerate(collision_list):
                     physics.collide_balls(game_state, ball1, ball)
             else:
                 # angle of collision = 0
                 physics.perfect_break(game_state, ball1, collision_list[0], collision_list[1])
-
 
     for ball in balls_to_delete:
         balls[ball].destroy(game_state)

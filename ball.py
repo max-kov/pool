@@ -1,5 +1,6 @@
 import pygame
 import math
+import numpy as np
 
 
 class Ball(pygame.sprite.Sprite):
@@ -7,10 +8,8 @@ class Ball(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         self.mass = ball_mass
-        self.x = planet_x
-        self.y = planet_y
-        self.dx = 0
-        self.dy = 0
+        self.pos = np.array([0,0],dtype=float)
+        self.velocity = np.array([0,0],dtype=float)
         self.radius = ball_mass
         self.is_striped = is_striped
         self.color = color
@@ -20,35 +19,28 @@ class Ball(pygame.sprite.Sprite):
         self.update_sprite()
 
     def move_to(self, game_state, pos_x, pos_y):
-        self.x = pos_x
-        self.y = pos_y
-
-        self.rect.center = (self.x, self.y)
+        self.pos = np.array([pos_x,pos_y],dtype=float)
+        self.rect.center = self.pos.tolist()
 
     def add_force(self, delta_x, delta_y):
-        self.dx += delta_x / self.mass
-        self.dy += delta_y / self.mass
+        self.velocity += [delta_x / self.mass,delta_y / self.mass]
 
     def update(self, game_state, scale=1):
-        self.x = self.x + self.dx*scale
-        self.y = self.y + self.dy*scale
+        self.pos += self.velocity
+        self.velocity *= game_state.friction_coeff
 
-        self.dx = self.dx*game_state.friction_coeff
-        self.dy = self.dy*game_state.friction_coeff
+        if abs(self.velocity[1])<0.01:
+            self.velocity[1] = 0
 
-        if abs(self.dy)<0.01:
-            self.dy = 0
+        if abs(self.velocity[0]) < 0.01:
+            self.velocity[0] = 0
 
-        if abs(self.dx) < 0.01:
-            self.dx = 0
+        self.top_left = (self.pos[0] - self.radius, self.pos[1] - self.radius)
 
-        self.top_left = (self.x - self.radius, self.y - self.radius)
-
-        self.rect.center = (self.x,self.y)
+        self.rect.center = self.pos.tolist()
 
     def set_vector(self, delta_x, delta_y):
-        self.dx = delta_x
-        self.dy = delta_y
+        self.velocity = np.array([delta_x,delta_y],dtype=float)
 
     def update_sprite(self):
         new_sprite = pygame.Surface([self.radius * 2, self.radius * 2])
@@ -71,4 +63,4 @@ class Ball(pygame.sprite.Sprite):
 
         self.image = new_sprite
         self.rect = self.image.get_rect()
-        self.top_left = (self.x - self.radius, self.y - self.radius)
+        self.top_left = (self.pos[0] - self.radius, self.pos[1] - self.radius)

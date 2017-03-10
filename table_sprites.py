@@ -42,14 +42,14 @@ class TableSide(pygame.sprite.Sprite):
 
     def ball_hit(self,ball):
         if self.is_vertical:
-            if ball.x + ball.radius >= self.x_min and ball.dx > 0 and self.trigger_on_min:
+            if ball.pos[0] + ball.radius >= self.x_min and ball.velocity[0] > 0 and self.trigger_on_min:
                 ball.dx *= -1
-            elif ball.x - ball.radius <= self.x_max and ball.dx < 0 and not self.trigger_on_min:
+            elif ball.pos[0] - ball.radius <= self.x_max and ball.velocity[0] < 0 and not self.trigger_on_min:
                 ball.dx *= -1
 
         if not self.is_vertical:
-            if ball.y + ball.radius > self.y_min and ball.dy > 0 and self.trigger_on_min:
-                ball.dy *= -1
-            elif ball.y - ball.radius < self.y_max and ball.dy < 0 and not self.trigger_on_min:
-                ball.dy *= -1
+            if ball.pos[1] + ball.radius > self.y_min and ball.velocity[1] > 0 and self.trigger_on_min:
+                ball.velocity[1] *= -1
+            elif ball.pos[1] - ball.radius < self.y_max and ball.velocity[1] < 0 and not self.trigger_on_min:
+                ball.velocity[1] *= -1
 
