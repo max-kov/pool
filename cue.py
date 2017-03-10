@@ -1,9 +1,11 @@
 import pygame
 import math
 import physics
+import numpy as np
+
 
 class Cue(pygame.sprite.Sprite):
-    def __init__(self, target,hit_power=0.8):
+    def __init__(self, target, hit_power=0.8):
         pygame.sprite.Sprite.__init__(self)
 
         self.visible = True
@@ -31,19 +33,15 @@ class Cue(pygame.sprite.Sprite):
 
         cos_a = math.cos(math.radians(self.angle))
         sin_a = math.sin(math.radians(self.angle))
-        x_constant = cos_a * self.cue_thickness
-        y_constant = sin_a * self.cue_thickness
 
-        points = [
-            (x_constant, -y_constant),
-            (-x_constant, y_constant),
-            (self.cue_length * sin_a - x_constant, self.cue_length * cos_a + y_constant),
-            (self.cue_length * sin_a + x_constant, self.cue_length * cos_a - y_constant)
-        ]
+        initial_coords = np.array([cos_a, -sin_a]) * self.cue_thickness
+        coord_diff = np.array([self.cue_length * sin_a, self.cue_length * cos_a])
+        displacement_matrix = np.array(
+            [sprite_centre + self.displacement * sin_a, sprite_centre + self.displacement * cos_a])
 
-        shifted_point_list = [
-            (a + sprite_centre + self.displacement * sin_a, b + sprite_centre + self.displacement * cos_a) for a, b in
-            points]
+        points = np.array((initial_coords, -initial_coords, -initial_coords + coord_diff, initial_coords + coord_diff))
+
+        shifted_point_list = points + displacement_matrix
 
         if self.visible:
             pygame.draw.polygon(self.image, self.cue_color, shifted_point_list)
@@ -51,9 +49,7 @@ class Cue(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.target_ball.pos.tolist()
 
-        self.points_on_screen = [
-            (a + self.target_ball.pos[0] + self.displacement * sin_a, b + self.target_ball.pos[1] + self.displacement * cos_a) for
-            a, b in points]
+        self.points_on_screen = points + self.target_ball.pos + self.displacement * np.array([sin_a, cos_a])
 
     def set_displacement(self, new_displacement):
         self.displacement = new_displacement
@@ -72,10 +68,11 @@ class Cue(pygame.sprite.Sprite):
         inside_area = sum(triangle_areas)
         rect_area = rect_sides[0] * rect_sides[1]
 
-        return (rect_area - inside_area + 4 >= 0)
+        return rect_area - inside_area + 4 >= 0
 
     def update_cue_displacement(self, mouse_pos, initial_mouse_dist):
-        displacement = physics.point_distance(mouse_pos, tuple(self.target_ball.pos)) - initial_mouse_dist + self.target_ball.radius
+        displacement = physics.point_distance(mouse_pos, tuple(
+            self.target_ball.pos)) - initial_mouse_dist + self.target_ball.radius
         if displacement > self.max_displacement:
             self.displacement = self.max_displacement
         elif displacement < self.target_ball.radius:
@@ -91,20 +88,14 @@ class Cue(pygame.sprite.Sprite):
 
     def check_if_clicked(self, game_state, initial_mouse_pos):
         def draw_lines(target_ball, angle, color):
-            x,y = self.target_ball.pos
-            dy = math.cos(math.radians(angle))
-            dx = math.sin(math.radians(angle))
+            cur_pos = np.copy(target_ball.pos)
+            diff = np.array([math.sin(math.radians(angle)),math.cos(math.radians(angle))])
 
             line_length = 10
 
-            while game_state.resolution[1]>y>0 and game_state.resolution[0] > x > 0:
-                x+=line_length*dx
-                y+=line_length*dy
-                next_x = x + line_length * dx
-                next_y = y + line_length * dy
-                pygame.draw.line(game_state.canvas.surface,color,(x,y),(next_x,next_y))
-                x=next_x
-                y=next_y
+            while game_state.resolution[1] > cur_pos[1] > 0 and game_state.resolution[0] > cur_pos[0] > 0:
+                cur_pos+=line_length*diff*2
+                pygame.draw.line(game_state.canvas.surface, color, tuple(cur_pos), tuple(cur_pos+line_length*diff))
 
         if self.is_point_in_cue(initial_mouse_pos):
             prev_angle = self.angle
@@ -133,8 +124,8 @@ class Cue(pygame.sprite.Sprite):
                 game_state.all_sprites.clear(game_state.canvas.surface, game_state.canvas.background)
                 game_state.all_sprites.draw(game_state.canvas.surface)
                 game_state.all_sprites.update(game_state)
-                draw_lines(self.target_ball, prev_angle + 180,game_state.table_color)
-                draw_lines(self.target_ball, self.angle + 180,(255,255,255))
+                draw_lines(self.target_ball, prev_angle + 180, game_state.table_color)
+                draw_lines(self.target_ball, self.angle + 180, (255, 255, 255))
                 pygame.display.flip()
 
                 game_state.mark_one_frame()

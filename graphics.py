@@ -13,7 +13,7 @@ class Canvas:
         self.surface.blit(self.background, (0, 0))
 
 
-    def draw_main_menu(self,table_color):
+    def draw_main_menu(self):
         text_color = (255, 255, 255)
         text_selected_color = (0, 0, 255)
         font_name = pygame.font.get_default_font()

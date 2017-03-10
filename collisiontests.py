@@ -12,7 +12,7 @@ def table_collision(game_state):
 
     for i, side in enumerate(game_state.sides):
         ball = pygame.sprite.spritecollideany(side, game_state.balls)
-        if not (ball == None):
+        if ball is not None:
             side.ball_hit(ball)
 
 
@@ -25,7 +25,7 @@ def check_for_collision(game_state):
         for counter2, ball2 in enumerate(balls):
             if not counter1 == counter2:
                 if physics.collision_test(ball1, ball2):
-                    physics.collide_balls(ball1,ball2)
+                    physics.collide_balls(ball1, ball2)
 
     for ball in balls_to_delete:
         balls[ball].destroy(game_state)

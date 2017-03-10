@@ -18,7 +18,7 @@ class Ball(pygame.sprite.Sprite):
 
         self.update_sprite()
 
-    def move_to(self, game_state, pos_x, pos_y):
+    def move_to(self, pos_x, pos_y):
         self.pos = np.array([pos_x,pos_y],dtype=float)
         self.rect.center = self.pos.tolist()
 
