@@ -2,32 +2,17 @@ import math
 import numpy as np
 
 
-def ball_distance(ball1, ball2):
-    # using pythaoreas to calculate the range between ballanets
-    return np.linalg.norm(ball1.pos - ball2.pos)
-
-
 def point_distance(p1, p2):
-    dist_x = (p1[0] - p2[0])
-    dist_y = (p1[1] - p2[1])
-    return math.sqrt(dist_x ** 2 + dist_y ** 2)
-
-
-def distance_test(x1, y1, x2, y2, distance):
-    # comparing distance without using square root to improve accuracy and speed
-
-    dist_x = (x1 - x2)
-    dist_y = (y1 - y2)
-
-    return not distance ** 2 <= (dist_x ** 2 + dist_y ** 2)
+    dist_diff = p1-p2
+    return np.hypot(dist_diff[0],dist_diff[1])
 
 
 def collide_balls(ball1, ball2):
     point_diff = ball2.pos - ball1.pos
     system_velocity = ball1.velocity - ball2.velocity
-    # hack to avoid dy or dx =0
+    # hack to avoid dy or dx =0 , 0.001 is negligible
     system_velocity += 0.001
-    dist = np.linalg.norm(point_diff)
+    dist = point_distance(ball1.pos,ball2.pos)
 
     if np.dot(point_diff, system_velocity) > 0:
         collision = point_diff / dist
@@ -39,12 +24,15 @@ def collide_balls(ball1, ball2):
 
 
 def collision_test(ball1, ball2):
-    return (ball_distance(ball1, ball2) < ball1.radius + ball2.radius) and \
+    return (point_distance(ball1.pos, ball2.pos) < ball1.radius + ball2.radius) and \
            np.count_nonzero(ball1.velocity + ball2.velocity) > 0
 
 
 def triangle_area(side1, side2, side3):
     # herons formula
     half_perimetre = abs((side1 + side2 + side3) * 0.5)
-    return math.sqrt(
-        half_perimetre * (half_perimetre - abs(side1)) * (half_perimetre - abs(side2)) * (half_perimetre - abs(side3)))
+    try:
+        return math.sqrt(half_perimetre * (half_perimetre - abs(side1)) * (half_perimetre - abs(side2)) * (half_perimetre - abs(side3)))
+    except:
+        # not a triangle
+        return 0

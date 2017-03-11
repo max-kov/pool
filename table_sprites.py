@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 
 
 class Hole(pygame.sprite.Sprite):
@@ -13,8 +14,7 @@ class Hole(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, (0, 0, 0), (radius, radius), radius, 0)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.x = x
-        self.y = y
+        self.pos = np.array([x,y])
 
 
 class TableSide(pygame.sprite.Sprite):
