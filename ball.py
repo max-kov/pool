@@ -31,11 +31,11 @@ class Ball(pygame.sprite.Sprite):
         self.pos += self.velocity
         self.velocity *= game_state.friction_coeff
 
-        if abs(self.velocity[1]) < 0.01:
-            self.velocity[1] = 0
-
-        if abs(self.velocity[0]) < 0.01:
-            self.velocity[0] = 0
+        # if abs(self.velocity[1]) < 0.01:
+        #     self.velocity[1] = 0
+        #
+        # if abs(self.velocity[0]) < 0.01:
+        #     self.velocity[0] = 0
 
         self.top_left = self.pos - self.radius
         self.rect.center = self.pos.tolist()

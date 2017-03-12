@@ -97,6 +97,8 @@ class GameState:
                 ball.move_to(0.3 * self.resolution[0], self.resolution[1] / 2.0)
                 self.zero_ball = ball
 
+
+
     def start_pool(self):
         table_y_middle = self.resolution[1] / 2.0
         table_x_quarter = 3.0 / 4 * self.resolution[0]
