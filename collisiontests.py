@@ -1,5 +1,6 @@
 import physics
 import pygame
+import itertools
 
 
 def table_collision(game_state):
@@ -19,8 +20,6 @@ def check_for_collision(game_state):
     table_collision(game_state)
 
     balls = game_state.balls
-    for counter1, ball1 in enumerate(balls):
-        for counter2, ball2 in enumerate(balls):
-            if not counter1 == counter2:
-                if physics.collision_test(ball1, ball2):
-                    physics.collide_balls(ball1, ball2)
+    for combination in itertools.combinations(balls,2):
+        if physics.collision_test(*combination):
+            physics.collide_balls(*combination)

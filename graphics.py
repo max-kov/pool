@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 
 
 class Canvas:
@@ -16,10 +17,8 @@ class Canvas:
 def draw_main_menu(game_state):
     def check_mouse_pos(text_starting_place, text_ending_place, spacing, button_num):
         mouse_pos = pygame.mouse.get_pos()
-        return (text_starting_place[button_num][0] - spacing < mouse_pos[0] < text_ending_place[button_num][
-            0] + spacing) and \
-               (text_starting_place[button_num][1] - spacing < mouse_pos[1] < text_ending_place[button_num][
-                   1] + spacing)
+        return np.all((np.less(text_starting_place[button_num]-spacing,mouse_pos),
+                       np.greater(text_ending_place[button_num]+spacing,mouse_pos)))
 
     text_color = (255, 255, 255)
     text_selected_color = (0, 0, 255)
@@ -44,18 +43,20 @@ def draw_main_menu(game_state):
              title_font.render(title_text, False, text_color)]
     buttons.insert(0, title)
     button_size.insert(0, title_font.size(title_text))
+    button_size = np.array(button_size)
 
-    screen_mid = game_state.canvas.size_x / 2
     margin = 20
     spacing = 10
 
-    screen_y = (game_state.canvas.size_y - margin * 2) / (len(buttons))
+    screen_mid = game_state.canvas.size_x / 2
+    change_in_y = (game_state.canvas.size_y - margin * 2) / (len(buttons))
 
-    # generating text coordinates
-    text_starting_place = [(screen_mid - (button_size[num][0] / 2),
-                            num * screen_y + (button_size[num][1] / 2)) for num in range(len(buttons))]
-    text_ending_place = [(text_starting_place[num][0] + button_size[num][0],
-                          text_starting_place[num][1] + button_size[num][1]) for num in range(len(buttons))]
+    screen_button_middles = np.stack((np.repeat([screen_mid],len(buttons)),
+                                      np.arange(len(buttons))*change_in_y),axis=1)
+
+
+    text_starting_place = screen_button_middles+[-0.5,0.5]*button_size
+    text_ending_place = text_starting_place+button_size
 
     # writing text and drawing a rectangle around it
     for num in range(len(buttons)):
@@ -63,21 +64,17 @@ def draw_main_menu(game_state):
         # no rectangle on the title
         if num > 0:
             pygame.draw.rect(game_state.canvas.surface, text_color,
-                             (text_starting_place[num][0] - spacing, text_starting_place[num][1] - spacing,
-                              button_size[num][0] + spacing * 2, button_size[num][1] + spacing * 2), 1)
+                             np.concatenate((text_starting_place[num]-spacing,button_size[num]+spacing*2)),1)
 
-    was_clicked = False
     button_clicked = 0
-
     # while a button was not clicked checks if mouse is in the button and if so changes its colour
-    while not was_clicked:
+    while button_clicked==0:
         pygame.display.update()
         user_events = game_state.events()
 
         for num in range(1, len(buttons)):
             if check_mouse_pos(text_starting_place, text_ending_place, spacing, num):
                 if user_events["clicked"]:
-                    was_clicked = True
                     button_clicked = num
                 else:
                     game_state.canvas.surface.blit(buttons[num][1], text_starting_place[num])

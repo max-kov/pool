@@ -13,9 +13,9 @@ class Cue(pygame.sprite.Sprite):
         self.target_ball = target
 
         self.hit_power = hit_power
-        self.cue_length = 250
-        self.cue_thickness = 3
-        self.cue_color = (50, 50, 50)
+        self.length = 250
+        self.thickness = 3
+        self.color = (50, 50, 50)
         self.angle = 0
         self.max_displacement = 100
         self.displacement = self.target_ball.radius
@@ -23,53 +23,44 @@ class Cue(pygame.sprite.Sprite):
         self.update()
 
     def update(self, *args):
-        sprite_centre = self.cue_length + self.max_displacement
-
-        self.image = pygame.Surface((2 * (self.cue_length + self.max_displacement),
-                                     2 * (self.cue_length + self.max_displacement)))
+        sprite_centre = np.repeat([self.length + self.max_displacement], 2)
+        self.image = pygame.Surface(2 * sprite_centre)
         # color which will be ignored
         self.image.fill((200, 200, 200))
         self.image.set_colorkey((200, 200, 200))
 
-        cos_a = math.cos(math.radians(self.angle))
-        sin_a = math.sin(math.radians(self.angle))
-
-        initial_coords = np.array([cos_a, -sin_a]) * self.cue_thickness
-        coord_diff = np.array([self.cue_length * sin_a, self.cue_length * cos_a])
-        displacement_matrix = np.array([sprite_centre + self.displacement * sin_a,
-                                        sprite_centre + self.displacement * cos_a])
-
-        points = np.array((initial_coords, -initial_coords, -initial_coords + coord_diff, initial_coords + coord_diff))
-
-        shifted_point_list = points + displacement_matrix
-
         if self.visible:
-            pygame.draw.polygon(self.image, self.cue_color, shifted_point_list)
+            sin_cos = np.array([math.sin(self.angle),math.cos(self.angle)])
 
-        self.rect = self.image.get_rect()
-        self.rect.center = self.target_ball.pos.tolist()
+            initial_coords = np.array([math.sin(self.angle+0.5*math.pi),math.cos(self.angle+0.5*math.pi)]) * self.thickness
+            coord_diff = sin_cos*self.length
+            rectangle_points = np.array((initial_coords, -initial_coords, -initial_coords + coord_diff, initial_coords + coord_diff))
 
-        self.points_on_screen = points + self.target_ball.pos + self.displacement * np.array([sin_a, cos_a])
+            rectangle_points_from_circle = rectangle_points + self.displacement * sin_cos
+
+            pygame.draw.polygon(self.image, self.color, rectangle_points_from_circle + sprite_centre)
+
+            self.rect = self.image.get_rect()
+            self.rect.center = self.target_ball.pos.tolist()
+
+            self.points_on_screen = rectangle_points_from_circle + self.target_ball.pos
 
     def is_point_in_cue(self, point):
 
         # this algorithm splits up the rectangle into 4 triangles using the point provided
         # if the point provided is inside the triangle the sum of triangle areas should be equal to that of the rectangle
+        rect_sides = [self.thickness * 2, self.length] * 2
 
-        # calculating rect sides
-        rect_sides = [self.cue_thickness * 2, self.cue_length] * 2
-        # calculating inside triangle sides
         triangle_sides = np.apply_along_axis(physics.point_distance, 1, self.points_on_screen, point)
         calc_area = np.vectorize(physics.triangle_area)
         triangle_areas = np.sum(calc_area(triangle_sides,np.roll(triangle_sides,-1), rect_sides))
 
         rect_area = rect_sides[0] * rect_sides[1]
 
-        return rect_area - triangle_areas + 4 >= 0
+        return rect_area >= triangle_areas
 
     def update_cue_displacement(self, mouse_pos, initial_mouse_dist):
-        displacement = physics.point_distance(mouse_pos, tuple(
-            self.target_ball.pos)) - initial_mouse_dist + self.target_ball.radius
+        displacement = physics.point_distance(mouse_pos,self.target_ball.pos) - initial_mouse_dist + self.target_ball.radius
         if displacement > self.max_displacement:
             self.displacement = self.max_displacement
         elif displacement < self.target_ball.radius:
@@ -86,7 +77,7 @@ class Cue(pygame.sprite.Sprite):
     def check_if_clicked(self, game_state):
         def draw_lines(target_ball, angle, color):
             cur_pos = np.copy(target_ball.pos)
-            diff = np.array([math.sin(math.radians(angle)), math.cos(math.radians(angle))])
+            diff = np.array([math.sin(angle), math.cos(angle)])
 
             line_length = 10
 
@@ -112,16 +103,16 @@ class Cue(pygame.sprite.Sprite):
                 prev_angle = self.angle
                 if not change[0] == 0:
                     # hack to avoid div by zero
-                    self.angle = 90 - math.degrees(math.atan(change[1] / change[0]))
+                    self.angle = 0.5*math.pi - math.atan(change[1] / change[0])
                     if change[0] > 0:
-                        self.angle -= 180
+                        self.angle -= math.pi
 
                 game_state.redraw_all(update=False)
-                draw_lines(self.target_ball, prev_angle + 180, game_state.table_color)
-                draw_lines(self.target_ball, self.angle + 180, (255, 255, 255))
+                draw_lines(self.target_ball, prev_angle + math.pi, game_state.table_color)
+                draw_lines(self.target_ball, self.angle + math.pi, (255, 255, 255))
                 pygame.display.flip()
 
-            draw_lines(self.target_ball, self.angle + 180, game_state.table_color)
+            draw_lines(self.target_ball, self.angle + math.pi, game_state.table_color)
 
             disp_temp = self.displacement - self.target_ball.radius - 1
             if self.displacement > self.target_ball.radius:
@@ -130,7 +121,5 @@ class Cue(pygame.sprite.Sprite):
                     game_state.redraw_all()
                     game_state.mark_one_frame()
 
-                self.target_ball.add_force(-(disp_temp * math.sin(math.radians(self.angle))) * self.hit_power,
-                                           -(disp_temp * math.cos(math.radians(self.angle))) * self.hit_power)
-
+                self.target_ball.add_force(-disp_temp*self.hit_power*np.array([math.sin(self.angle),math.cos(self.angle)]))
                 self.make_invisible()

@@ -1,5 +1,4 @@
 import graphics
-import ballinfo
 import math
 import pygame
 import itertools
@@ -39,7 +38,7 @@ class GameState:
         self.friction_coeff = 0.995
 
         # table and canvas constants
-        self.resolution = [1000, 500]
+        self.resolution = np.array([1000, 500])
         self.table_margin = 60
         self.side_color = (200, 200, 0)
         self.table_color = (0, 100, 0)
@@ -66,45 +65,36 @@ class GameState:
         self.fps_clock = pygame.time.Clock()
         self.fps_limit = 100
 
-    def get_fps(self):
-        return self.fps_clock.get_fps()
+    def fps(self):
+        return self.fps_clock.fps()
 
     def mark_one_frame(self):
         self.fps_clock.tick(self.fps_limit)
 
     def create_balls(self):
         for i in range(self.total_ball_num):
-            self.balls.add(ball.Ball(ballinfo.BallInfo(i)))
+            self.balls.add(ball.Ball(i))
 
-    def set_pool_balls(self, x, y):
-        sin_60 = math.sin(math.radians(60))
+    def set_pool_balls(self, inital_place):
+        coord_shift = np.array([math.sin(math.radians(60)) * self.ball_size * 2,-self.ball_size])
+        counter = [0,0]
 
-        diffx = sin_60 * self.ball_size * 2
-        diffy = 0.5 * self.ball_size * 4
-
-        ballx = 0
-        bally = 0
-
-        for i, ball in enumerate(self.balls):
+        for ball in self.balls:
             if not ball.number == 0:
-                ball.move_to(x + diffx * ballx, y - 0.5 * diffy * (bally * 2 - ballx))
-                if bally == ballx:
-                    ballx += 1
-                    bally = 0
+                ball.move_to(inital_place+coord_shift*counter)
+                if counter[1] == counter[0]:
+                    counter[0] += 1
+                    counter[1] = -counter[0]
                 else:
-                    bally += 1
+                    counter[1] += 2
             else:
-                ball.move_to(0.3 * self.resolution[0], self.resolution[1] / 2.0)
+                ball.move_to([0.3,0.5]*self.resolution)
                 self.zero_ball = ball
 
 
-
     def start_pool(self):
-        table_y_middle = self.resolution[1] / 2.0
-        table_x_quarter = 3.0 / 4 * self.resolution[0]
-
         self.create_balls()
-        self.set_pool_balls(table_x_quarter, table_y_middle)
+        self.set_pool_balls(self.resolution*[3.0/4,0.5])
         self.all_sprites.add(self.balls)
 
         # add cuestick

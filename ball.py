@@ -4,44 +4,67 @@ import numpy as np
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, ball_data):
+    def __init__(self, ball_number):
+        # constants
+        ball_size = 13
+        fontObj = pygame.font.Font(pygame.font.get_default_font(), 10)
+
+        balls_colors = [
+            (255, 255, 255),
+            (0, 200, 200),
+            (0, 0, 200),
+            (150, 0, 0),
+            (200, 0, 200),
+            (200, 0, 0),
+            (50, 0, 0),
+            (100, 0, 0),
+            (0, 0, 0),
+            (0, 200, 200),
+            (0, 0, 200),
+            (150, 0, 0),
+            (200, 0, 200),
+            (200, 0, 0),
+            (50, 0, 0),
+            (100, 0, 0)
+        ]
+
+        self.text = fontObj.render(str(ball_number), False, (0, 0, 0))
+        self.text_length = np.array(fontObj.size(str(ball_number)))
+        self.color = balls_colors[ball_number]
+        self.radius = ball_size
+        self.mass = ball_size
+        self.is_striped = ball_number > 8
+        self.number = ball_number
+
+        self.pos = np.zeros(2)
+        self.velocity = np.zeros(2)
+        self.sprite_offset = np.zeros(2)
+
         pygame.sprite.Sprite.__init__(self)
-
-        self.mass = ball_data.ball_size
-        self.pos = np.array([0, 0], dtype=float)
-        self.velocity = np.array([0, 0], dtype=float)
-        self.radius = ball_data.ball_size
-        self.is_striped = ball_data.is_striped
-        self.color = ball_data.ball_color
-        self.number = ball_data.ball_number
-        self.number_text = ball_data.number_text
-        self.text_length = ball_data.number_text_size
-        self.sprite_offset = [0, 0]
-
         self.update_sprite()
 
-    def move_to(self, pos_x, pos_y):
-        self.pos = np.array([pos_x, pos_y], dtype=float)
+    def move_to(self, pos):
+        self.pos = pos
         self.rect.center = self.pos
 
-    def add_force(self, delta_x, delta_y):
-        self.velocity += [delta_x / self.mass, delta_y / self.mass]
+    def add_force(self, force):
+        self.velocity += force/self.mass
 
     def update(self, game_state, scale=1):
         self.pos += self.velocity
         self.velocity *= game_state.friction_coeff
 
-        # if abs(self.velocity[1]) < 0.01:
-        #     self.velocity[1] = 0
-        #
-        # if abs(self.velocity[0]) < 0.01:
-        #     self.velocity[0] = 0
+        if abs(self.velocity[1]) < 0.01:
+            self.velocity[1] = 0
+
+        if abs(self.velocity[0]) < 0.01:
+            self.velocity[0] = 0
 
         self.top_left = self.pos - self.radius
         self.rect.center = self.pos.tolist()
 
-    def set_vector(self, delta_x, delta_y):
-        self.velocity = np.array([delta_x, delta_y], dtype=float)
+    def set_vector(self, delta_v):
+        self.velocity = delta_v
 
     def update_sprite(self):
         new_sprite = pygame.Surface([self.radius * 2, self.radius * 2])
@@ -50,7 +73,7 @@ class Ball(pygame.sprite.Sprite):
 
         pygame.draw.circle(new_sprite, self.color, (self.radius, self.radius), self.radius)
 
-        if self.is_striped and not self.number == 0:
+        if self.is_striped and self.number != 0:
             arc_angle = math.radians(20)
             step = arc_angle / 10
 
@@ -66,7 +89,8 @@ class Ball(pygame.sprite.Sprite):
             pygame.draw.polygon(new_sprite, (255, 255, 255), list(map(tuple,point_list)))
 
         pygame.draw.circle(new_sprite, (255, 255, 255), (self.radius, self.radius), self.radius / 2)
-        new_sprite.blit(self.number_text,tuple(self.radius-self.text_length/2))
+        if self.number!=0:
+            new_sprite.blit(self.text, tuple(self.radius - self.text_length / 2))
 
         self.image = new_sprite
         self.rect = self.image.get_rect()
