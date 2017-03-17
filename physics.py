@@ -4,7 +4,7 @@ import numpy as np
 
 def point_distance(p1, p2):
     dist_diff = p1-p2
-    return np.hypot(dist_diff[0],dist_diff[1])
+    return np.hypot(*dist_diff)
 
 
 def collide_balls(ball1, ball2):
@@ -18,8 +18,8 @@ def collide_balls(ball1, ball2):
         ball1_dot = np.dot(ball1.velocity, collision)
         ball2_dot = np.dot(ball2.velocity, collision)
 
-        ball1.velocity += (ball2_dot - ball1_dot) * collision
-        ball2.velocity += (ball1_dot - ball2_dot) * collision
+        ball1.add_force((ball2_dot - ball1_dot) * collision * ball1.mass)
+        ball2.add_force((ball1_dot - ball2_dot) * collision * ball2.mass)
 
 
 def collision_test(ball1, ball2):

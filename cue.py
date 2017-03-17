@@ -14,7 +14,7 @@ class Cue(pygame.sprite.Sprite):
 
         self.hit_power = hit_power
         self.length = 250
-        self.thickness = 3
+        self.thickness = 4
         self.color = (50, 50, 50)
         self.angle = 0
         self.max_displacement = 100
@@ -57,7 +57,7 @@ class Cue(pygame.sprite.Sprite):
 
         rect_area = rect_sides[0] * rect_sides[1]
 
-        return rect_area >= triangle_areas
+        return rect_area+1 >= triangle_areas
 
     def update_cue_displacement(self, mouse_pos, initial_mouse_dist):
         displacement = physics.point_distance(mouse_pos,self.target_ball.pos) - initial_mouse_dist + self.target_ball.radius
