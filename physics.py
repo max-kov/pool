@@ -11,13 +11,14 @@ def collide_balls(ball1, ball2):
     point_diff = ball2.pos - ball1.pos
     system_velocity = ball1.velocity - ball2.velocity
     dist = point_distance(ball1.pos,ball2.pos)
-
-    # checks vector projections to determine is 2 balls are moving toward each other
+    # checks vector projections to determine are 2 balls are moving toward each other
     if np.dot(point_diff, system_velocity) >= 0:
+        # normalising circle distance difference vector
         collision = point_diff / dist
+        # projecting balls velocity ONTO difference vector
         ball1_dot = np.dot(ball1.velocity, collision)
         ball2_dot = np.dot(ball2.velocity, collision)
-
+        #since the masses of the balls are the same, the velocity will just switch
         ball1.velocity += (ball2_dot - ball1_dot) * collision
         ball2.velocity += (ball1_dot - ball2_dot) * collision
 
