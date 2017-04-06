@@ -40,6 +40,8 @@ class Ball(pygame.sprite.Sprite):
                                                               np.zeros(50)))
         else:
             self.stripe_circle = []
+
+        self.stripe_thickness = 5
         self.number = ball_number
 
         self.pos = np.zeros(2)
@@ -103,7 +105,6 @@ class Ball(pygame.sprite.Sprite):
         def render_small_circle(ball,offset,size):
             small_circle = pygame.Surface(size)
             small_circle.fill(ball.color)
-
             # 1.1 instead of 1 is a hack to avoid 0 width sprite when rounding
             dist_from_centre = 1.1 - ((offset[0] ** 2 + offset[1] ** 2) / (ball.radius ** 2))
 
@@ -121,6 +122,12 @@ class Ball(pygame.sprite.Sprite):
 
             return small_circle
 
+        def draw_stripe(ball,sprite):
+            for num,point in enumerate(self.stripe_circle):
+                if point[2]>=-1:
+                    pygame.draw.line(sprite, (255, 255, 255), ball.radius + self.stripe_circle[num-1][:2],
+                                 ball.radius+point[:2], int(ball.stripe_thickness*(1 + point[2]/ball.radius)))
+
         sprite_size = np.repeat([self.radius*2+1],2)
 
         new_sprite = pygame.Surface(sprite_size)
@@ -130,10 +137,7 @@ class Ball(pygame.sprite.Sprite):
 
         small_sprite = render_small_circle(self,self.sprite_offset,sprite_size)
         new_sprite.blit(small_sprite,self.sprite_offset[:2]+(sprite_size - small_sprite.get_size())/2)
-
-        for point in self.stripe_circle:
-            if point[2] >= -2:
-                pygame.draw.circle(new_sprite, (255, 255, 255), sprite_size / 2 + point.astype(int)[:2], 3)
+        draw_stripe(self,new_sprite)
 
         self.image = remove_excess(new_sprite,colorkey,self.radius)
         self.rect = self.image.get_rect()
