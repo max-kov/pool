@@ -29,7 +29,7 @@ class GameState:
                 self.sides.add(table_sprites.TableSide(self.side_color, *side))
 
         pygame.init()
-        pygame.display.set_caption("Gravity Simulator")
+        pygame.display.set_caption("Pool")
 
         # ball constants
         self.total_ball_num = 16
@@ -73,7 +73,7 @@ class GameState:
 
     def create_balls(self):
         for i in range(self.total_ball_num):
-            self.balls.add(ball.Ball(i))
+            self.balls.add(ball.Ball(i,self.ball_size))
 
     def set_pool_balls(self, inital_place):
         coord_shift = np.array([math.sin(math.radians(60)) * self.ball_size * 2,-self.ball_size])

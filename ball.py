@@ -5,9 +5,8 @@ import math
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, ball_number):
+    def __init__(self, ball_number, ball_size):
         # constants
-        ball_size = 13
         fontObj = pygame.font.Font(pygame.font.get_default_font(), 10)
 
         balls_colors = [
@@ -55,14 +54,14 @@ class Ball(pygame.sprite.Sprite):
 
     def update(self, game_state):
         self.pos += self.velocity
-        self.velocity *= game_state.friction_coeff
-
 
         if np.count_nonzero(self.velocity)>0:
             # updates small circle and number offset
             perpendicular_velocity = np.array([-self.velocity[1],self.velocity[0],0])
             rotation_angle = np.hypot(*(self.velocity*2))/(self.radius*np.pi*2)
             self.sprite_offset = np.matmul(self.sprite_offset,rotation_matrix(perpendicular_velocity,-rotation_angle))
+
+        self.velocity *= game_state.friction_coeff
 
         if abs(self.velocity[1]) < 0.01:
             self.velocity[1] = 0
@@ -91,20 +90,36 @@ class Ball(pygame.sprite.Sprite):
                     if is_outside[counter_x,counter_y]:
                         out_sprite.set_at([counter_x,counter_y],colorkey)
             return out_sprite
-        sprite_size = np.repeat([self.radius*2],2)
+
+        def render_small_circle(ball,offset,size):
+            small_circle = pygame.Surface(size)
+            small_circle.fill(ball.color)
+
+            # 1.1 instead of 1 is a hack to avoid 0 width sprite when rounding
+            dist_from_centre = 1.1 - ((offset[0] ** 2 + offset[1] ** 2) / (ball.radius ** 2))
+
+            if offset[2] > 0:
+                pygame.draw.circle(small_circle, (255, 255, 255), size/2, ball.sprite_size)
+                if ball.number != 0:
+                    small_circle.blit(ball.text, (size - ball.text_length)/2)
+
+                # hack to avoid div by zero
+                if not offset[0]==0:
+                    small_circle = pygame.transform.scale(small_circle, (int(size[0] * dist_from_centre), size[1]))
+                    angle = - math.degrees(math.atan(offset[1] / offset[0]))
+                    small_circle = pygame.transform.rotate(small_circle, angle)
+
+            return small_circle
+
+        sprite_size = np.repeat([self.radius*2+1],2)
 
         new_sprite = pygame.Surface(sprite_size)
         colorkey = (200, 200, 200)
-        new_sprite.fill(colorkey)
+        new_sprite.fill(self.color)
         new_sprite.set_colorkey(colorkey)
 
-        pygame.draw.circle(new_sprite, self.color, sprite_size/2, self.radius)
-
-        if self.sprite_offset[2]>0:
-            sprite_shift = self.sprite_offset[:2].astype(int)
-            pygame.draw.circle(new_sprite, (255, 255, 255), sprite_shift+self.radius, self.sprite_size)
-            if self.number!=0:
-                new_sprite.blit(self.text,(self.radius - self.text_length / 2)+sprite_shift)
+        small_sprite = render_small_circle(self,self.sprite_offset,sprite_size)
+        new_sprite.blit(small_sprite,self.sprite_offset[:2]+(sprite_size - small_sprite.get_size())/2)
 
         self.image = remove_excess(new_sprite,colorkey,self.radius)
         self.rect = self.image.get_rect()
