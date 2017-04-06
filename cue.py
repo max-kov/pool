@@ -5,14 +5,14 @@ import numpy as np
 
 
 class Cue(pygame.sprite.Sprite):
-    def __init__(self, target, hit_power=0.8):
+    def __init__(self, target):
         pygame.sprite.Sprite.__init__(self)
 
         self.visible = True
 
         self.target_ball = target
 
-        self.hit_power = hit_power
+        self.hit_power = 1.5
         self.length = 250
         self.thickness = 4
         self.color = (50, 50, 50)
@@ -116,10 +116,15 @@ class Cue(pygame.sprite.Sprite):
 
             disp_temp = self.displacement - self.target_ball.radius - 1
             if self.displacement > self.target_ball.radius:
-                for cur_disp in range(int(self.displacement), self.target_ball.radius, -1):
+                new_velocity = -disp_temp*self.hit_power*np.array([math.sin(self.angle),math.cos(self.angle)])
+                cur_disp = int(self.displacement)
+                change_in_disp = np.hypot(*new_velocity)*0.1
+                while cur_disp>self.target_ball.radius:
                     self.displacement = cur_disp
                     game_state.redraw_all()
                     game_state.mark_one_frame()
+                    cur_disp -= change_in_disp
 
-                self.target_ball.add_force(-disp_temp*self.hit_power*np.array([math.sin(self.angle),math.cos(self.angle)]))
+                self.displacement = self.target_ball.radius
+                self.target_ball.add_force(new_velocity)
                 self.make_invisible()

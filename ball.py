@@ -34,6 +34,12 @@ class Ball(pygame.sprite.Sprite):
         self.radius = ball_size
         self.mass = ball_size
         self.is_striped = ball_number > 8
+        if self.is_striped:
+            self.stripe_circle = self.radius*np.column_stack((np.cos(np.linspace(0,2*np.pi,50)),
+                                                              np.sin(np.linspace(0,2*np.pi,50)),
+                                                              np.zeros(50)))
+        else:
+            self.stripe_circle = []
         self.number = ball_number
 
         self.pos = np.zeros(2)
@@ -58,8 +64,11 @@ class Ball(pygame.sprite.Sprite):
         if np.count_nonzero(self.velocity)>0:
             # updates small circle and number offset
             perpendicular_velocity = np.array([-self.velocity[1],self.velocity[0],0])
-            rotation_angle = np.hypot(*(self.velocity*2))/(self.radius*np.pi*2)
-            self.sprite_offset = np.matmul(self.sprite_offset,rotation_matrix(perpendicular_velocity,-rotation_angle))
+            rotation_angle = np.hypot(*(self.velocity))*2/(self.radius*np.pi)
+            transformation_matrix = rotation_matrix(perpendicular_velocity,-rotation_angle)
+            self.sprite_offset = np.matmul(self.sprite_offset,transformation_matrix)
+            for i,stripe in enumerate(self.stripe_circle):
+                self.stripe_circle[i] = np.matmul(stripe,transformation_matrix)
 
         self.velocity *= game_state.friction_coeff
 
@@ -100,13 +109,14 @@ class Ball(pygame.sprite.Sprite):
 
             if offset[2] > 0:
                 pygame.draw.circle(small_circle, (255, 255, 255), size/2, ball.sprite_size)
+
                 if ball.number != 0:
                     small_circle.blit(ball.text, (size - ball.text_length)/2)
 
                 # hack to avoid div by zero
                 if not offset[0]==0:
-                    small_circle = pygame.transform.scale(small_circle, (int(size[0] * dist_from_centre), size[1]))
                     angle = - math.degrees(math.atan(offset[1] / offset[0]))
+                    small_circle = pygame.transform.scale(small_circle, (int(size[0] * dist_from_centre), size[1]))
                     small_circle = pygame.transform.rotate(small_circle, angle)
 
             return small_circle
@@ -120,6 +130,10 @@ class Ball(pygame.sprite.Sprite):
 
         small_sprite = render_small_circle(self,self.sprite_offset,sprite_size)
         new_sprite.blit(small_sprite,self.sprite_offset[:2]+(sprite_size - small_sprite.get_size())/2)
+
+        for point in self.stripe_circle:
+            if point[2] >= -2:
+                pygame.draw.circle(new_sprite, (255, 255, 255), sprite_size / 2 + point.astype(int)[:2], 3)
 
         self.image = remove_excess(new_sprite,colorkey,self.radius)
         self.rect = self.image.get_rect()
