@@ -14,11 +14,12 @@ class Canvas:
 
         self.surface.blit(self.background, (0, 0))
 
+
 def draw_main_menu(game_state):
     def check_mouse_pos(text_starting_place, text_ending_place, spacing, button_num):
         mouse_pos = pygame.mouse.get_pos()
-        return np.all((np.less(text_starting_place[button_num]-spacing,mouse_pos),
-                       np.greater(text_ending_place[button_num]+spacing,mouse_pos)))
+        return np.all((np.less(text_starting_place[button_num] - spacing, mouse_pos),
+                       np.greater(text_ending_place[button_num] + spacing, mouse_pos)))
 
     text_color = (255, 255, 255)
     text_selected_color = (0, 0, 255)
@@ -51,12 +52,11 @@ def draw_main_menu(game_state):
     screen_mid = game_state.canvas.size_x / 2
     change_in_y = (game_state.canvas.size_y - margin * 2) / (len(buttons))
 
-    screen_button_middles = np.stack((np.repeat([screen_mid],len(buttons)),
-                                      np.arange(len(buttons))*change_in_y),axis=1)
+    screen_button_middles = np.stack((np.repeat([screen_mid], len(buttons)),
+                                      np.arange(len(buttons)) * change_in_y), axis=1)
 
-
-    text_starting_place = screen_button_middles+[-0.5,0.5]*button_size
-    text_ending_place = text_starting_place+button_size
+    text_starting_place = screen_button_middles + [-0.5, 0.5] * button_size
+    text_ending_place = text_starting_place + button_size
 
     # writing text and drawing a rectangle around it
     for num in range(len(buttons)):
@@ -64,11 +64,11 @@ def draw_main_menu(game_state):
         # no rectangle on the title
         if num > 0:
             pygame.draw.rect(game_state.canvas.surface, text_color,
-                             np.concatenate((text_starting_place[num]-spacing,button_size[num]+spacing*2)),1)
+                             np.concatenate((text_starting_place[num] - spacing, button_size[num] + spacing * 2)), 1)
 
     button_clicked = 0
     # while a button was not clicked checks if mouse is in the button and if so changes its colour
-    while button_clicked==0:
+    while button_clicked == 0:
         pygame.display.update()
         user_events = game_state.events()
 

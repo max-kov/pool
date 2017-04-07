@@ -1,6 +1,7 @@
-import physics
-import pygame
 import itertools
+import pygame
+
+import physics
 
 
 def table_collision(game_state):

@@ -1,6 +1,7 @@
 import pygame
-import gamestate
+
 import collisiontests
+import gamestate
 import graphics
 
 game = gamestate.GameState()
@@ -8,7 +9,7 @@ button_pressed = graphics.draw_main_menu(game)
 
 events = game.events()
 
-if not (button_pressed==3):
+if not (button_pressed == 3):
     game.start_pool()
     while not events["closed"]:
         game.redraw_all()
