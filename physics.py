@@ -9,25 +9,23 @@ def point_distance(p1, p2):
 
 def collide_balls(ball1, ball2):
     point_diff = ball2.pos - ball1.pos
-    system_velocity = ball1.velocity - ball2.velocity
     dist = point_distance(ball1.pos,ball2.pos)
-    
-    # checks vector projections to determine are 2 balls are moving toward each other
-    if np.dot(point_diff, system_velocity) >= 0:
-        # normalising circle distance difference vector
-        collision = point_diff / dist
-        # projecting balls velocity ONTO difference vector
-        ball1_dot = np.dot(ball1.velocity, collision)
-        ball2_dot = np.dot(ball2.velocity, collision)
-        #since the masses of the balls are the same, the velocity will just switch
-        ball1.velocity += (ball2_dot - ball1_dot) * collision
-        ball2.velocity += (ball1_dot - ball2_dot) * collision
+    # normalising circle distance difference vector
+    collision = point_diff / dist
+    # projecting balls velocity ONTO difference vector
+    ball1_dot = np.dot(ball1.velocity, collision)
+    ball2_dot = np.dot(ball2.velocity, collision)
+    # since the masses of the balls are the same, the velocity will just switch
+    ball1.velocity += (ball2_dot - ball1_dot) * collision
+    ball2.velocity += (ball1_dot - ball2_dot) * collision
 
 
 def collision_test(ball1, ball2):
-    # checks distance and if both balls are stationary
+    # distance check followed by checking if either of the balls are moving
+    # followed by vector projection check, to see if both are moving towards each other
     return (point_distance(ball1.pos, ball2.pos) < ball1.radius + ball2.radius) and \
-           np.count_nonzero(np.concatenate((ball1.velocity, ball2.velocity))) > 0
+           np.count_nonzero(np.concatenate((ball1.velocity, ball2.velocity))) > 0 and \
+           np.dot(ball2.pos - ball1.pos, ball1.velocity - ball2.velocity) >= 0
 
 
 def triangle_area(side1, side2, side3):

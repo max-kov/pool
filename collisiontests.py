@@ -20,7 +20,10 @@ def table_collision(game_state):
 def check_for_collision(game_state):
     table_collision(game_state)
 
-    balls = game_state.balls
-    for combination in itertools.combinations(balls,2):
-        if physics.collision_test(*combination):
-            physics.collide_balls(*combination)
+    collided = True
+    while collided:
+        collided = False
+        for combination in itertools.combinations(game_state.balls, 2):
+            if physics.collision_test(*combination):
+                collided = True
+                physics.collide_balls(*combination)

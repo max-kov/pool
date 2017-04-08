@@ -12,11 +12,11 @@ events = game.events()
 if not (button_pressed == 3):
     game.start_pool()
     while not events["closed"]:
-        game.redraw_all()
         events = game.events()
         collisiontests.check_for_collision(game)
+        game.redraw_all()
 
-        while game.all_not_moving():
+        while game.all_not_moving() and not events["closed"]:
             game.cue.make_visible()
             game.redraw_all()
             events = game.events()
