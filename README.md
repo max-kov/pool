@@ -1,8 +1,4 @@
-My Pool game project, written entirely in python! This still isn't the final product, but the main features are there.
+My Pool game project, written entirely in python using [pygame](http://www.pygame.org/wiki/about)!
 
-Requirements:
-  1) [Pygame](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame), [numpy](http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy) modules
-  2) Python 2.7
-
-Here's a screenshot from the game:
-![Alt text](/../screenshots/Screenshot1.png?raw=true "Game SCRN")
+Here's a recording from the game:
+![Alt text](/../screenshots/screen_recording_2.gif?raw=true "Game gif")

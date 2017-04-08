@@ -1,11 +1,12 @@
-import graphics
-import math
-import pygame
 import itertools
-import ball
-import table_sprites
-import cue
+import math
 import numpy as np
+import pygame
+
+import ball
+import cue
+import graphics
+import table_sprites
 
 
 class GameState:
@@ -29,12 +30,12 @@ class GameState:
                 self.sides.add(table_sprites.TableSide(self.side_color, *side))
 
         pygame.init()
-        pygame.display.set_caption("Gravity Simulator")
+        pygame.display.set_caption("Pool")
 
         # ball constants
         self.total_ball_num = 16
         self.balls = pygame.sprite.Group()
-        self.ball_size = 13
+        self.ball_size = 14
         self.friction_coeff = 0.995
 
         # table and canvas constants
@@ -46,7 +47,6 @@ class GameState:
         # other constants
         self.cue_color = (100, 100, 100)
         self.hole_rad = 18
-        self.cue_hit_power = 0.8
 
         # sprite groups
         self.holes = pygame.sprite.Group()
@@ -73,38 +73,37 @@ class GameState:
 
     def create_balls(self):
         for i in range(self.total_ball_num):
-            self.balls.add(ball.Ball(i))
+            self.balls.add(ball.Ball(i, self.ball_size, self.friction_coeff))
 
     def set_pool_balls(self, inital_place):
-        coord_shift = np.array([math.sin(math.radians(60)) * self.ball_size * 2,-self.ball_size])
-        counter = [0,0]
+        coord_shift = np.array([math.sin(math.radians(60)) * self.ball_size * 2, -self.ball_size])
+        counter = [0, 0]
 
         for ball in self.balls:
             if not ball.number == 0:
-                ball.move_to(inital_place+coord_shift*counter)
+                ball.move_to(inital_place + coord_shift * counter)
                 if counter[1] == counter[0]:
                     counter[0] += 1
                     counter[1] = -counter[0]
                 else:
                     counter[1] += 2
             else:
-                ball.move_to([0.3,0.5]*self.resolution)
+                ball.move_to([0.3, 0.5] * self.resolution)
                 self.zero_ball = ball
-
 
     def start_pool(self):
         self.create_balls()
-        self.set_pool_balls(self.resolution*[3.0/4,0.5])
+        self.set_pool_balls(self.resolution * [3.0 / 4, 0.5])
         self.all_sprites.add(self.balls)
 
         # add cuestick
-        self.cue = cue.Cue(self.zero_ball, hit_power=self.cue_hit_power)
+        self.cue = cue.Cue(self.zero_ball)
         self.all_sprites.add(self.cue)
 
-    def redraw_all(self,update=True):
+    def redraw_all(self, update=True):
         self.all_sprites.clear(self.canvas.surface, self.canvas.background)
         self.all_sprites.draw(self.canvas.surface)
-        self.all_sprites.update(self)
+        self.all_sprites.update()
         if update:
             pygame.display.flip()
         self.mark_one_frame()
