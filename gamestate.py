@@ -73,7 +73,7 @@ class GameState:
 
     def create_balls(self):
         for i in range(self.total_ball_num):
-            self.balls.add(ball.Ball(i, self.ball_size))
+            self.balls.add(ball.Ball(i, self.ball_size, self.friction_coeff))
 
     def set_pool_balls(self, inital_place):
         coord_shift = np.array([math.sin(math.radians(60)) * self.ball_size * 2, -self.ball_size])
@@ -103,7 +103,7 @@ class GameState:
     def redraw_all(self, update=True):
         self.all_sprites.clear(self.canvas.surface, self.canvas.background)
         self.all_sprites.draw(self.canvas.surface)
-        self.all_sprites.update(self)
+        self.all_sprites.update()
         if update:
             pygame.display.flip()
         self.mark_one_frame()
