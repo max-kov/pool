@@ -80,7 +80,7 @@ class Ball(pygame.sprite.Sprite):
                 self.stripe_circle[i] = np.matmul(stripe, transformation_matrix)
 
         for i,vel_component in enumerate(self.velocity):
-            if abs(vel_component) < 0.01:
+            if abs(vel_component) < 0.06:
                 self.velocity[i] = 0
 
         self.update_sprite()

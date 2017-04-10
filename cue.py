@@ -11,7 +11,7 @@ class Cue(pygame.sprite.Sprite):
 
         self.visible = True
         self.target_ball = target
-        self.hit_power = 3
+        self.hit_power = 1.5
         self.length = 250
         self.thickness = 4
         self.color = (50, 50, 50)

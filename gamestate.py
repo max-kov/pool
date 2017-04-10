@@ -32,8 +32,7 @@ class GameState:
 
         # sprite groups
         self.holes = pygame.sprite.Group()
-        self.sides = pygame.sprite.Group()
-        self.triangle_sides = pygame.sprite.Group()
+        self.table_sides = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.OrderedUpdates()
 
         # creating table holes
@@ -42,18 +41,6 @@ class GameState:
         for i, hole in enumerate(list(itertools.product(holes_x, holes_y))):
             self.holes.add(table_sprites.Hole(*hole, radius=self.hole_rad))
 
-        # # creating table sides
-        # sides = [[(0, 0, self.resolution[0], self.table_margin), False, False],
-        #          [(self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]), True, True],
-        #          [(0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]), False, True],
-        #          [(0, 0, self.table_margin, self.resolution[1]), True, False]
-        #          ]
-        #
-        # for i, side in enumerate(sides):
-        #     self.sides.add(table_sprites.TableSide(self.side_color, *side))
-
-        # creating triangular table pieces
-        # self.triangle_sides.add(table_sprites.TriangleSide(self.side_color,np.array([[0,200],[100,0]])))
         forty_five_degree_cos = math.cos(math.radians(45))
         table_side_points = [
             [self.resolution[0] / 2 - self.hole_rad * 2, self.table_margin + self.hole_rad],
@@ -107,18 +94,17 @@ class GameState:
         ]
 
         for num, point in enumerate(table_side_points[:-1]):
-            self.triangle_sides.add(
-                table_sprites.TriangleSide(self.side_color, [point, table_side_points[num + 1]]))
+            self.table_sides.add(
+                table_sprites.TableSide(self.side_color, [point, table_side_points[num + 1]]))
 
-        self.all_sprites.add(self.sides)
         self.all_sprites.add(self.holes)
-        self.all_sprites.add(self.triangle_sides)
+        self.all_sprites.add(self.table_sides)
 
         self.canvas = graphics.Canvas(*self.resolution, background_color=self.table_color)
 
         # fps control
         self.fps_clock = pygame.time.Clock()
-        self.fps_limit = 100
+        self.fps_limit = 200
 
     def fps(self):
         return self.fps_clock.fps()
