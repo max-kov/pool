@@ -11,24 +11,6 @@ import table_sprites
 
 class GameState:
     def __init__(self):
-        def create_holes(self):
-            # stores all possible xs and yss
-            holes_x = [self.table_margin, self.resolution[0] - self.table_margin, self.resolution[0] / 2]
-            holes_y = [self.table_margin, self.resolution[1] - self.table_margin]
-            # generates hole locations
-            for i, hole in enumerate(list(itertools.product(holes_x, holes_y))):
-                self.holes.add(table_sprites.Hole(*hole, radius=self.hole_rad))
-
-        def create_table_sides(self):
-            sides = [[(0, 0, self.resolution[0], self.table_margin), False, False],
-                     [(self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]), True, True],
-                     [(0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]), False, True],
-                     [(0, 0, self.table_margin, self.resolution[1]), True, False]
-                     ]
-
-            for i, side in enumerate(sides):
-                self.sides.add(table_sprites.TableSide(self.side_color, *side))
-
         pygame.init()
         pygame.display.set_caption("Pool")
 
@@ -46,18 +28,91 @@ class GameState:
 
         # other constants
         self.cue_color = (100, 100, 100)
-        self.hole_rad = 18
+        self.hole_rad = 20
 
         # sprite groups
         self.holes = pygame.sprite.Group()
         self.sides = pygame.sprite.Group()
+        self.triangle_sides = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.OrderedUpdates()
 
-        create_holes(self)
-        create_table_sides(self)
+        # creating table holes
+        holes_x = [self.table_margin, self.resolution[0] - self.table_margin, self.resolution[0] / 2]
+        holes_y = [self.table_margin, self.resolution[1] - self.table_margin]
+        for i, hole in enumerate(list(itertools.product(holes_x, holes_y))):
+            self.holes.add(table_sprites.Hole(*hole, radius=self.hole_rad))
+
+        # # creating table sides
+        # sides = [[(0, 0, self.resolution[0], self.table_margin), False, False],
+        #          [(self.resolution[0] - self.table_margin, 0, self.resolution[0], self.resolution[1]), True, True],
+        #          [(0, self.resolution[1] - self.table_margin, self.resolution[0], self.resolution[1]), False, True],
+        #          [(0, 0, self.table_margin, self.resolution[1]), True, False]
+        #          ]
+        #
+        # for i, side in enumerate(sides):
+        #     self.sides.add(table_sprites.TableSide(self.side_color, *side))
+
+        # creating triangular table pieces
+        # self.triangle_sides.add(table_sprites.TriangleSide(self.side_color,np.array([[0,200],[100,0]])))
+        forty_five_degree_cos = math.cos(math.radians(45))
+        table_side_points = [
+            [self.resolution[0] / 2 - self.hole_rad * 2, self.table_margin + self.hole_rad],
+            [self.resolution[0] / 2 - self.hole_rad, self.table_margin],
+            [self.resolution[0] / 2 + self.hole_rad, self.table_margin],
+            [self.resolution[0] / 2 + self.hole_rad * 2, self.table_margin + self.hole_rad],
+
+            [self.resolution[0] - self.table_margin - 2 * forty_five_degree_cos * self.hole_rad - self.hole_rad,
+             self.table_margin + self.hole_rad],
+            [self.resolution[0] - self.table_margin - forty_five_degree_cos * self.hole_rad,
+             self.table_margin - forty_five_degree_cos * self.hole_rad],
+            [self.resolution[0] - self.table_margin + forty_five_degree_cos * self.hole_rad,
+             self.table_margin + forty_five_degree_cos * self.hole_rad],
+            [self.resolution[0] - self.table_margin - self.hole_rad,
+             self.table_margin + 2 * forty_five_degree_cos * self.hole_rad + self.hole_rad],
+
+            [self.resolution[0] - self.table_margin - self.hole_rad,
+             self.resolution[1] - self.table_margin - 2 * forty_five_degree_cos * self.hole_rad - self.hole_rad],
+            [self.resolution[0] - self.table_margin + forty_five_degree_cos * self.hole_rad,
+             self.resolution[1] - self.table_margin - forty_five_degree_cos * self.hole_rad],
+            [self.resolution[0] - self.table_margin - forty_five_degree_cos * self.hole_rad,
+             self.resolution[1] - self.table_margin + forty_five_degree_cos * self.hole_rad],
+            [self.resolution[0] - self.table_margin - 2 * forty_five_degree_cos * self.hole_rad - self.hole_rad,
+             self.resolution[1] - self.table_margin - self.hole_rad],
+
+            [self.resolution[0] / 2 + self.hole_rad * 2,
+             self.resolution[1] - self.table_margin - self.hole_rad],
+            [self.resolution[0] / 2 + self.hole_rad, self.resolution[1] - self.table_margin],
+            [self.resolution[0] / 2 - self.hole_rad, self.resolution[1] - self.table_margin],
+            [self.resolution[0] / 2 - self.hole_rad * 2, self.resolution[1] - self.table_margin - self.hole_rad],
+
+            [self.table_margin + 2 * forty_five_degree_cos * self.hole_rad + self.hole_rad,
+             self.resolution[1] - self.table_margin - self.hole_rad],
+            [self.table_margin + forty_five_degree_cos * self.hole_rad,
+             self.resolution[1] - self.table_margin + forty_five_degree_cos * self.hole_rad],
+            [self.table_margin - forty_five_degree_cos * self.hole_rad,
+             self.resolution[1] - self.table_margin - forty_five_degree_cos * self.hole_rad],
+            [self.table_margin + self.hole_rad,
+             self.resolution[1] - self.table_margin - 2 * forty_five_degree_cos * self.hole_rad - self.hole_rad],
+
+            [self.table_margin + self.hole_rad,
+             self.table_margin + 2 * forty_five_degree_cos * self.hole_rad + self.hole_rad],
+            [self.table_margin - forty_five_degree_cos * self.hole_rad,
+             self.table_margin + forty_five_degree_cos * self.hole_rad],
+            [self.table_margin + forty_five_degree_cos * self.hole_rad,
+             self.table_margin - forty_five_degree_cos * self.hole_rad],
+            [self.table_margin + 2 * forty_five_degree_cos * self.hole_rad + self.hole_rad,
+             self.table_margin + self.hole_rad],
+            [self.resolution[0] / 2 - self.hole_rad * 2, self.table_margin + self.hole_rad],
+            [self.resolution[0] / 2 - self.hole_rad, self.table_margin]
+        ]
+
+        for num, point in enumerate(table_side_points[:-1]):
+            self.triangle_sides.add(
+                table_sprites.TriangleSide(self.side_color, [point, table_side_points[num + 1]]))
 
         self.all_sprites.add(self.sides)
         self.all_sprites.add(self.holes)
+        self.all_sprites.add(self.triangle_sides)
 
         self.canvas = graphics.Canvas(*self.resolution, background_color=self.table_color)
 
