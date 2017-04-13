@@ -17,20 +17,30 @@ class Hole(pygame.sprite.Sprite):
         self.pos = np.array([x, y])
 
 
-class TableSide(pygame.sprite.Sprite):
-    def __init__(self, color, triangle):
+# this class holds properties of a table side line, but doesn't actually draw it
+class TableSide():
+    def __init__(self, line):
+        self.line = np.array(line)
+        self.middle = (self.line[0] + self.line[1]) / 2
+        self.size = np.round(np.abs(self.line[0] - self.line[1]))
+        self.length = np.hypot(*self.size)
+        if np.count_nonzero(self.size) != 2:
+            # line is perpendicular to y or x axis
+            if self.size[0] == 0:
+                self.size[0] += 1
+            else:
+                self.size[1] += 1
+
+
+# draws the yellow part of the table
+class TableColoring(pygame.sprite.Sprite):
+    def __init__(self, table_size, color, table_points):
         pygame.sprite.Sprite.__init__(self)
 
-        self.line = np.array(triangle)
-        self.size = np.abs(self.line[0] - self.line[1] + 1)
-        self.image = pygame.Surface(self.size)
-
-        self.image.fill((200, 200, 200))
-        self.image.set_colorkey((200, 200, 200))
-        if np.all(np.less_equal(self.line[0] - self.line[1], 0)) or np.all(
-                np.greater_equal(self.line[0] - self.line[1], 0)):
-            pygame.draw.line(self.image, color, [0, 0], self.size - 1)
-        else:
-            pygame.draw.line(self.image, color, [0, self.size[1]], [self.size[0], 0])
+        self.image = pygame.Surface(table_size)
+        self.image.fill(color)
+        color_key = (200, 200, 200)
+        self.image.set_colorkey(color_key)
+        pygame.draw.polygon(self.image, color_key, table_points)
         self.rect = self.image.get_rect()
-        self.rect.center = (self.line[0] + self.line[1]) / 2
+        self.rect.topleft = (0, 0)

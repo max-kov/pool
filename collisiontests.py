@@ -11,15 +11,17 @@ def table_collision(game_state):
     # destroys any circles that are in a hole
     pygame.sprite.groupcollide(game_state.balls, game_state.holes, True, False, ball_to_hole_collision)
 
-    for triangle in game_state.table_sides:
+    for line in game_state.table_sides:
         for ball in game_state.balls:
-            physics.line_collision(triangle.line, ball)
+            physics.line_collision(line, ball)
 
 def check_for_collision(game_state):
     table_collision(game_state)
 
     collided = True
-    while collided:
+    cycles = 0
+    while collided and cycles < 10:
+        cycles += 1
         collided = False
         for combination in itertools.combinations(game_state.balls, 2):
             if physics.collision_check(*combination):
