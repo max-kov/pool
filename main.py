@@ -1,11 +1,22 @@
 import pygame
+import sys
 
 import collisiontests
 import gamestate
 import graphics
 
+
 game = gamestate.GameState()
-button_pressed = graphics.draw_main_menu(game)
+
+# the game can be launched in "no menu" mode
+if len(sys.argv) > 1:
+    if sys.argv[1] == "--nomenu":
+        button_pressed = 1
+    else:
+        print("Pool game does not have ", sys.argv, " option.")
+        button_pressed = 3
+else:
+    button_pressed = graphics.draw_main_menu(game)
 
 events = game.events()
 

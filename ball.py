@@ -6,9 +6,7 @@ from physics import rotation_matrix
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, ball_number, ball_size, friction_coeff):
-        font_obj = pygame.font.Font(pygame.font.get_default_font(), 10)
-
+    def __init__(self, ball_number, ball_size, friction_coeff, pygame_initialised=True):
         balls_colors = [
             (255, 255, 255),
             (0, 200, 200),
@@ -28,8 +26,6 @@ class Ball(pygame.sprite.Sprite):
             (100, 0, 0)
         ]
 
-        self.text = font_obj.render(str(ball_number), False, (0, 0, 0))
-        self.text_length = np.array(font_obj.size(str(ball_number)))
         self.color = balls_colors[ball_number]
         self.radius = ball_size
         self.mass = ball_size
@@ -52,14 +48,20 @@ class Ball(pygame.sprite.Sprite):
         self.velocity = np.zeros(2)
         # initial location of the white circle and number on the ball, a.k.a label
         self.label_offset = np.array([0, 0, self.radius])
-        self.label_size = self.radius / 2
+        self.label_size = self.radius // 2
 
-        pygame.sprite.Sprite.__init__(self)
-        self.update_sprite()
+        if pygame_initialised:
+            # if pygame was not initalised before calling this method, the function won't try to create a font
+            # which is impossible without pygame.init()
+            pygame.sprite.Sprite.__init__(self)
+            font_obj = pygame.font.Font(pygame.font.get_default_font(), 10)
+            self.text = font_obj.render(str(ball_number), False, (0, 0, 0))
+            self.text_length = np.array(font_obj.size(str(ball_number)))
+            self.update()
+
 
     def move_to(self, pos):
-        self.pos = pos
-        self.rect.center = self.pos
+        self.pos = np.array(pos)
 
     def add_force(self, force, time=1):
         # f = ma, v = u + at -> v = u + (f/m)*t
@@ -88,23 +90,23 @@ class Ball(pygame.sprite.Sprite):
         self.rect.center = self.pos.tolist()
 
     def set_vector(self, new_velocity):
-        self.velocity = new_velocity
+        self.velocity = np.array(new_velocity)
 
     def update_sprite(self):
-        sprite_dimension = np.repeat([self.radius * 2 + 1], 2)
+        sprite_dimension = np.repeat([self.radius * 2], 2)
         new_sprite = pygame.Surface(sprite_dimension)
         colorkey = (200, 200, 200)
         new_sprite.fill(self.color)
         new_sprite.set_colorkey(colorkey)
 
-        label_dimension = np.repeat([self.label_size * 2 + 1], 2)
+        label_dimension = np.repeat([self.label_size * 2], 2)
         label = pygame.Surface(label_dimension)
         label.fill(self.color)
         # 1.1 instead of 1 is a hack to avoid 0 width sprite when scaling
         dist_from_centre = 1.1 - ((self.label_offset[0] ** 2 + self.label_offset[1] ** 2) / (self.radius ** 2))
 
         if self.label_offset[2] > 0:
-            pygame.draw.circle(label, (255, 255, 255), label_dimension / 2, self.label_size)
+            pygame.draw.circle(label, (255, 255, 255), label_dimension // 2, self.label_size)
 
             if self.number != 0:
                 label.blit(self.text, (self.radius - self.text_length) / 2)

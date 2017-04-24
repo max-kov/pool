@@ -9,3 +9,5 @@ install:
     - pip install -r .travis_requirements.txt
 script:
     - pytest
+virtualenv:
+    system_site_packages: true
