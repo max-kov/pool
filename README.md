@@ -1,4 +1,5 @@
-My Pool game project, written entirely in python using [pygame](http://www.pygame.org/wiki/about)!
-
-Here's a recording from the game:
-![Alt text](/../screenshots/screen_recording_2.gif?raw=true "Game gif")
+# Pool
+[![Code Climate](https://codeclimate.com/github/max-kov/pool/badges/gpa.svg)](https://codeclimate.com/github/max-kov/pool)
+[![Build Status](https://travis-ci.org/max-kov/pool.svg?branch=table_rework)](https://travis-ci.org/max-kov/pool)
+  
+My pool game written entirely in python!
