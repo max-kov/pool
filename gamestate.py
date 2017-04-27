@@ -52,7 +52,7 @@ class GameState:
         self.total_ball_num = 16
         self.balls = pygame.sprite.Group()
         self.ball_size = 14
-        self.friction_coeff = 0.994
+        self.friction_coeff = 0.99
 
         # table and canvas constants
         self.resolution = np.array([1000, 500])
@@ -158,7 +158,7 @@ class GameState:
         closed = False
 
         for event in pygame.event.get():
-            if event.type in [pygame.QUIT]:
+            if event.type == pygame.QUIT:
                 closed = True
 
         return {"closed": closed,

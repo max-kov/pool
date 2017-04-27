@@ -11,13 +11,15 @@ class Cue(pygame.sprite.Sprite):
 
         self.visible = True
         self.target_ball = target
-        self.hit_power = 1.5
+        self.hit_power = 3
         self.length = 250
         self.thickness = 4
         self.color = (50, 50, 50)
         self.angle = 0
         self.max_displacement = 100
         self.displacement = self.target_ball.radius
+        # safe displacement is the length the cue stick can be pulled before causing the ball to move
+        self.safe_displacement = 1
 
         self.update()
 
@@ -47,7 +49,6 @@ class Cue(pygame.sprite.Sprite):
             self.points_on_screen = rectangle_points_from_circle + self.target_ball.pos
 
     def is_point_in_cue(self, point):
-
         # this algorithm splits up the rectangle into 4 triangles using the point provided
         # if the point provided is inside the triangle the sum of triangle areas should be equal to that of the rectangle
         rect_sides = [self.thickness * 2, self.length] * 2
@@ -80,7 +81,6 @@ class Cue(pygame.sprite.Sprite):
         def draw_lines(target_ball, angle, color):
             cur_pos = np.copy(target_ball.pos)
             diff = np.array([math.sin(angle), math.cos(angle)])
-
             line_length = 10
 
             while game_state.resolution[1] > cur_pos[1] > 0 and game_state.resolution[0] > cur_pos[0] > 0:
@@ -91,22 +91,22 @@ class Cue(pygame.sprite.Sprite):
         initial_mouse_pos = events["mouse_pos"]
 
         if self.is_point_in_cue(initial_mouse_pos):
-            self.visible = 1
-
+            self.make_visible()
             initial_mouse_dist = physics.point_distance(initial_mouse_pos, self.target_ball.pos)
 
             # cue was displaced from the cue ball
             while events["clicked"]:
                 events = game_state.events()
-                final_pos = events["mouse_pos"]
-                change = self.target_ball.pos - final_pos
-                self.update_cue_displacement(final_pos, initial_mouse_dist)
+                current_mouse_pos = events["mouse_pos"]
+                displacement_from_ball_to_mouse = self.target_ball.pos - current_mouse_pos
+                self.update_cue_displacement(current_mouse_pos, initial_mouse_dist)
 
                 prev_angle = self.angle
-                if not change[0] == 0:
-                    # hack to avoid div by zero
-                    self.angle = 0.5 * math.pi - math.atan(change[1] / change[0])
-                    if change[0] > 0:
+                # hack to avoid div by zero
+                if not displacement_from_ball_to_mouse[0] == 0:
+                    self.angle = 0.5 * math.pi - math.atan(
+                        displacement_from_ball_to_mouse[1] / displacement_from_ball_to_mouse[0])
+                    if displacement_from_ball_to_mouse[0] > 0:
                         self.angle -= math.pi
 
                 game_state.redraw_all(update=False)
@@ -116,17 +116,14 @@ class Cue(pygame.sprite.Sprite):
 
             draw_lines(self.target_ball, self.angle + math.pi, game_state.table_color)
 
-            disp_temp = self.displacement - self.target_ball.radius - 1
             if self.displacement > self.target_ball.radius:
-                new_velocity = -disp_temp * self.hit_power * np.array([math.sin(self.angle), math.cos(self.angle)])
-                cur_disp = int(self.displacement)
+                new_velocity = -(
+                self.displacement - self.target_ball.radius - self.safe_displacement) * self.hit_power * \
+                               np.array([math.sin(self.angle), math.cos(self.angle)])
                 change_in_disp = np.hypot(*new_velocity) * 0.1
-                while cur_disp > self.target_ball.radius:
-                    self.displacement = cur_disp
+                while self.displacement - change_in_disp > self.target_ball.radius:
+                    self.displacement -= change_in_disp
                     game_state.redraw_all()
-                    game_state.mark_one_frame()
-                    cur_disp -= change_in_disp
 
-                self.displacement = self.target_ball.radius
                 self.target_ball.add_force(new_velocity)
                 self.make_invisible()

@@ -1,29 +1,26 @@
 import itertools
 import pygame
+import random
 
 import physics
 
 
-def table_collision(game_state):
-    def ball_to_hole_collision(ball, hole):
+def resolve_collisions(game_state):
+    def ball_hole_collision_check(ball, hole):
         return physics.point_distance(ball.pos, hole.pos) - hole.radius <= 0
 
     # destroys any circles that are in a hole
-    pygame.sprite.groupcollide(game_state.balls, game_state.holes, True, False, ball_to_hole_collision)
+    pygame.sprite.groupcollide(game_state.balls, game_state.holes, True, False, ball_hole_collision_check)
 
-    for line in game_state.table_sides:
-        for ball in game_state.balls:
-            physics.line_collision(line, ball)
+    for line_ball_combination in itertools.product(game_state.table_sides, game_state.balls):
+        if physics.line_ball_collision_check(*line_ball_combination):
+            physics.collide_line_ball(*line_ball_combination)
 
-def check_for_collision(game_state):
-    table_collision(game_state)
+    # TODO: Check the ball list 2 times only on the first move
+    ball_list = game_state.balls.sprites() * 2
+    # ball list is shuffled to randomize ball collisions on the 1st break
+    random.shuffle(ball_list)
 
-    collided = True
-    cycles = 0
-    while collided and cycles < 10:
-        cycles += 1
-        collided = False
-        for combination in itertools.combinations(game_state.balls, 2):
-            if physics.collision_check(*combination):
-                physics.collide_balls(*combination)
-                collided = True
+    for ball_combination in itertools.combinations(ball_list, 2):
+        if physics.ball_collision_check(*ball_combination):
+            physics.collide_balls(*ball_combination)

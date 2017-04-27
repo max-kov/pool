@@ -24,7 +24,7 @@ if not (button_pressed == 3):
     game.start_pool()
     while not events["closed"]:
         events = game.events()
-        collisiontests.check_for_collision(game)
+        collisiontests.resolve_collisions(game)
         game.redraw_all()
 
         while game.all_not_moving() and not events["closed"]:

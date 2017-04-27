@@ -13,7 +13,7 @@ def distance_less_equal(p1, p2, dist):
     return (dist_diff[0] ** 2 + dist_diff[1] ** 2) <= dist ** 2
 
 
-def collision_check(ball1, ball2):
+def ball_collision_check(ball1, ball2):
     # distance check followed by checking if either of the balls are moving
     # followed by vector projection check, to see if both are moving towards each other
     return distance_less_equal(ball1.pos, ball2.pos, ball1.radius + ball2.radius) and \
@@ -61,13 +61,12 @@ def rotation_matrix(axis, theta):
                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
 
-def line_collision(table_side, ball):
-    # displacement vector from the first point to the ball
-    displacement_to_ball = ball.pos - table_side.line[0]
-    # displacement vector from the first point to the second point on the line
-    displacement_to_second_point = table_side.line[1] - table_side.line[0]
-
-    if distance_less_equal(table_side.middle, ball.pos, table_side.length + ball.radius):
+def line_ball_collision_check(line, ball):
+    if distance_less_equal(line.middle, ball.pos, line.length + ball.radius):
+        # displacement vector from the first point to the ball
+        displacement_to_ball = ball.pos - line.line[0]
+        # displacement vector from the first point to the second point on the line
+        displacement_to_second_point = line.line[1] - line.line[0]
         normalised_point_diff_vector = displacement_to_second_point / np.hypot(*(displacement_to_second_point))
         # distance from the first point on the line projected onto point displacement vector
         projected_distance = np.dot(normalised_point_diff_vector, displacement_to_ball)
@@ -77,7 +76,13 @@ def line_collision(table_side, ball):
         # checking if closest point on the line is actually on the line (which is not always the case when projecting)
         # then checking if the distance from that point to the ball is less than the balls radius and finally
         # checking if the ball is moving towards the line
-        if -ball.radius / 3 <= projected_distance <= np.hypot(*(displacement_to_second_point)) + ball.radius / 3 and \
-                        np.hypot(*(closest_line_point - ball.pos + table_side.line[0])) <= ball.radius and \
-                        np.dot(perpendicular_vector, ball.velocity) >= 0:
-            ball.velocity -= 2 * np.dot(perpendicular_vector, ball.velocity) * perpendicular_vector
+        return -ball.radius / 3 <= projected_distance <= np.hypot(*(displacement_to_second_point)) + ball.radius / 3 and \
+               np.hypot(*(closest_line_point - ball.pos + line.line[0])) <= ball.radius and \
+               np.dot(perpendicular_vector, ball.velocity) >= 0
+
+
+def collide_line_ball(line, ball):
+    displacement_to_second_point = line.line[1] - line.line[0]
+    normalised_point_diff_vector = displacement_to_second_point / np.hypot(*(displacement_to_second_point))
+    perpendicular_vector = np.array([-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
+    ball.velocity -= 2 * np.dot(perpendicular_vector, ball.velocity) * perpendicular_vector
