@@ -1,17 +1,16 @@
 import pygame
 import numpy as np
 
+import gamestate
+from config import *
+
 
 class Canvas:
-    def __init__(self, vertical_size, horizontal_size, background_color, *args, **kwargs):
-        self.surface = pygame.display.set_mode((vertical_size, horizontal_size), *args, **kwargs)
-        self.size_x = vertical_size
-        self.size_y = horizontal_size
-
+    def __init__(self):
+        self.surface = pygame.display.set_mode(resolution)
         self.background = pygame.Surface(self.surface.get_size())
         self.background = self.background.convert()
-        self.background.fill(background_color)
-
+        self.background.fill(table_color)
         self.surface.blit(self.background, (0, 0))
 
 
@@ -21,37 +20,26 @@ def draw_main_menu(game_state):
         return np.all((np.less(text_starting_place[button_num] - spacing, mouse_pos),
                        np.greater(text_ending_place[button_num] + spacing, mouse_pos)))
 
-    text_color = (255, 255, 255)
-    text_selected_color = (0, 0, 255)
-    font_name = pygame.font.get_default_font()
-    title_font = pygame.font.Font(font_name, 40)
-    options_font = pygame.font.Font(font_name, 20)
-
-    title_text = "Pool"
-    menu_buttons = ["Play Pool", "Fully random", "Exit"]
+    title_font = get_default_font(menu_title_font_size)
+    options_font = get_default_font(menu_option_font_size)
+    #calculating button sizes
+    button_size = [options_font.size(label) for label in menu_buttons]
     # generating options buttons
     buttons = [
         # text when mouse is outside the button range
-        [options_font.render(label, False, text_color),
+        [options_font.render(label, False, menu_text_color),
          # text when mouse is inside the button range
-         options_font.render(label, False, text_selected_color)]
+         options_font.render(label, False, menu_text_selected_color)]
         for label in menu_buttons]
-    # calculating button sizes
-    button_size = [options_font.size(label) for label in menu_buttons]
+    #generating the title
+    title = [title_font.render(menu_title_text, False, menu_text_color),
+             title_font.render(menu_title_text, False, menu_text_color)]
 
-    # generating the title
-    title = [title_font.render(title_text, False, text_color),
-             title_font.render(title_text, False, text_color)]
     buttons.insert(0, title)
-    button_size.insert(0, title_font.size(title_text))
+    button_size.insert(0, title_font.size(menu_title_text))
     button_size = np.array(button_size)
-
-    margin = 20
-    spacing = 10
-
-    screen_mid = game_state.canvas.size_x / 2
-    change_in_y = (game_state.canvas.size_y - margin * 2) / (len(buttons))
-
+    screen_mid = resolution[0] / 2
+    change_in_y = (resolution[1]- menu_margin * 2) / (len(buttons))
     screen_button_middles = np.stack((np.repeat([screen_mid], len(buttons)),
                                       np.arange(len(buttons)) * change_in_y), axis=1)
 
@@ -60,25 +48,31 @@ def draw_main_menu(game_state):
 
     # writing text and drawing a rectangle around it
     for num in range(len(buttons)):
-        game_state.canvas.surface.blit(buttons[num][0], text_starting_place[num])
+        game_state.canvas.surface.blit(
+            buttons[num][0], text_starting_place[num])
         # no rectangle on the title
         if num > 0:
-            pygame.draw.rect(game_state.canvas.surface, text_color,
-                             np.concatenate((text_starting_place[num] - spacing, button_size[num] + spacing * 2)), 1)
+            pygame.draw.rect(game_state.canvas.surface, menu_text_color,
+                             np.concatenate((text_starting_place[num] -
+                                             menu_spacing, button_size[num] +
+                                             menu_spacing * 2)), 1)
 
     button_clicked = 0
-    # while a button was not clicked checks if mouse is in the button and if so changes its colour
+    # while a button was not clicked checks if mouse is in the button and if
+    # so changes its colour
     while button_clicked == 0:
         pygame.display.update()
-        user_events = game_state.events()
+        user_events = gamestate.events()
 
         for num in range(1, len(buttons)):
-            if check_mouse_pos(text_starting_place, text_ending_place, spacing, num):
+            if check_mouse_pos(text_starting_place, text_ending_place, menu_spacing, num):
                 if user_events["clicked"]:
                     button_clicked = num
                 else:
-                    game_state.canvas.surface.blit(buttons[num][1], text_starting_place[num])
+                    game_state.canvas.surface.blit(
+                        buttons[num][1], text_starting_place[num])
             else:
-                game_state.canvas.surface.blit(buttons[num][0], text_starting_place[num])
+                game_state.canvas.surface.blit(
+                    buttons[num][0], text_starting_place[num])
 
     return button_clicked

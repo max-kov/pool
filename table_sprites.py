@@ -1,23 +1,26 @@
 import pygame
 import numpy as np
 
+from config import *
+
 
 class Hole(pygame.sprite.Sprite):
-    def __init__(self, x, y, radius):
-        self.radius = radius
+    def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((2 * radius, 2 * radius))
+        self.image = pygame.Surface((2 * hole_radius, 2 * hole_radius))
         # color which will be ignored
         self.image.fill((200, 200, 200))
         self.image.set_colorkey((200, 200, 200))
 
-        pygame.draw.circle(self.image, (0, 0, 0), (radius, radius), radius, 0)
+        pygame.draw.circle(self.image, (0, 0, 0),
+                           (hole_radius, hole_radius), hole_radius, 0)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.pos = np.array([x, y])
 
 
-# this class holds properties of a table side line, but doesn't actually draw it
+# this class holds properties of a table side line, but doesn't actually
+# draw it
 class TableSide():
     def __init__(self, line):
         self.line = np.array(line)

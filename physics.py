@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from config import *
 
 
 def point_distance(p1, p2):
@@ -15,10 +16,11 @@ def distance_less_equal(p1, p2, dist):
 
 def ball_collision_check(ball1, ball2):
     # distance check followed by checking if either of the balls are moving
-    # followed by vector projection check, to see if both are moving towards each other
-    return distance_less_equal(ball1.pos, ball2.pos, ball1.radius + ball2.radius) and \
-           np.count_nonzero(np.concatenate((ball1.velocity, ball2.velocity))) > 0 and \
-           np.dot(ball2.pos - ball1.pos, ball1.velocity - ball2.velocity) > 0
+    # followed by vector projection check, to see if both are moving towards
+    # each other
+    return distance_less_equal(ball1.pos, ball2.pos, 2 * ball_radius) and \
+        np.count_nonzero(np.concatenate((ball1.velocity, ball2.velocity))) > 0 and \
+        np.dot(ball2.pos - ball1.pos, ball1.velocity - ball2.velocity) > 0
 
 
 def collide_balls(ball1, ball2):
@@ -62,27 +64,36 @@ def rotation_matrix(axis, theta):
 
 
 def line_ball_collision_check(line, ball):
-    if distance_less_equal(line.middle, ball.pos, line.length + ball.radius):
+    if distance_less_equal(line.middle, ball.pos, line.length + ball_radius):
         # displacement vector from the first point to the ball
         displacement_to_ball = ball.pos - line.line[0]
-        # displacement vector from the first point to the second point on the line
+        # displacement vector from the first point to the second point on the
+        # line
         displacement_to_second_point = line.line[1] - line.line[0]
-        normalised_point_diff_vector = displacement_to_second_point / np.hypot(*(displacement_to_second_point))
-        # distance from the first point on the line projected onto point displacement vector
-        projected_distance = np.dot(normalised_point_diff_vector, displacement_to_ball)
+        normalised_point_diff_vector = displacement_to_second_point / \
+            np.hypot(*(displacement_to_second_point))
+        # distance from the first point on the line projected onto point
+        # displacement vector
+        projected_distance = np.dot(
+            normalised_point_diff_vector, displacement_to_ball)
         # closest point on the line to the ball
         closest_line_point = projected_distance * normalised_point_diff_vector
-        perpendicular_vector = np.array([-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
+        perpendicular_vector = np.array(
+            [-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
         # checking if closest point on the line is actually on the line (which is not always the case when projecting)
         # then checking if the distance from that point to the ball is less than the balls radius and finally
         # checking if the ball is moving towards the line
-        return -ball.radius / 3 <= projected_distance <= np.hypot(*(displacement_to_second_point)) + ball.radius / 3 and \
-               np.hypot(*(closest_line_point - ball.pos + line.line[0])) <= ball.radius and \
-               np.dot(perpendicular_vector, ball.velocity) >= 0
+        return -ball_radius / 3 <= projected_distance <= \
+            np.hypot(*(displacement_to_second_point)) + ball_radius / 3 and \
+            np.hypot(*(closest_line_point - ball.pos + line.line[0])) <=\
+            ball_radius and np.dot(perpendicular_vector, ball.velocity) >= 0
 
 
 def collide_line_ball(line, ball):
     displacement_to_second_point = line.line[1] - line.line[0]
-    normalised_point_diff_vector = displacement_to_second_point / np.hypot(*(displacement_to_second_point))
-    perpendicular_vector = np.array([-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
-    ball.velocity -= 2 * np.dot(perpendicular_vector, ball.velocity) * perpendicular_vector
+    normalised_point_diff_vector = displacement_to_second_point / \
+        np.hypot(*(displacement_to_second_point))
+    perpendicular_vector = np.array(
+        [-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
+    ball.velocity -= 2 * np.dot(perpendicular_vector,
+                                ball.velocity) * perpendicular_vector
