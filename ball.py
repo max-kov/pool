@@ -17,7 +17,7 @@ class Ball(pygame.sprite.Sprite):
             # visible)
             point_num = 50
             self.stripe_circle = ball_radius * np.column_stack((np.cos(np.linspace(0, 2 * np.pi, point_num)),
-                                        np.sin(np.linspace(0, 2 * np.pi, point_num)),np.zeros(point_num)))
+                                                                np.sin(np.linspace(0, 2 * np.pi, point_num)), np.zeros(point_num)))
         else:
             self.stripe_circle = []
 
@@ -64,9 +64,8 @@ class Ball(pygame.sprite.Sprite):
                 self.stripe_circle[i] = np.matmul(
                     stripe, transformation_matrix)
 
-        for i, vel_component in enumerate(self.velocity):
-            if abs(vel_component) < friction_threshold:
-                self.velocity[i] = 0
+        if np.hypot(*self.velocity) < friction_threshold:
+            self.velocity = np.zeros(2)
 
         self.update_sprite()
         self.top_left = self.pos - ball_radius
@@ -86,8 +85,8 @@ class Ball(pygame.sprite.Sprite):
         label = pygame.Surface(label_dimension)
         label.fill(self.color)
         # 1.1 instead of 1 is a hack to avoid 0 width sprite when scaling
-        dist_from_centre = 1.1 - (self.label_offset[0] ** 2 +\
-              self.label_offset[1] ** 2) / (ball_radius ** 2)
+        dist_from_centre = 1.1 - (self.label_offset[0] ** 2 +
+                                  self.label_offset[1] ** 2) / (ball_radius ** 2)
 
         if self.label_offset[2] > 0:
             pygame.draw.circle(label, (255, 255, 255),
@@ -99,7 +98,7 @@ class Ball(pygame.sprite.Sprite):
             # hack to avoid div by zero
             if self.label_offset[0] != 0:
                 angle = -math.degrees(
-                        math.atan(self.label_offset[1] / self.label_offset[0]))
+                    math.atan(self.label_offset[1] / self.label_offset[0]))
                 label = pygame.transform.scale(
                     label, (int(ball_radius * dist_from_centre), ball_radius))
                 label = pygame.transform.rotate(label, angle)

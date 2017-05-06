@@ -22,7 +22,7 @@ def draw_main_menu(game_state):
 
     title_font = get_default_font(menu_title_font_size)
     options_font = get_default_font(menu_option_font_size)
-    #calculating button sizes
+    # calculating button sizes
     button_size = [options_font.size(label) for label in menu_buttons]
     # generating options buttons
     buttons = [
@@ -31,7 +31,7 @@ def draw_main_menu(game_state):
          # text when mouse is inside the button range
          options_font.render(label, False, menu_text_selected_color)]
         for label in menu_buttons]
-    #generating the title
+    # generating the title
     title = [title_font.render(menu_title_text, False, menu_text_color),
              title_font.render(menu_title_text, False, menu_text_color)]
 
@@ -39,7 +39,7 @@ def draw_main_menu(game_state):
     button_size.insert(0, title_font.size(menu_title_text))
     button_size = np.array(button_size)
     screen_mid = resolution[0] / 2
-    change_in_y = (resolution[1]- menu_margin * 2) / (len(buttons))
+    change_in_y = (resolution[1] - menu_margin * 2) / (len(buttons))
     screen_button_middles = np.stack((np.repeat([screen_mid], len(buttons)),
                                       np.arange(len(buttons)) * change_in_y), axis=1)
 

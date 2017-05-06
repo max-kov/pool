@@ -1,5 +1,7 @@
 import numpy as np
+import math
 import pygame
+
 
 # window settings
 resolution = np.array([1000, 500])
@@ -7,7 +9,7 @@ table_margin = 60
 table_side_color = (200, 200, 0)
 table_margin = 60
 table_color = (0, 100, 0)
-hole_radius = 20
+hole_radius = 22
 window_caption = "Pool"
 fps_limit = 100
 
@@ -46,11 +48,26 @@ ball_colors = [
     (100, 0, 0)
 ]
 ball_stripe_thickness = 2
-#where the balls will be placed at the start
-#relative to screen resolution
-ball_starting_place_ratio = [0.75 , 0.5]
-white_ball_initial_pos = resolution * [0.25,0.5]
+# where the balls will be placed at the start
+# relative to screen resolution
+ball_starting_place_ratio = [0.75, 0.5]
+white_ball_initial_pos = resolution * [0.25, 0.5]
 ball_label_text_size = 10
+forty_five_degree_cos = math.cos(math.radians(45))
+middle_hole_offset = np.array([
+    [-hole_radius * 2, hole_radius],
+    [-hole_radius, 0],
+    [hole_radius, 0],
+    [hole_radius * 2, hole_radius]
+])
+side_hole_offset = np.array([
+    [- 2 * forty_five_degree_cos * hole_radius - hole_radius, hole_radius],
+    [- forty_five_degree_cos * hole_radius, -
+        forty_five_degree_cos * hole_radius],
+    [forty_five_degree_cos * hole_radius,
+        forty_five_degree_cos * hole_radius],
+    [- hole_radius, 2 * forty_five_degree_cos * hole_radius + hole_radius]
+])
 
 # physics
 # if the velocity of the ball is less then
@@ -58,7 +75,7 @@ ball_label_text_size = 10
 friction_threshold = 0.06
 friction_coeff = 0.99
 
-#menu
+# menu
 menu_text_color = (255, 255, 255)
 menu_text_selected_color = (0, 0, 255)
 menu_title_text = "Pool"
@@ -68,7 +85,9 @@ menu_spacing = 10
 menu_title_font_size = 40
 menu_option_font_size = 20
 
-#fonts need to be initialised before using
+# fonts need to be initialised before using
+
+
 def get_default_font(size):
-    font_defualt= pygame.font.get_default_font()
+    font_defualt = pygame.font.get_default_font()
     return pygame.font.Font(font_defualt, size)

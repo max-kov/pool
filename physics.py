@@ -37,6 +37,7 @@ def collide_balls(ball1, ball2):
 
 
 def triangle_area(side1, side2, side3):
+    # used to determine if the user is clicking on the cue stick
     # herons formula
     half_perimetre = abs((side1 + side2 + side3) * 0.5)
     try:
@@ -72,8 +73,8 @@ def line_ball_collision_check(line, ball):
         displacement_to_second_point = line.line[1] - line.line[0]
         normalised_point_diff_vector = displacement_to_second_point / \
             np.hypot(*(displacement_to_second_point))
-        # distance from the first point on the line projected onto point
-        # displacement vector
+        # distance from the first point on the line to the perpendicular
+        # projection point from the ball
         projected_distance = np.dot(
             normalised_point_diff_vector, displacement_to_ball)
         # closest point on the line to the ball
@@ -82,11 +83,11 @@ def line_ball_collision_check(line, ball):
             [-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
         # checking if closest point on the line is actually on the line (which is not always the case when projecting)
         # then checking if the distance from that point to the ball is less than the balls radius and finally
-        # checking if the ball is moving towards the line
+        # checking if the ball is moving towards the line with the dot product
         return -ball_radius / 3 <= projected_distance <= \
             np.hypot(*(displacement_to_second_point)) + ball_radius / 3 and \
             np.hypot(*(closest_line_point - ball.pos + line.line[0])) <=\
-            ball_radius and np.dot(perpendicular_vector, ball.velocity) >= 0
+            ball_radius and np.dot(perpendicular_vector, ball.velocity) <= 0
 
 
 def collide_line_ball(line, ball):

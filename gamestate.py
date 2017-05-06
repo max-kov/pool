@@ -12,85 +12,76 @@ from config import *
 
 class GameState:
     def __init__(self):
-        def table_points_from_side_hole(hole_coords):
-            forty_five_degree_cos = math.cos(math.radians(45))
-            offset = np.array([
-                [- 2 * forty_five_degree_cos * hole_radius - hole_radius, hole_radius],
-                [- forty_five_degree_cos * hole_radius, -
-                    forty_five_degree_cos * hole_radius],
-                [forty_five_degree_cos * hole_radius,
-                    forty_five_degree_cos * hole_radius],
-                [- hole_radius, 2 * forty_five_degree_cos * hole_radius + hole_radius]
-            ])
-
-            # flips the matrix so the final matrix would have the correct
-            # starting and ending points
-            flip_matrix = [1, 1]
-            if hole_coords[0] < resolution[0] / 2:
-                flip_matrix[0] = -1
-                offset = np.flipud(offset)
-            if hole_coords[1] > resolution[1] / 2:
-                flip_matrix[1] = -1
-                offset = np.flipud(offset)
-
-            return hole_coords + offset * flip_matrix
-
-        def table_points_from_middle_hole(hole_coords):
-            offset = np.array([
-                [-hole_radius * 2, hole_radius],
-                [-hole_radius, 0],
-                [hole_radius, 0],
-                [hole_radius * 2, hole_radius]
-            ])
-
-            if hole_coords[1] > resolution[1] / 2:
-                offset *= [1, -1]
-                offset = np.flipud(offset)
-
-            return hole_coords + offset
-
         pygame.init()
         pygame.display.set_caption(window_caption)
 
         self.balls = pygame.sprite.Group()
         self.holes = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.OrderedUpdates()
+        self.canvas = graphics.Canvas()
 
+        # stores the invisible table lines which reflect the ball when it
+        # touches the table side
         self.table_sides = []
-        table_side_points = np.empty((2, 2))
+        table_side_points = np.empty((1, 2))
         # holes_x and holes_y holds the possible xs and ys table holes
-        holes_x = [table_margin, resolution[0] /
-                   2, resolution[0] - table_margin]
-        holes_y = [table_margin, resolution[1] - table_margin]
+        # with a position ID in the second tuple field
+        # so the top left hole has id 1,1
+        holes_x = [(table_margin, 1), (resolution[0] /
+                                       2, 2), (resolution[0] - table_margin, 3)]
+        holes_y = [(table_margin, 1), (resolution[1] - table_margin, 2)]
         # next three lines are a hack to make and arrange the hole coordinates
         # in the correct sequence
-        hole_coords = np.array(list(itertools.product(holes_y, holes_x)))
-        hole_coords = np.fliplr(hole_coords)
-        hole_coords = np.vstack((hole_coords[:3], np.flipud(hole_coords[3:])))
-        for hole in hole_coords:
-            self.holes.add(table_sprites.Hole(*hole))
-            if hole[0] == resolution[0] / 2:
-                table_side_points = np.append(table_side_points,
-                                              table_points_from_middle_hole(hole),axis=0)
-            else:
-                table_side_points = np.append(table_side_points,
-                                              table_points_from_side_hole(hole),axis=0)
+        all_hole_positions = np.array(
+            list(itertools.product(holes_y, holes_x)))
+        all_hole_positions = np.fliplr(all_hole_positions)
+        all_hole_positions = np.vstack(
+            (all_hole_positions[:3], np.flipud(all_hole_positions[3:])))
 
-        # repaces the first empty element of the array with the last element of the same array to make
-        # the array start and end with the same element
-        table_side_points[1] = table_side_points[-1]
-        for num, point in enumerate(table_side_points[2:]):
+        for hole_pos in all_hole_positions:
+            self.holes.add(table_sprites.Hole(hole_pos[0][0], hole_pos[1][0]))
+            # this will generate the diagonal, vertical and horizontal table
+            # pieces which will reflect the ball when it hits the table sides
+            # they are generated using 4x2 offset matrices (4 points around the hole)
+            # with the first point of the matrix is the starting point and the
+            # last point is the ending point, these 4x2 matrices are
+            # concatenated together
+            # also the martices must be flipped using numpy.flipud()
+            # after reflecting them using 2x1 reflection matrices, otherwise
+            # starting and ending points would be reversed
+            if hole_pos[0][1] == 2:
+                # hole_pos[0,1]=2 means x coordinate ID is 2 which means this
+                # hole is in the middle
+                if hole_pos[1][1] == 2:
+                    offset = np.flipud(middle_hole_offset) * [1, -1]
+                else:
+                    offset = middle_hole_offset
+                table_side_points = np.append(
+                    table_side_points, [hole_pos[0][0], hole_pos[1][0]] + offset, axis=0)
+            else:
+                offset = side_hole_offset
+                if hole_pos[0][1] == 1:
+                    offset = np.flipud(offset) * [-1, 1]
+                if hole_pos[1][1] == 2:
+                    offset = np.flipud(offset) * [1, -1]
+                table_side_points = np.append(table_side_points,
+                                              [hole_pos[0][0], hole_pos[1][0]] + offset, axis=0)
+
+        # deletes the 1st point in array (leftover form np.empty)
+        table_side_points = np.delete(table_side_points, 0, 0)
+        for num, point in enumerate(table_side_points[:-1]):
             # this will skip lines inside the circle
-            if num % 4 != 2:
+            if num % 4 != 1:
                 self.table_sides.append(table_sprites.TableSide(
                     [point, table_side_points[num + 1]]))
 
-        self.canvas = graphics.Canvas()
+        self.table_sides.append(table_sprites.TableSide(
+            [table_side_points[-1], table_side_points[0]]))
+
         self.all_sprites.add(table_sprites.TableColoring(
-            resolution, table_side_color, table_side_points[2:]))
+            resolution, table_side_color, table_side_points))
         self.all_sprites.add(self.holes)
 
-        # fps control
         self.fps_clock = pygame.time.Clock()
 
     def fps(self):
@@ -104,10 +95,8 @@ class GameState:
             self.balls.add(ball.Ball(i))
 
     def set_pool_balls(self):
-        # 0.99 and 1.99 to insure that balls are touching at the start of the
-        # game
         coord_shift = np.array([math.sin(math.radians(60)) * ball_radius *
-                                1.99, -ball_radius * 0.99])
+                                2, -ball_radius])
         counter = [0, 0]
         initial_place = ball_starting_place_ratio * resolution
         for ball in self.balls:
@@ -127,7 +116,6 @@ class GameState:
         self.set_pool_balls()
         self.all_sprites.add(self.balls)
 
-        # add cuestick
         self.cue = cue.Cue(self.white_ball)
         self.all_sprites.add(self.cue)
 
