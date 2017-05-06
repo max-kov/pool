@@ -13,3 +13,5 @@ virtualenv:
     system_site_packages: true
 after_success:
     - codeclimate-test-reporter
+notifications:
+    email: false
