@@ -1,25 +1,26 @@
 import pygame
+import sys
 
 import collisiontests
 import gamestate
 import graphics
 
+
 game = gamestate.GameState()
 button_pressed = graphics.draw_main_menu(game)
+events = gamestate.events()
 
-events = game.events()
-
-if not (button_pressed == 3):
+if (button_pressed == 1):
     game.start_pool()
     while not events["closed"]:
-        events = game.events()
-        collisiontests.check_for_collision(game)
+        events = gamestate.events()
+        collisiontests.resolve_collisions(game)
         game.redraw_all()
 
         while game.all_not_moving() and not events["closed"]:
-            game.cue.make_visible()
+            game.cue.visible = True
             game.redraw_all()
-            events = game.events()
+            events = gamestate.events()
             if events["clicked"]:
                 game.cue.check_if_clicked(game)
 
