@@ -22,8 +22,8 @@ class Ball(pygame.sprite.Sprite):
             self.stripe_circle = []
 
         self.number = ball_number
-        self.pos = np.zeros(2)
-        self.velocity = np.zeros(2)
+        self.pos = np.zeros(2, dtype = float)
+        self.velocity = np.zeros(2, dtype = float)
         # initial location of the white circle and number on the ball, a.k.a
         # ball label
         self.label_offset = np.array([0, 0, ball_radius])
@@ -39,7 +39,7 @@ class Ball(pygame.sprite.Sprite):
             self.update()
 
     def move_to(self, pos):
-        self.pos = np.array(pos)
+        self.pos = np.array(pos, dtype = float)
 
     def add_force(self, force, time=1):
         # f = ma, v = u + at -> v = u + (f/m)*t
@@ -50,9 +50,8 @@ class Ball(pygame.sprite.Sprite):
         self.pos += self.velocity
 
         if np.count_nonzero(self.velocity) > 0:
-            # updates small circle and number offset
-            perpendicular_velocity = np.array(
-                [-self.velocity[1], self.velocity[0], 0])
+            # updates label circle and number offset
+            perpendicular_velocity = -np.cross(self.velocity,[0,0,1])
             # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
             rotation_angle = np.hypot(
                 *(self.velocity)) * 2 / (ball_radius * np.pi)
@@ -72,7 +71,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.center = self.pos.tolist()
 
     def set_vector(self, new_velocity):
-        self.velocity = np.array(new_velocity)
+        self.velocity = np.array(new_velocity, dtype = float)
 
     def update_sprite(self):
         sprite_dimension = np.repeat([ball_radius * 2], 2)
