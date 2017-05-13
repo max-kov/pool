@@ -1,24 +1,21 @@
-import numpy as np
 import math
-import pygame
 
+import numpy as np
+import pygame
 
 # window settings
 resolution = np.array([1000, 500])
 table_margin = 60
 table_side_color = (200, 200, 0)
-table_margin = 60
 table_color = (0, 100, 0)
 hole_radius = 22
 window_caption = "Pool"
 fps_limit = 100
-
 # cue settings
 cue_color = (100, 100, 100)
 cue_hit_power = 3
 cue_length = 250
 cue_thickness = 4
-cue_color = (50, 50, 50)
 cue_max_displacement = 100
 # safe displacement is the length the cue stick can be pulled before
 # causing the ball to move
@@ -54,18 +51,14 @@ ball_starting_place_ratio = [0.75, 0.5]
 white_ball_initial_pos = resolution * [0.25, 0.5]
 ball_label_text_size = 10
 forty_five_degree_cos = math.cos(math.radians(45))
-middle_hole_offset = np.array([
-    [-hole_radius * 2, hole_radius],
-    [-hole_radius, 0],
-    [hole_radius, 0],
-    [hole_radius * 2, hole_radius]
-])
+array = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0], [hole_radius, 0], [hole_radius * 2, hole_radius]])
+middle_hole_offset = array
 side_hole_offset = np.array([
     [- 2 * forty_five_degree_cos * hole_radius - hole_radius, hole_radius],
     [- forty_five_degree_cos * hole_radius, -
-        forty_five_degree_cos * hole_radius],
+    forty_five_degree_cos * hole_radius],
     [forty_five_degree_cos * hole_radius,
-        forty_five_degree_cos * hole_radius],
+     forty_five_degree_cos * hole_radius],
     [- hole_radius, 2 * forty_five_degree_cos * hole_radius + hole_radius]
 ])
 
@@ -84,6 +77,7 @@ menu_margin = 20
 menu_spacing = 10
 menu_title_font_size = 40
 menu_option_font_size = 20
+
 
 # fonts need to be initialised before using
 

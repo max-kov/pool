@@ -1,10 +1,11 @@
 import math
+
 import numpy as np
 import pygame
 
+import config
 import gamestate
 import physics
-from config import *
 
 
 class Cue(pygame.sprite.Sprite):
@@ -13,11 +14,11 @@ class Cue(pygame.sprite.Sprite):
         self.angle = 0
         self.target_ball = target
         self.visible = True
-        self.displacement = ball_radius
+        self.displacement = config.ball_radius
         self.update()
 
     def update(self, *args):
-        sprite_centre = np.repeat([cue_length + cue_max_displacement], 2)
+        sprite_centre = np.repeat([config.cue_length + config.cue_max_displacement], 2)
         self.image = pygame.Surface(2 * sprite_centre)
         # color which will be ignored
         self.image.fill((200, 200, 200))
@@ -26,12 +27,12 @@ class Cue(pygame.sprite.Sprite):
         if self.visible:
             sin_cos = np.array([math.sin(self.angle), math.cos(self.angle)])
             initial_coords = np.array([math.sin(self.angle + 0.5 * math.pi), math.cos(self.angle +
-                                                                                      0.5 * math.pi)]) * cue_thickness
-            coord_diff = sin_cos * cue_length
+                                                                                      0.5 * math.pi)]) * config.cue_thickness
+            coord_diff = sin_cos * config.cue_length
             rectangle_points = np.array((initial_coords, -initial_coords,
                                          -initial_coords + coord_diff, initial_coords + coord_diff))
             rectangle_points_from_circle = rectangle_points + self.displacement * sin_cos
-            pygame.draw.polygon(self.image, cue_color,
+            pygame.draw.polygon(self.image, config.cue_color,
                                 rectangle_points_from_circle + sprite_centre)
 
             self.rect = self.image.get_rect()
@@ -42,7 +43,7 @@ class Cue(pygame.sprite.Sprite):
         # this algorithm splits up the rectangle into 4 triangles using the point provided
         # if the point provided is inside the triangle the sum of triangle
         # areas should be equal to that of the rectangle
-        rect_sides = [cue_thickness * 2, cue_length] * 2
+        rect_sides = [config.cue_thickness * 2, config.cue_length] * 2
         triangle_sides = np.apply_along_axis(
             physics.point_distance, 1, self.points_on_screen, point)
         calc_area = np.vectorize(physics.triangle_area)
@@ -54,11 +55,11 @@ class Cue(pygame.sprite.Sprite):
 
     def update_cue_displacement(self, mouse_pos, initial_mouse_dist):
         displacement = physics.point_distance(
-            mouse_pos, self.target_ball.pos) - initial_mouse_dist + ball_radius
-        if displacement > cue_max_displacement:
-            self.displacement = cue_max_displacement
-        elif displacement < ball_radius:
-            self.displacement = ball_radius
+            mouse_pos, self.target_ball.pos) - initial_mouse_dist + config.ball_radius
+        if displacement > config.cue_max_displacement:
+            self.displacement = config.cue_max_displacement
+        elif displacement < config.ball_radius:
+            self.displacement = config.ball_radius
         else:
             self.displacement = displacement
 
@@ -67,10 +68,10 @@ class Cue(pygame.sprite.Sprite):
             cur_pos = np.copy(target_ball.pos)
             diff = np.array([math.sin(angle), math.cos(angle)])
 
-            while resolution[1] > cur_pos[1] > 0 and resolution[0] > cur_pos[0] > 0:
-                cur_pos += aiming_line_length * diff * 2
+            while config.resolution[1] > cur_pos[1] > 0 and config.resolution[0] > cur_pos[0] > 0:
+                cur_pos += config.aiming_line_length * diff * 2
                 pygame.draw.line(game_state.canvas.surface, color, cur_pos,
-                                 (cur_pos + aiming_line_length * diff))
+                                 (cur_pos + config.aiming_line_length * diff))
 
         events = gamestate.events()
         initial_mouse_pos = events["mouse_pos"]
@@ -96,22 +97,23 @@ class Cue(pygame.sprite.Sprite):
                         self.angle -= math.pi
 
                 game_state.redraw_all(update=False)
-                draw_lines(self.target_ball, prev_angle + math.pi, table_color)
+                draw_lines(self.target_ball, prev_angle + math.pi, config.table_color)
                 draw_lines(self.target_ball, self.angle +
                            math.pi, (255, 255, 255))
                 pygame.display.flip()
 
-            draw_lines(self.target_ball, self.angle + math.pi, table_color)
+            draw_lines(self.target_ball, self.angle + math.pi, config.table_color)
 
-            if self.displacement > ball_radius:
-                new_velocity = -(self.displacement - ball_radius - cue_safe_displacement) * cue_hit_power * \
-                    np.array([math.sin(self.angle), math.cos(self.angle)])
+            if self.displacement > config.ball_radius:
+                new_velocity = -(
+                    self.displacement - config.ball_radius - config.cue_safe_displacement) * config.cue_hit_power * \
+                               np.array([math.sin(self.angle), math.cos(self.angle)])
                 change_in_disp = np.hypot(*new_velocity) * 0.1
 
-                while self.displacement - change_in_disp > ball_radius:
+                while self.displacement - change_in_disp > config.ball_radius:
                     self.displacement -= change_in_disp
                     game_state.redraw_all()
 
                 self.target_ball.add_force(new_velocity)
-                self.displacement = ball_radius
+                self.displacement = config.ball_radius
                 self.visible = False

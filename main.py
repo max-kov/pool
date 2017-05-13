@@ -1,10 +1,8 @@
 import pygame
-import sys
 
 import collisiontests
 import gamestate
 import graphics
-
 
 game = gamestate.GameState()
 button_pressed = graphics.draw_main_menu(game)

@@ -1,19 +1,20 @@
 import itertools
 import math
+
 import numpy as np
 import pygame
 
 import ball
+import config
 import cue
 import graphics
 import table_sprites
-from config import *
 
 
 class GameState:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption(window_caption)
+        pygame.display.set_caption(config.window_caption)
 
         self.balls = pygame.sprite.Group()
         self.holes = pygame.sprite.Group()
@@ -27,9 +28,9 @@ class GameState:
         # holes_x and holes_y holds the possible xs and ys table holes
         # with a position ID in the second tuple field
         # so the top left hole has id 1,1
-        holes_x = [(table_margin, 1), (resolution[0] /
-                                       2, 2), (resolution[0] - table_margin, 3)]
-        holes_y = [(table_margin, 1), (resolution[1] - table_margin, 2)]
+        holes_x = [(config.table_margin, 1), (config.resolution[0] /
+                                              2, 2), (config.resolution[0] - config.table_margin, 3)]
+        holes_y = [(config.table_margin, 1), (config.resolution[1] - config.table_margin, 2)]
         # next three lines are a hack to make and arrange the hole coordinates
         # in the correct sequence
         all_hole_positions = np.array(
@@ -53,13 +54,13 @@ class GameState:
                 # hole_pos[0,1]=2 means x coordinate ID is 2 which means this
                 # hole is in the middle
                 if hole_pos[1][1] == 2:
-                    offset = np.flipud(middle_hole_offset) * [1, -1]
+                    offset = np.flipud(config.middle_hole_offset) * [1, -1]
                 else:
-                    offset = middle_hole_offset
+                    offset = config.middle_hole_offset
                 table_side_points = np.append(
                     table_side_points, [hole_pos[0][0], hole_pos[1][0]] + offset, axis=0)
             else:
-                offset = side_hole_offset
+                offset = config.side_hole_offset
                 if hole_pos[0][1] == 1:
                     offset = np.flipud(offset) * [-1, 1]
                 if hole_pos[1][1] == 2:
@@ -79,7 +80,7 @@ class GameState:
             [table_side_points[-1], table_side_points[0]]))
 
         self.all_sprites.add(table_sprites.TableColoring(
-            resolution, table_side_color, table_side_points))
+            config.resolution, config.table_side_color, table_side_points))
         self.all_sprites.add(self.holes)
 
         self.fps_clock = pygame.time.Clock()
@@ -88,17 +89,17 @@ class GameState:
         return self.fps_clock.fps()
 
     def mark_one_frame(self):
-        self.fps_clock.tick(fps_limit)
+        self.fps_clock.tick(config.fps_limit)
 
     def create_balls(self):
-        for i in range(total_ball_num):
+        for i in range(config.total_ball_num):
             self.balls.add(ball.Ball(i))
 
     def set_pool_balls(self):
-        coord_shift = np.array([math.sin(math.radians(60)) * ball_radius *
-                                2, -ball_radius])
+        coord_shift = np.array([math.sin(math.radians(60)) * config.ball_radius *
+                                2, -config.ball_radius])
         counter = [0, 0]
-        initial_place = ball_starting_place_ratio * resolution
+        initial_place = config.ball_starting_place_ratio * config.resolution
         for ball in self.balls:
             if not ball.number == 0:
                 ball.move_to(initial_place + coord_shift * counter)
@@ -108,7 +109,7 @@ class GameState:
                 else:
                     counter[1] += 2
             else:
-                ball.move_to(white_ball_initial_pos)
+                ball.move_to(config.white_ball_initial_pos)
                 self.white_ball = ball
 
     def start_pool(self):

@@ -1,6 +1,7 @@
 import itertools
-import pygame
 import random
+
+import pygame
 
 import physics
 from config import hole_radius

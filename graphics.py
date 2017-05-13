@@ -1,16 +1,16 @@
-import pygame
 import numpy as np
+import pygame
 
+import config
 import gamestate
-from config import *
 
 
 class Canvas:
     def __init__(self):
-        self.surface = pygame.display.set_mode(resolution)
+        self.surface = pygame.display.set_mode(config.resolution)
         self.background = pygame.Surface(self.surface.get_size())
         self.background = self.background.convert()
-        self.background.fill(table_color)
+        self.background.fill(config.table_color)
         self.surface.blit(self.background, (0, 0))
 
 
@@ -20,26 +20,26 @@ def draw_main_menu(game_state):
         return np.all((np.less(text_starting_place[button_num] - spacing, mouse_pos),
                        np.greater(text_ending_place[button_num] + spacing, mouse_pos)))
 
-    title_font = get_default_font(menu_title_font_size)
-    options_font = get_default_font(menu_option_font_size)
+    title_font = config.get_default_font(config.menu_title_font_size)
+    options_font = config.get_default_font(config.menu_option_font_size)
     # calculating button sizes
-    button_size = [options_font.size(label) for label in menu_buttons]
+    button_size = [options_font.size(label) for label in config.menu_buttons]
     # generating options buttons
     buttons = [
         # text when mouse is outside the button range
-        [options_font.render(label, False, menu_text_color),
+        [options_font.render(label, False, config.menu_text_color),
          # text when mouse is inside the button range
-         options_font.render(label, False, menu_text_selected_color)]
-        for label in menu_buttons]
+         options_font.render(label, False, config.menu_text_selected_color)]
+        for label in config.menu_buttons]
     # generating the title
-    title = [title_font.render(menu_title_text, False, menu_text_color),
-             title_font.render(menu_title_text, False, menu_text_color)]
+    title = [title_font.render(config.menu_title_text, False, config.menu_text_color),
+             title_font.render(config.menu_title_text, False, config.menu_text_color)]
 
     buttons.insert(0, title)
-    button_size.insert(0, title_font.size(menu_title_text))
+    button_size.insert(0, title_font.size(config.menu_title_text))
     button_size = np.array(button_size)
-    screen_mid = resolution[0] / 2
-    change_in_y = (resolution[1] - menu_margin * 2) / (len(buttons))
+    screen_mid = config.resolution[0] / 2
+    change_in_y = (config.resolution[1] - config.menu_margin * 2) / (len(buttons))
     screen_button_middles = np.stack((np.repeat([screen_mid], len(buttons)),
                                       np.arange(len(buttons)) * change_in_y), axis=1)
 
@@ -52,10 +52,10 @@ def draw_main_menu(game_state):
             buttons[num][0], text_starting_place[num])
         # no rectangle on the title
         if num > 0:
-            pygame.draw.rect(game_state.canvas.surface, menu_text_color,
+            pygame.draw.rect(game_state.canvas.surface, config.menu_text_color,
                              np.concatenate((text_starting_place[num] -
-                                             menu_spacing, button_size[num] +
-                                             menu_spacing * 2)), 1)
+                                             config.menu_spacing, button_size[num] +
+                                             config.menu_spacing * 2)), 1)
 
     button_clicked = 0
     # while a button was not clicked checks if mouse is in the button and if
@@ -65,7 +65,7 @@ def draw_main_menu(game_state):
         user_events = gamestate.events()
 
         for num in range(1, len(buttons)):
-            if check_mouse_pos(text_starting_place, text_ending_place, menu_spacing, num):
+            if check_mouse_pos(text_starting_place, text_ending_place, config.menu_spacing, num):
                 if user_events["clicked"]:
                     button_clicked = num
                 else:
