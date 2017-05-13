@@ -1,3 +1,4 @@
+import itertools
 import math
 
 import numpy as np
@@ -14,10 +15,12 @@ class Ball(pygame.sprite.Sprite):
 
         if self.is_striped:
             # every point is a 3d coordinate on the ball
-            # a circle will be drawn on the point if its Z component is >0 (is # visible)
+            # a circle will be drawn on the point if its Z component is >0 (is
+            # # visible)
             point_num = 50
             self.stripe_circle = config.ball_radius * np.column_stack((np.cos(np.linspace(0, 2 * np.pi, point_num)),
-                                                                       np.sin(np.linspace(0, 2 * np.pi, point_num)),
+                                                                       np.sin(np.linspace(
+                                                                           0, 2 * np.pi, point_num)),
                                                                        np.zeros(point_num)))
         else:
             self.stripe_circle = []
@@ -93,7 +96,8 @@ class Ball(pygame.sprite.Sprite):
                                label_dimension // 2, self.label_size)
 
             if self.number != 0:
-                label.blit(self.text, (config.ball_radius - self.text_length) / 2)
+                label.blit(
+                    self.text, (config.ball_radius - self.text_length) / 2)
 
             # hack to avoid div by zero
             if self.label_offset[0] != 0:
@@ -117,10 +121,9 @@ class Ball(pygame.sprite.Sprite):
                                                1, -config.ball_radius:config.ball_radius + 1]
         is_outside = config.ball_radius < np.hypot(*grid_2d)
 
-        for counter_x in range(config.ball_radius * 2 + 1):
-            for counter_y in range(config.ball_radius * 2 + 1):
-                if is_outside[counter_x, counter_y]:
-                    new_sprite.set_at([counter_x, counter_y], colorkey)
+        for xy in itertools.product(range(config.ball_radius * 2 + 1), repeat=2):
+            if is_outside[xy]:
+                new_sprite.set_at(xy, colorkey)
 
         self.image = new_sprite
         self.rect = self.image.get_rect()

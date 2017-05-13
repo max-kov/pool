@@ -1,6 +1,5 @@
 import itertools
 import math
-
 import numpy as np
 import pygame
 
@@ -30,7 +29,8 @@ class GameState:
         # so the top left hole has id 1,1
         holes_x = [(config.table_margin, 1), (config.resolution[0] /
                                               2, 2), (config.resolution[0] - config.table_margin, 3)]
-        holes_y = [(config.table_margin, 1), (config.resolution[1] - config.table_margin, 2)]
+        holes_y = [(config.table_margin, 1),
+                   (config.resolution[1] - config.table_margin, 2)]
         # next three lines are a hack to make and arrange the hole coordinates
         # in the correct sequence
         all_hole_positions = np.array(
@@ -53,21 +53,15 @@ class GameState:
             if hole_pos[0][1] == 2:
                 # hole_pos[0,1]=2 means x coordinate ID is 2 which means this
                 # hole is in the middle
-                if hole_pos[1][1] == 2:
-                    offset = np.flipud(config.middle_hole_offset) * [1, -1]
-                else:
-                    offset = config.middle_hole_offset
-                table_side_points = np.append(
-                    table_side_points, [hole_pos[0][0], hole_pos[1][0]] + offset, axis=0)
+                offset = config.middle_hole_offset
             else:
                 offset = config.side_hole_offset
-                if hole_pos[0][1] == 1:
-                    offset = np.flipud(offset) * [-1, 1]
-                if hole_pos[1][1] == 2:
-                    offset = np.flipud(offset) * [1, -1]
-                table_side_points = np.append(table_side_points,
-                                              [hole_pos[0][0], hole_pos[1][0]] + offset, axis=0)
-
+            if hole_pos[1][1] == 2:
+                offset = np.flipud(offset) * [1, -1]
+            if hole_pos[0][1] == 1:
+                offset = np.flipud(offset) * [-1, 1]
+            table_side_points = np.append(
+                table_side_points, [hole_pos[0][0], hole_pos[1][0]] + offset, axis=0)
         # deletes the 1st point in array (leftover form np.empty)
         table_side_points = np.delete(table_side_points, 0, 0)
         for num, point in enumerate(table_side_points[:-1]):

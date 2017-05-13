@@ -15,11 +15,6 @@ class Canvas:
 
 
 def draw_main_menu(game_state):
-    def check_mouse_pos(text_starting_place, text_ending_place, spacing, button_num):
-        mouse_pos = pygame.mouse.get_pos()
-        return np.all((np.less(text_starting_place[button_num] - spacing, mouse_pos),
-                       np.greater(text_ending_place[button_num] + spacing, mouse_pos)))
-
     title_font = config.get_default_font(config.menu_title_font_size)
     options_font = config.get_default_font(config.menu_option_font_size)
     # calculating button sizes
@@ -39,7 +34,8 @@ def draw_main_menu(game_state):
     button_size.insert(0, title_font.size(config.menu_title_text))
     button_size = np.array(button_size)
     screen_mid = config.resolution[0] / 2
-    change_in_y = (config.resolution[1] - config.menu_margin * 2) / (len(buttons))
+    change_in_y = (config.resolution[1] -
+                   config.menu_margin * 2) / (len(buttons))
     screen_button_middles = np.stack((np.repeat([screen_mid], len(buttons)),
                                       np.arange(len(buttons)) * change_in_y), axis=1)
 
@@ -65,7 +61,8 @@ def draw_main_menu(game_state):
         user_events = gamestate.events()
 
         for num in range(1, len(buttons)):
-            if check_mouse_pos(text_starting_place, text_ending_place, config.menu_spacing, num):
+            if np.all((np.less(text_starting_place[num] - config.menu_spacing, user_events["mouse_pos"]),
+                       np.greater(text_ending_place[num] + config.menu_spacing, user_events["mouse_pos"]))):
                 if user_events["clicked"]:
                     button_clicked = num
                 else:
