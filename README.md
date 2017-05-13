@@ -6,17 +6,21 @@
     <a href="https://travis-ci.org/max-kov/pool">
         <img src="https://travis-ci.org/max-kov/pool.svg?branch=table_rework"
              alt="build status">
+             </a> 
+    <a href="https://codeclimate.com/github/max-kov/pool/coverage">
+        <img src="https://codeclimate.com/github/max-kov/pool/badges/coverage.svg" />
     </a>
 </p>
 
 <p align="center"><b> A pool game written entirely in python! </b></p>
 
 
-![Alt text](/../screenshots/screen_recording_2.gif?raw=true "Game gif")
+![Alt text](/../screenshots/PoolRecording.gif?raw=true "Game gif")
 
 
 ## Installing
 
+### Most linux systems
 Firstly, clone the github code. Run
 
 ```
@@ -31,6 +35,10 @@ sudo pip install -r requirements.txt
 ```
 
 You can now start the program using `python main.py`
+
+### Windows
+
+Download [python](https://www.python.org/downloads/), [pygame](http://www.pygame.org/download.shtml) and [numpy](https://sourceforge.net/projects/numpy/files/NumPy/) (often is included with python), then download the program and run `main.py`.
 
 ## Running the tests
 
