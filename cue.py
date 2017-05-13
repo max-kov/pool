@@ -18,7 +18,8 @@ class Cue(pygame.sprite.Sprite):
         self.update()
 
     def update(self, *args):
-        sprite_centre = np.repeat([config.cue_length + config.cue_max_displacement], 2)
+        sprite_centre = np.repeat(
+            [config.cue_length + config.cue_max_displacement], 2)
         self.image = pygame.Surface(2 * sprite_centre)
         # color which will be ignored
         self.image.fill((200, 200, 200))
@@ -97,12 +98,14 @@ class Cue(pygame.sprite.Sprite):
                         self.angle -= math.pi
 
                 game_state.redraw_all(update=False)
-                draw_lines(self.target_ball, prev_angle + math.pi, config.table_color)
+                draw_lines(self.target_ball, prev_angle +
+                           math.pi, config.table_color)
                 draw_lines(self.target_ball, self.angle +
                            math.pi, (255, 255, 255))
                 pygame.display.flip()
 
-            draw_lines(self.target_ball, self.angle + math.pi, config.table_color)
+            draw_lines(self.target_ball, self.angle +
+                       math.pi, config.table_color)
 
             if self.displacement > config.ball_radius:
                 new_velocity = -(

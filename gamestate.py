@@ -30,7 +30,8 @@ class GameState:
         # so the top left hole has id 1,1
         holes_x = [(config.table_margin, 1), (config.resolution[0] /
                                               2, 2), (config.resolution[0] - config.table_margin, 3)]
-        holes_y = [(config.table_margin, 1), (config.resolution[1] - config.table_margin, 2)]
+        holes_y = [(config.table_margin, 1),
+                   (config.resolution[1] - config.table_margin, 2)]
         # next three lines are a hack to make and arrange the hole coordinates
         # in the correct sequence
         all_hole_positions = np.array(

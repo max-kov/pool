@@ -89,7 +89,8 @@ def line_ball_collision_check(line, ball):
         return -config.ball_radius / 3 <= projected_distance <= \
                np.hypot(*(displacement_to_second_point)) + config.ball_radius / 3 and \
                np.hypot(*(closest_line_point - ball.pos + line.line[0])) <= \
-               config.ball_radius and np.dot(perpendicular_vector, ball.velocity) <= 0
+               config.ball_radius and np.dot(
+            perpendicular_vector, ball.velocity) <= 0
 
 
 def collide_line_ball(line, ball):

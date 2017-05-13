@@ -3,13 +3,13 @@ import random
 
 import pygame
 
+import config
 import physics
-from config import hole_radius
 
 
 def resolve_collisions(game_state):
     def ball_hole_collision_check(ball, hole):
-        return physics.point_distance(ball.pos, hole.pos) - hole_radius <= 0
+        return physics.point_distance(ball.pos, hole.pos) - config.hole_radius <= 0
 
     # destroys any circles that are in a hole
     pygame.sprite.groupcollide(

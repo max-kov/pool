@@ -51,7 +51,8 @@ ball_starting_place_ratio = [0.75, 0.5]
 white_ball_initial_pos = resolution * [0.25, 0.5]
 ball_label_text_size = 10
 forty_five_degree_cos = math.cos(math.radians(45))
-array = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0], [hole_radius, 0], [hole_radius * 2, hole_radius]])
+array = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0],
+                  [hole_radius, 0], [hole_radius * 2, hole_radius]])
 middle_hole_offset = array
 side_hole_offset = np.array([
     [- 2 * forty_five_degree_cos * hole_radius - hole_radius, hole_radius],
