@@ -1,6 +1,5 @@
 import itertools
 import math
-
 import numpy as np
 import pygame
 
@@ -96,8 +95,7 @@ class Ball(pygame.sprite.Sprite):
                                label_dimension // 2, self.label_size)
 
             if self.number != 0:
-                label.blit(
-                    self.text, (config.ball_radius - self.text_length) / 2)
+                label.blit(self.text, (config.ball_radius - self.text_length) / 2)
 
             # hack to avoid div by zero
             if self.label_offset[0] != 0:

@@ -18,8 +18,7 @@ if (button_pressed == 1):
         while game.all_not_moving() and not events["closed"]:
             game.cue.visible = True
             game.redraw_all()
-            events = gamestate.events()
-            if events["clicked"]:
-                game.cue.check_if_clicked(game)
+            if game.cue.is_clicked(game):
+                game.cue.cue_is_active(game)
 
 pygame.quit()

@@ -1,5 +1,4 @@
 import math
-
 import numpy as np
 import pygame
 
@@ -64,59 +63,66 @@ class Cue(pygame.sprite.Sprite):
         else:
             self.displacement = displacement
 
-    def check_if_clicked(self, game_state):
-        def draw_lines(target_ball, angle, color):
-            cur_pos = np.copy(target_ball.pos)
-            diff = np.array([math.sin(angle), math.cos(angle)])
+    def draw_lines(self, game_state, target_ball, angle, color):
+        cur_pos = np.copy(target_ball.pos)
+        diff = np.array([math.sin(angle), math.cos(angle)])
 
-            while config.resolution[1] > cur_pos[1] > 0 and config.resolution[0] > cur_pos[0] > 0:
-                cur_pos += config.aiming_line_length * diff * 2
-                pygame.draw.line(game_state.canvas.surface, color, cur_pos,
-                                 (cur_pos + config.aiming_line_length * diff))
+        while config.resolution[1] > cur_pos[1] > 0 and config.resolution[0] > cur_pos[0] > 0:
+            cur_pos += config.aiming_line_length * diff * 2
+            pygame.draw.line(game_state.canvas.surface, color, cur_pos,
+                             (cur_pos + config.aiming_line_length * diff))
+
+    def is_clicked(self, game_state):
+        events = gamestate.events()
+        if events["clicked"]:
+            return self.is_point_in_cue(events["mouse_pos"])
+        else:
+            return False
+
+    def cue_is_active(self, game_state):
+        self.visible = True
 
         events = gamestate.events()
         initial_mouse_pos = events["mouse_pos"]
+        initial_mouse_dist = physics.point_distance(
+            initial_mouse_pos, self.target_ball.pos)
 
-        if self.is_point_in_cue(initial_mouse_pos):
-            self.visible = True
-            initial_mouse_dist = physics.point_distance(
-                initial_mouse_pos, self.target_ball.pos)
+        while events["clicked"]:
+            events = gamestate.events()
+            self.update_cue(game_state, initial_mouse_dist, events)
+        # undraw leftover aiming lines
+        self.draw_lines(game_state, self.target_ball, self.angle +
+                        math.pi, config.table_color)
 
-            # cue was displaced from the cue ball
-            while events["clicked"]:
-                events = gamestate.events()
-                current_mouse_pos = events["mouse_pos"]
-                displacement_from_ball_to_mouse = self.target_ball.pos - current_mouse_pos
-                self.update_cue_displacement(
-                    current_mouse_pos, initial_mouse_dist)
-                prev_angle = self.angle
-                # hack to avoid div by zero
-                if not displacement_from_ball_to_mouse[0] == 0:
-                    self.angle = 0.5 * math.pi - math.atan(
-                        displacement_from_ball_to_mouse[1] / displacement_from_ball_to_mouse[0])
-                    if displacement_from_ball_to_mouse[0] > 0:
-                        self.angle -= math.pi
+        if self.displacement > config.ball_radius:
+            self.ball_hit(game_state)
 
-                game_state.redraw_all(update=False)
-                draw_lines(self.target_ball, prev_angle +
-                           math.pi, config.table_color)
-                draw_lines(self.target_ball, self.angle +
-                           math.pi, (255, 255, 255))
-                pygame.display.flip()
+    def ball_hit(self, game_state):
+        new_velocity = -(self.displacement - config.ball_radius - config.cue_safe_displacement) * \
+                       config.cue_hit_power * np.array([math.sin(self.angle), math.cos(self.angle)])
+        change_in_disp = np.hypot(*new_velocity) * 0.1
+        while self.displacement - change_in_disp > config.ball_radius:
+            self.displacement -= change_in_disp
+            game_state.redraw_all()
+        self.target_ball.add_force(new_velocity)
+        self.displacement = config.ball_radius
+        self.visible = False
 
-            draw_lines(self.target_ball, self.angle +
-                       math.pi, config.table_color)
+    def update_cue(self, game_state, initial_mouse_dist, events):
+        current_mouse_pos = events["mouse_pos"]
+        displacement_from_ball_to_mouse = self.target_ball.pos - current_mouse_pos
+        self.update_cue_displacement(current_mouse_pos, initial_mouse_dist)
+        prev_angle = self.angle
+        # hack to avoid div by zero
+        if not displacement_from_ball_to_mouse[0] == 0:
+            self.angle = 0.5 * math.pi - math.atan(
+                displacement_from_ball_to_mouse[1] / displacement_from_ball_to_mouse[0])
+            if displacement_from_ball_to_mouse[0] > 0:
+                self.angle -= math.pi
 
-            if self.displacement > config.ball_radius:
-                new_velocity = -(
-                    self.displacement - config.ball_radius - config.cue_safe_displacement) * config.cue_hit_power * \
-                               np.array([math.sin(self.angle), math.cos(self.angle)])
-                change_in_disp = np.hypot(*new_velocity) * 0.1
-
-                while self.displacement - change_in_disp > config.ball_radius:
-                    self.displacement -= change_in_disp
-                    game_state.redraw_all()
-
-                self.target_ball.add_force(new_velocity)
-                self.displacement = config.ball_radius
-                self.visible = False
+        game_state.redraw_all(update=False)
+        self.draw_lines(game_state, self.target_ball, prev_angle +
+                        math.pi, config.table_color)
+        self.draw_lines(game_state, self.target_ball, self.angle +
+                        math.pi, (255, 255, 255))
+        pygame.display.flip()
