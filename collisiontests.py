@@ -1,13 +1,12 @@
 import itertools
-import random
-
 import pygame
+import random
 
 import config
 import physics
 
 
-def resolve_collisions(game_state):
+def resolve_all_collisions(game_state):
     def ball_hole_collision_check(ball, hole):
         return physics.point_distance(ball.pos, hole.pos) - config.hole_radius <= 0
 
@@ -26,3 +25,13 @@ def resolve_collisions(game_state):
     for ball_combination in itertools.combinations(ball_list, 2):
         if physics.ball_collision_check(*ball_combination):
             physics.collide_balls(*ball_combination)
+
+
+def check_if_ball_touches_balls(target_ball_pos, target_ball_number, game_state):
+    touches_other_balls = False
+    for ball in game_state.balls:
+        if target_ball_number != ball.number and \
+                physics.distance_less_equal(ball.pos, target_ball_pos, config.ball_radius * 2):
+            touches_other_balls = True
+            break
+    return touches_other_balls

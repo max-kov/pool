@@ -3,8 +3,10 @@ import math
 import numpy as np
 import pygame
 
+import collisiontests
 import config
-from physics import rotation_matrix
+import gamestate
+import physics
 
 
 class Ball(pygame.sprite.Sprite):
@@ -58,7 +60,7 @@ class Ball(pygame.sprite.Sprite):
             # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
             rotation_angle = np.hypot(
                 *(self.velocity)) * 2 / (config.ball_radius * np.pi)
-            transformation_matrix = rotation_matrix(
+            transformation_matrix = physics.rotation_matrix(
                 perpendicular_velocity, -rotation_angle)
             self.label_offset = np.matmul(
                 self.label_offset, transformation_matrix)
@@ -126,3 +128,18 @@ class Ball(pygame.sprite.Sprite):
         self.image = new_sprite
         self.rect = self.image.get_rect()
         self.top_left = self.pos - config.ball_radius
+
+    def is_clicked(self, events):
+        return physics.distance_less_equal(events["mouse_pos"], self.pos, config.ball_radius)
+
+    def is_active(self, game_state):
+        events = gamestate.events()
+
+        while events["clicked"]:
+            events = gamestate.events()
+            if np.all(np.less(config.table_margin + config.ball_radius + config.hole_radius, events["mouse_pos"])) and \
+                    np.all(np.greater(config.resolution - config.table_margin - config.ball_radius - config.hole_radius,
+                                      events["mouse_pos"])) and \
+                    not collisiontests.check_if_ball_touches_balls(events["mouse_pos"], self.number, game_state):
+                self.move_to(events["mouse_pos"])
+            game_state.redraw_all()

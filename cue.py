@@ -72,17 +72,15 @@ class Cue(pygame.sprite.Sprite):
             pygame.draw.line(game_state.canvas.surface, color, cur_pos,
                              (cur_pos + config.aiming_line_length * diff))
 
-    def is_clicked(self, game_state):
-        events = gamestate.events()
+    def is_clicked(self, events):
         if events["clicked"]:
             return self.is_point_in_cue(events["mouse_pos"])
         else:
             return False
 
-    def cue_is_active(self, game_state):
+    def cue_is_active(self, game_state, events):
         self.visible = True
 
-        events = gamestate.events()
         initial_mouse_pos = events["mouse_pos"]
         initial_mouse_dist = physics.point_distance(
             initial_mouse_pos, self.target_ball.pos)
