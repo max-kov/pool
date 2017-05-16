@@ -1,5 +1,6 @@
 import itertools
 import math
+
 import numpy as np
 import pygame
 
@@ -43,8 +44,10 @@ class Ball(pygame.sprite.Sprite):
             self.text_length = np.array(font_obj.size(str(ball_number)))
             self.update()
 
-    def move_to(self, pos):
+    def move_to(self, pos, do_update=False):
         self.pos = np.array(pos, dtype=float)
+        if do_update:
+            self.update()
 
     def add_force(self, force, time=1):
         # f = ma, v = u + at -> v = u + (f/m)*t

@@ -12,7 +12,8 @@ hole_radius = 22
 window_caption = "Pool"
 fps_limit = 100
 # cue settings
-cue_color = (100, 100, 100)
+player1_cue_color = (200, 100, 0)
+player2_cue_color = (0, 100, 200)
 cue_hit_power = 3
 cue_length = 250
 cue_thickness = 4

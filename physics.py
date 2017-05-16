@@ -67,7 +67,8 @@ def rotation_matrix(axis, theta):
 
 
 def line_ball_collision_check(line, ball):
-    if distance_less_equal(line.middle, ball.pos, line.length + config.ball_radius):
+    # checks if the ball is half the line length from the line middle
+    if distance_less_equal(line.middle, ball.pos, line.length / 2 + config.ball_radius):
         # displacement vector from the first point to the ball
         displacement_to_ball = ball.pos - line.line[0]
         # displacement vector from the first point to the second point on the
@@ -77,8 +78,7 @@ def line_ball_collision_check(line, ball):
                                        np.hypot(*(displacement_to_second_point))
         # distance from the first point on the line to the perpendicular
         # projection point from the ball
-        projected_distance = np.dot(
-            normalised_point_diff_vector, displacement_to_ball)
+        projected_distance = np.dot(normalised_point_diff_vector, displacement_to_ball)
         # closest point on the line to the ball
         closest_line_point = projected_distance * normalised_point_diff_vector
         perpendicular_vector = np.array(

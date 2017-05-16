@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 import pygame
 
@@ -11,6 +12,7 @@ class Cue(pygame.sprite.Sprite):
     def __init__(self, target):
         pygame.sprite.Sprite.__init__(self)
         self.angle = 0
+        self.color = config.player1_cue_color
         self.target_ball = target
         self.visible = True
         self.displacement = config.ball_radius
@@ -32,7 +34,7 @@ class Cue(pygame.sprite.Sprite):
             rectangle_points = np.array((initial_coords, -initial_coords,
                                          -initial_coords + coord_diff, initial_coords + coord_diff))
             rectangle_points_from_circle = rectangle_points + self.displacement * sin_cos
-            pygame.draw.polygon(self.image, config.cue_color,
+            pygame.draw.polygon(self.image, self.color,
                                 rectangle_points_from_circle + sprite_centre)
 
             self.rect = self.image.get_rect()
@@ -72,15 +74,20 @@ class Cue(pygame.sprite.Sprite):
             pygame.draw.line(game_state.canvas.surface, color, cur_pos,
                              (cur_pos + config.aiming_line_length * diff))
 
+    def update_pos(self):
+        self.rect.center = self.target_ball.pos.tolist()
+
     def is_clicked(self, events):
-        if events["clicked"]:
-            return self.is_point_in_cue(events["mouse_pos"])
+        return events["clicked"] and self.is_point_in_cue(events["mouse_pos"])
+
+    def make_visible(self, game_state):
+        self.visible = True
+        if game_state.is_1st_players_turn():
+            self.color = config.player1_cue_color
         else:
-            return False
+            self.color = config.player2_cue_color
 
     def cue_is_active(self, game_state, events):
-        self.visible = True
-
         initial_mouse_pos = events["mouse_pos"]
         initial_mouse_dist = physics.point_distance(
             initial_mouse_pos, self.target_ball.pos)
