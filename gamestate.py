@@ -192,7 +192,10 @@ class GameState:
         for potted_ball in self.potted:
             only_solids_potted = only_solids_potted and (potted_ball < 8)
             only_stripes_potted = only_stripes_potted and (potted_ball > 8)
-        # checks if its next players turn
+
+        # checks if the 1st white ball hit is the same as the players target ball type
+        # for example if the first white hit of the white ball is a striped ball,
+        # but the player hits a solid ball, it is next players turn and he can move the white ball
         if not self.white_ball_1st_hit_is_set:
             free_hit = True
         else:
@@ -207,6 +210,8 @@ class GameState:
                     free_hit = True
                     turn_over = True
 
+        # checks if the player potted any wrong ball types
+        #if he pots a solid ball when he needs to pot striped balls, it is next players turn
         if self.stripes_decided and len(self.potted) > 0 and (only_stripes_potted or only_solids_potted):
             if self.is_1st_players_turn():
                 if not ((self.player1_stripes and only_stripes_potted) or

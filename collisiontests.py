@@ -30,6 +30,7 @@ def resolve_all_collisions(game_state):
     for ball_combination in itertools.combinations(ball_list, 2):
         if physics.ball_collision_check(*ball_combination):
             physics.collide_balls(*ball_combination)
+            # remembers which type of the ball the white ball hit first
             if (ball_combination[0].number == 0 or ball_combination[1].number == 0) and \
                     not game_state.white_ball_1st_hit_is_set:
                 game_state.white_ball_1st_hit_is_set = True
