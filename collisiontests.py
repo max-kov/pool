@@ -9,8 +9,10 @@ import physics
 
 def resolve_all_collisions(game_state):
     def ball_hole_collision_check(ball, hole):
-        if physics.distance_less_equal(ball.pos, hole.pos, config.ball_radius):
+        if physics.distance_less_equal(ball.pos, hole.pos, config.hole_radius):
             game_state.potted.append(ball.number)
+            # need to redraw table coloring to avoid ball shift glitch
+            game_state.table_coloring.refresh()
             return True
         else:
             return False

@@ -64,7 +64,7 @@ class GameState:
     def redraw_all(self, update=True):
         self.all_sprites.clear(self.canvas.surface, self.canvas.background)
         self.all_sprites.draw(self.canvas.surface)
-        self.all_sprites.update()
+        self.all_sprites.update(self)
         if update:
             pygame.display.flip()
         self.mark_one_frame()
@@ -134,8 +134,9 @@ class GameState:
                     [point, table_side_points[num + 1]]))
         self.table_sides.append(table_sprites.TableSide(
             [table_side_points[-1], table_side_points[0]]))
-        self.all_sprites.add(table_sprites.TableColoring(
-            config.resolution, config.table_side_color, table_side_points))
+        self.table_coloring = table_sprites.TableColoring(
+            config.resolution, config.table_side_color, table_side_points)
+        self.all_sprites.add(self.table_coloring)
         self.all_sprites.add(self.holes)
 
     def game_over(self):
@@ -151,6 +152,7 @@ class GameState:
         return self.turn_number % 2 == 0
 
     def check_potted(self):
+        self.can_move_white_ball = False
         # if white ball is potted, it will be created again and placed in the middle
         if 0 in self.potted:
             self.all_sprites.remove(self.white_ball)
@@ -162,10 +164,10 @@ class GameState:
             self.all_sprites.add(self.white_ball)
             self.cue.update_pos()
             self.potted.remove(0)
+            self.free_hit()
         if 8 in self.potted:
             self.game_over()
             self.potted.remove(8)
-        self.can_move_white_ball = False
         self.check_pool_rules()
         self.white_ball_1st_hit_is_set = False
         self.potted = []
@@ -198,7 +200,7 @@ class GameState:
         # but the player hits a solid ball, it is next players turn and he can move the white ball
         if not self.white_ball_1st_hit_is_set:
             free_hit = True
-        else:
+        elif self.stripes_decided:
             if self.is_1st_players_turn():
                 if not ((self.player1_stripes and self.white_ball_1st_hit_is_stripes) or
                             (not self.player1_stripes and not self.white_ball_1st_hit_is_stripes)):

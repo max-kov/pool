@@ -53,7 +53,7 @@ class Ball(pygame.sprite.Sprite):
         # f = ma, v = u + at -> v = u + (f/m)*t
         self.velocity += (force / config.ball_mass) * time
 
-    def update(self):
+    def update(self, *args):
         self.velocity *= config.friction_coeff
         self.pos += self.velocity
 
@@ -131,6 +131,9 @@ class Ball(pygame.sprite.Sprite):
         self.image = new_sprite
         self.rect = self.image.get_rect()
         self.top_left = self.pos - config.ball_radius
+
+    def create_image(self, surface, coords):
+        surface.blit(self.image, coords)
 
     def is_clicked(self, events):
         return physics.distance_less_equal(events["mouse_pos"], self.pos, config.ball_radius)

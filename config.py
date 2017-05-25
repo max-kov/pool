@@ -80,10 +80,12 @@ menu_spacing = 10
 menu_title_font_size = 40
 menu_option_font_size = 20
 
+# ingame ball target stuff
+player1_target_text = 'P1 balls - '
+player2_target_text = 'P2 balls - '
+target_ball_spacing = 3
 
 # fonts need to be initialised before using
-
-
 def get_default_font(size):
     font_defualt = pygame.font.get_default_font()
     return pygame.font.Font(font_defualt, size)
