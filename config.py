@@ -5,12 +5,14 @@ import pygame
 
 # window settings
 resolution = np.array([1000, 500])
-table_margin = 60
-table_side_color = (200, 200, 0)
-table_color = (0, 100, 0)
-hole_radius = 22
 window_caption = "Pool"
 fps_limit = 100
+# table settings
+table_margin = 40
+table_side_color = (200, 200, 0)
+table_color = (0, 100, 0)
+separation_line_color = (200, 200, 200)
+hole_radius = 22
 # cue settings
 player1_cue_color = (200, 100, 0)
 player2_cue_color = (0, 100, 200)
@@ -49,7 +51,7 @@ ball_stripe_thickness = 2
 # where the balls will be placed at the start
 # relative to screen resolution
 ball_starting_place_ratio = [0.75, 0.5]
-white_ball_initial_pos = resolution * [0.25, 0.5]
+white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, 0.5]
 ball_label_text_size = 10
 forty_five_degree_cos = math.cos(math.radians(45))
 array = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0],

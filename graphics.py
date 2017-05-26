@@ -14,6 +14,11 @@ class Canvas:
         self.surface.blit(self.background, (0, 0))
 
 
+def add_separation_line(canvas):
+    # white ball separation line
+    pygame.draw.line(canvas.background, config.separation_line_color, (config.white_ball_initial_pos[0], 0),
+                     (config.white_ball_initial_pos[0], config.resolution[1]))
+
 def draw_main_menu(game_state):
     title_font = config.get_default_font(config.menu_title_font_size)
     options_font = config.get_default_font(config.menu_option_font_size)

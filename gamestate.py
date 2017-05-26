@@ -48,18 +48,23 @@ class GameState:
     def start_pool(self):
         # game state variables
         # game always starts with p1, so odd numbers are player1 turns
-        self.turn_number = 1
+        self.turn_number = 0
         # this variable will be false until it is decided which player pots which balls
         self.stripes_decided = False
         self.player1_stripes = False
         self.can_move_white_ball = True
         # generating table sprites
         self.generate_table()
+        graphics.add_separation_line(self.canvas)
         self.create_balls()
         self.set_pool_balls()
         self.all_sprites.add(self.balls)
         self.cue = cue.Cue(self.white_ball)
         self.all_sprites.add(self.cue)
+
+    def is_behind_line_break(self):
+        # 1st break should be made from behind the separation line on the table
+        return self.turn_number == 1
 
     def redraw_all(self, update=True):
         self.all_sprites.clear(self.canvas.surface, self.canvas.background)

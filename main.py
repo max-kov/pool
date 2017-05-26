@@ -17,14 +17,15 @@ if button_pressed == 1:
 
         if game.all_not_moving():
             game.check_potted()
+            game.cue.make_visible(game.is_1st_players_turn())
             while game.all_not_moving() and not events["closed"]:
-                game.cue.make_visible(game)
                 game.redraw_all()
                 events = gamestate.events()
                 if game.cue.is_clicked(events):
                     game.cue.cue_is_active(game, events)
                 elif game.can_move_white_ball and game.white_ball.is_clicked(events):
-                    game.cue.visible = False
-                    game.white_ball.is_active(game)
+                    game.cue.make_invisible()
+                    game.white_ball.is_active(game, game.is_behind_line_break())
+                    game.cue.make_visible(game.is_1st_players_turn())
 
 pygame.quit()

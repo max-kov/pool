@@ -48,6 +48,10 @@ class TableColoring(pygame.sprite.Sprite):
         pygame.draw.polygon(self.image, color_key, table_points)
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
+        self.font = config.get_default_font(config.ball_radius)
+        # generates text at the bottom of the table
+        self.text = [self.font.render(config.player1_target_text, False, config.player1_cue_color),
+                     self.font.render(config.player2_target_text, False, config.player2_cue_color)]
 
     def refresh(self):
         self.image.fill(config.table_side_color)
@@ -57,16 +61,13 @@ class TableColoring(pygame.sprite.Sprite):
 
     def update(self, game_state):
         if game_state.stripes_decided:
-            font = config.get_default_font(config.ball_radius)
-            # generates text at the bottom of the table
-            text = [font.render(config.player1_target_text, False, config.player1_cue_color),
-                    font.render(config.player2_target_text, False, config.player2_cue_color)]
             start_x = np.array([config.table_margin + config.hole_radius * 3,
                                 config.resolution[0] / 2 + config.hole_radius * 3])
-            start_y = config.resolution[1] - config.table_margin
-            self.image.blit(text[0], [start_x[0], start_y + font.size(config.player1_target_text)[1] / 2])
-            self.image.blit(text[1], [start_x[1], start_y + font.size(config.player2_target_text)[1] / 2])
-            start_x += font.size(config.player2_target_text)[0]
+            start_y = config.resolution[1] - config.table_margin - self.font.size(config.player1_target_text)[1] / 2
+            # the text needs to be moved a bit lower to keep it aligned
+            self.image.blit(self.text[0], [start_x[0], start_y + config.ball_radius / 2])
+            self.image.blit(self.text[1], [start_x[1], start_y + config.ball_radius / 2])
+            start_x += self.font.size(config.player2_target_text)[0]
             for ball in game_state.balls:
                 # sorts the balls into their places
                 if ball.number != 0 and ball.number != 8:

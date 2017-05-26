@@ -138,14 +138,19 @@ class Ball(pygame.sprite.Sprite):
     def is_clicked(self, events):
         return physics.distance_less_equal(events["mouse_pos"], self.pos, config.ball_radius)
 
-    def is_active(self, game_state):
+    def is_active(self, game_state, behind_separation_line=False):
         events = gamestate.events()
 
         while events["clicked"]:
             events = gamestate.events()
+            # checks if the user isn't trying to place the ball out of the table or inside another ball
             if np.all(np.less(config.table_margin + config.ball_radius + config.hole_radius, events["mouse_pos"])) and \
                     np.all(np.greater(config.resolution - config.table_margin - config.ball_radius - config.hole_radius,
                                       events["mouse_pos"])) and \
                     not collisiontests.check_if_ball_touches_balls(events["mouse_pos"], self.number, game_state):
-                self.move_to(events["mouse_pos"])
+                if behind_separation_line:
+                    if events["mouse_pos"][0] <= config.white_ball_initial_pos[0]:
+                        self.move_to(events["mouse_pos"])
+                else:
+                    self.move_to(events["mouse_pos"])
             game_state.redraw_all()

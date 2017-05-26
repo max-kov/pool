@@ -14,19 +14,27 @@ class Cue(pygame.sprite.Sprite):
         self.angle = 0
         self.color = config.player1_cue_color
         self.target_ball = target
-        self.visible = True
+        self.visible = False
         self.displacement = config.ball_radius
-        self.update()
-
-    def update(self, *args):
-        sprite_centre = np.repeat(
+        self.sprite_size = np.repeat(
             [config.cue_length + config.cue_max_displacement], 2)
-        self.image = pygame.Surface(2 * sprite_centre)
-        # color which will be ignored
+        self.clear_canvas()
+
+    def clear_canvas(self):
+        # create empty surface as a placeholder for the cue
+        self.image = pygame.Surface(2 * self.sprite_size)
         self.image.fill((200, 200, 200))
         self.image.set_colorkey((200, 200, 200))
+        self.rect = self.image.get_rect()
+        self.rect.center = self.target_ball.pos.tolist()
 
+    def update(self, *args):
         if self.visible:
+            self.image = pygame.Surface(2 * self.sprite_size)
+            # color which will be ignored
+            self.image.fill((200, 200, 200))
+            self.image.set_colorkey((200, 200, 200))
+
             sin_cos = np.array([math.sin(self.angle), math.cos(self.angle)])
             initial_coords = np.array([math.sin(self.angle + 0.5 * math.pi), math.cos(self.angle +
                                                                                       0.5 * math.pi)]) * config.cue_thickness
@@ -35,11 +43,13 @@ class Cue(pygame.sprite.Sprite):
                                          -initial_coords + coord_diff, initial_coords + coord_diff))
             rectangle_points_from_circle = rectangle_points + self.displacement * sin_cos
             pygame.draw.polygon(self.image, self.color,
-                                rectangle_points_from_circle + sprite_centre)
+                                rectangle_points_from_circle + self.sprite_size)
 
+            self.points_on_screen = rectangle_points_from_circle + self.target_ball.pos
             self.rect = self.image.get_rect()
             self.rect.center = self.target_ball.pos.tolist()
-            self.points_on_screen = rectangle_points_from_circle + self.target_ball.pos
+        else:
+            self.clear_canvas()
 
     def is_point_in_cue(self, point):
         # this algorithm splits up the rectangle into 4 triangles using the point provided
@@ -53,6 +63,7 @@ class Cue(pygame.sprite.Sprite):
             calc_area(triangle_sides, np.roll(triangle_sides, -1), rect_sides))
         rect_area = rect_sides[0] * rect_sides[1]
 
+        # +1 to prevent rounding errors
         return rect_area + 1 >= triangle_areas
 
     def update_cue_displacement(self, mouse_pos, initial_mouse_dist):
@@ -80,12 +91,16 @@ class Cue(pygame.sprite.Sprite):
     def is_clicked(self, events):
         return events["clicked"] and self.is_point_in_cue(events["mouse_pos"])
 
-    def make_visible(self, game_state):
-        self.visible = True
-        if game_state.is_1st_players_turn():
+    def make_visible(self, is_1st_players_turn):
+        if is_1st_players_turn:
             self.color = config.player1_cue_color
         else:
             self.color = config.player2_cue_color
+        self.visible = True
+        self.update()
+
+    def make_invisible(self):
+        self.visible = False
 
     def cue_is_active(self, game_state, events):
         initial_mouse_pos = events["mouse_pos"]
