@@ -242,6 +242,9 @@ def events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             closed = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                closed = True
 
     return {"closed": closed,
             "clicked": pygame.mouse.get_pressed()[0],

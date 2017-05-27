@@ -3,16 +3,45 @@ import math
 import numpy as np
 import pygame
 
+
+# fonts need to be initialised before using
+def get_default_font(size):
+    font_defualt = pygame.font.get_default_font()
+    return pygame.font.Font(font_defualt, size)
+
+
+def set_max_resolution():
+    infoObject = pygame.display.Info()
+    global resolution
+    global white_ball_initial_pos
+    resolution = np.array([infoObject.current_w, infoObject.current_h])
+    white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, 0.5]
+
 # window settings
-resolution = np.array([1000, 500])
+fullscreen = False
+# fullscreen resolution can only be known after initialising the screen
+if not fullscreen:
+    resolution = np.array([1000, 500])
 window_caption = "Pool"
 fps_limit = 100
+
 # table settings
 table_margin = 40
 table_side_color = (200, 200, 0)
 table_color = (0, 100, 0)
 separation_line_color = (200, 200, 200)
 hole_radius = 22
+middle_hole_offset = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0],
+                               [hole_radius, 0], [hole_radius * 2, hole_radius]])
+side_hole_offset = np.array([
+    [- 2 * math.cos(math.radians(45)) * hole_radius - hole_radius, hole_radius],
+    [- math.cos(math.radians(45)) * hole_radius, -
+    math.cos(math.radians(45)) * hole_radius],
+    [math.cos(math.radians(45)) * hole_radius,
+     math.cos(math.radians(45)) * hole_radius],
+    [- hole_radius, 2 * math.cos(math.radians(45)) * hole_radius + hole_radius]
+])
+
 # cue settings
 player1_cue_color = (200, 100, 0)
 player2_cue_color = (0, 100, 200)
@@ -51,20 +80,11 @@ ball_stripe_thickness = 2
 # where the balls will be placed at the start
 # relative to screen resolution
 ball_starting_place_ratio = [0.75, 0.5]
-white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, 0.5]
+# in fullscreen mode the resolution is only available after initialising the screen
+# and if the screen wasn't initialised the resolution variable won't exist
+if 'resolution' in locals():
+    white_ball_initial_pos = (resolution + [table_margin + hole_radius, 0]) * [0.25, 0.5]
 ball_label_text_size = 10
-forty_five_degree_cos = math.cos(math.radians(45))
-array = np.array([[-hole_radius * 2, hole_radius], [-hole_radius, 0],
-                  [hole_radius, 0], [hole_radius * 2, hole_radius]])
-middle_hole_offset = array
-side_hole_offset = np.array([
-    [- 2 * forty_five_degree_cos * hole_radius - hole_radius, hole_radius],
-    [- forty_five_degree_cos * hole_radius, -
-    forty_five_degree_cos * hole_radius],
-    [forty_five_degree_cos * hole_radius,
-     forty_five_degree_cos * hole_radius],
-    [- hole_radius, 2 * forty_five_degree_cos * hole_radius + hole_radius]
-])
 
 # physics
 # if the velocity of the ball is less then
@@ -82,12 +102,8 @@ menu_spacing = 10
 menu_title_font_size = 40
 menu_option_font_size = 20
 
-# ingame ball target stuff
+# ingame ball target variables
 player1_target_text = 'P1 balls - '
 player2_target_text = 'P2 balls - '
 target_ball_spacing = 3
 
-# fonts need to be initialised before using
-def get_default_font(size):
-    font_defualt = pygame.font.get_default_font()
-    return pygame.font.Font(font_defualt, size)

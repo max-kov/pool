@@ -7,7 +7,11 @@ import gamestate
 
 class Canvas:
     def __init__(self):
-        self.surface = pygame.display.set_mode(config.resolution)
+        if config.fullscreen:
+            config.set_max_resolution()
+            self.surface = pygame.display.set_mode(config.resolution, pygame.FULLSCREEN)
+        else:
+            self.surface = pygame.display.set_mode(config.resolution)
         self.background = pygame.Surface(self.surface.get_size())
         self.background = self.background.convert()
         self.background.fill(config.table_color)
