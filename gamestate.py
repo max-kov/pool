@@ -148,6 +148,8 @@ class GameState:
         pass
 
     def turn_over(self):
+        # redraw the table coloring so the player label would get redrawn as well
+        self.table_coloring.redraw()
         self.turn_number += 1
 
     def free_hit(self):
@@ -160,14 +162,12 @@ class GameState:
         self.can_move_white_ball = False
         # if white ball is potted, it will be created again and placed in the middle
         if 0 in self.potted:
-            self.all_sprites.remove(self.white_ball)
             new_white_ball = ball.Ball(0)
             new_white_ball.move_to(config.white_ball_initial_pos, do_update=True)
             self.white_ball = new_white_ball
             self.cue.target_ball = new_white_ball
             self.balls.add(new_white_ball)
             self.all_sprites.add(self.white_ball)
-            self.cue.update_pos()
             self.potted.remove(0)
             self.free_hit()
         if 8 in self.potted:

@@ -85,9 +85,6 @@ class Cue(pygame.sprite.Sprite):
             pygame.draw.line(game_state.canvas.surface, color, cur_pos,
                              (cur_pos + config.aiming_line_length * diff))
 
-    def update_pos(self):
-        self.rect.center = self.target_ball.pos.tolist()
-
     def is_clicked(self, events):
         return events["clicked"] and self.is_point_in_cue(events["mouse_pos"])
 
@@ -115,20 +112,22 @@ class Cue(pygame.sprite.Sprite):
                         math.pi, config.table_color)
 
         if self.displacement > config.ball_radius:
-            self.ball_hit(game_state)
+            self.ball_hit()
 
-    def ball_hit(self, game_state):
+    def ball_hit(self):
         new_velocity = -(self.displacement - config.ball_radius - config.cue_safe_displacement) * \
                        config.cue_hit_power * np.array([math.sin(self.angle), math.cos(self.angle)])
         change_in_disp = np.hypot(*new_velocity) * 0.1
         while self.displacement - change_in_disp > config.ball_radius:
             self.displacement -= change_in_disp
-            game_state.redraw_all()
+            self.update()
+            pygame.display.flip()
         self.target_ball.add_force(new_velocity)
         self.displacement = config.ball_radius
         self.visible = False
 
     def update_cue(self, game_state, initial_mouse_dist, events):
+        # updates cue position
         current_mouse_pos = events["mouse_pos"]
         displacement_from_ball_to_mouse = self.target_ball.pos - current_mouse_pos
         self.update_cue_displacement(current_mouse_pos, initial_mouse_dist)

@@ -50,23 +50,43 @@ class TableColoring(pygame.sprite.Sprite):
         self.rect.topleft = (0, 0)
         self.font = config.get_default_font(config.ball_radius)
         # generates text at the bottom of the table
-        self.text = [self.font.render(config.player1_target_text, False, config.player1_cue_color),
-                     self.font.render(config.player2_target_text, False, config.player2_cue_color)]
+        self.target_ball_text = [self.font.render(config.player1_target_text, False, config.player1_cue_color),
+                                 self.font.render(config.player2_target_text, False, config.player2_cue_color)]
 
-    def refresh(self):
+    def redraw(self):
         self.image.fill(config.table_side_color)
         color_key = (200, 200, 200)
         self.image.set_colorkey(color_key)
         pygame.draw.polygon(self.image, color_key, self.points)
 
     def update(self, game_state):
+        # generates the top left label (which players turn is it and if he can move the ball)
+        if game_state.is_1st_players_turn():
+            if game_state.can_move_white_ball:
+                top_right_text = self.font.render(config.player1_turn_label + " (free hit)", False,
+                                                  config.player1_cue_color)
+            else:
+                top_right_text = self.font.render(config.player1_turn_label, False, config.player1_cue_color)
+            text_pos = [config.table_margin + config.hole_radius * 3,
+                        config.table_margin - self.font.size(config.player1_turn_label)[1] / 2]
+        else:
+            if game_state.can_move_white_ball:
+                top_right_text = self.font.render(config.player2_turn_label + " (free hit)", False,
+                                                  config.player2_cue_color)
+            else:
+                top_right_text = self.font.render(config.player2_turn_label, False, config.player2_cue_color)
+            text_pos = [config.table_margin + config.hole_radius * 3,
+                        config.table_margin - self.font.size(config.player2_turn_label)[1] / 2]
+        self.image.blit(top_right_text, text_pos)
+
+        # draws the target balls for each players
         if game_state.stripes_decided:
             start_x = np.array([config.table_margin + config.hole_radius * 3,
                                 config.resolution[0] / 2 + config.hole_radius * 3])
             start_y = config.resolution[1] - config.table_margin - self.font.size(config.player1_target_text)[1] / 2
             # the text needs to be moved a bit lower to keep it aligned
-            self.image.blit(self.text[0], [start_x[0], start_y + config.ball_radius / 2])
-            self.image.blit(self.text[1], [start_x[1], start_y + config.ball_radius / 2])
+            self.image.blit(self.target_ball_text[0], [start_x[0], start_y + config.ball_radius / 2])
+            self.image.blit(self.target_ball_text[1], [start_x[1], start_y + config.ball_radius / 2])
             start_x += self.font.size(config.player2_target_text)[0]
             for ball in game_state.balls:
                 # sorts the balls into their places
