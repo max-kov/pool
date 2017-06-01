@@ -60,10 +60,11 @@ class TableColoring(pygame.sprite.Sprite):
         pygame.draw.polygon(self.image, color_key, self.points)
 
     def update(self, game_state):
+        self.redraw()
         # generates the top left label (which players turn is it and if he can move the ball)
         if game_state.is_1st_players_turn():
             if game_state.can_move_white_ball:
-                top_right_text = self.font.render(config.player1_turn_label + " (free hit)", False,
+                top_right_text = self.font.render(config.player1_turn_label + "(free hit)", False,
                                                   config.player1_cue_color)
             else:
                 top_right_text = self.font.render(config.player1_turn_label, False, config.player1_cue_color)
@@ -105,3 +106,10 @@ class TableColoring(pygame.sprite.Sprite):
                         else:
                             ball.create_image(self.image, (start_x[1], start_y))
                             start_x[1] += config.ball_radius * 2 + config.target_ball_spacing
+                elif ball.number == 8:
+                    if game_state.player1_pots_8ball:
+                        ball.create_image(self.image, (start_x[0], start_y))
+                        start_x[0] += config.ball_radius * 2 + config.target_ball_spacing
+                    if game_state.player2_pots_8ball:
+                        ball.create_image(self.image, (start_x[1], start_y))
+                        start_x[1] += config.ball_radius * 2 + config.target_ball_spacing

@@ -44,21 +44,24 @@ class GameState:
             else:
                 ball.move_to(config.white_ball_initial_pos, do_update=True)
                 self.white_ball = ball
+        self.all_sprites.add(self.balls)
 
     def start_pool(self):
         # game state variables
         # game always starts with p1, so odd numbers are player1 turns
         self.turn_number = 0
-        # this variable will be false until it is decided which player pots which balls
         self.stripes_decided = False
         self.player1_stripes = False
         self.can_move_white_ball = True
-        # generating table sprites
+        self.stripes_remaining = True
+        self.solids_remaining = True
+        self.player1_pots_8ball = False
+        self.player2_pots_8ball = False
+        # drawing the table
         self.generate_table()
         graphics.add_separation_line(self.canvas)
         self.create_balls()
         self.set_pool_balls()
-        self.all_sprites.add(self.balls)
         self.cue = cue.Cue(self.white_ball)
         self.all_sprites.add(self.cue)
 
@@ -144,12 +147,21 @@ class GameState:
         self.all_sprites.add(self.table_coloring)
         self.all_sprites.add(self.holes)
 
-    def game_over(self):
-        pass
+    def game_over(self, p1_won):
+        # when the game is over a message is displayed
+        font = config.get_default_font(config.game_over_label_font_size)
+        if p1_won:
+            text = "PLAYER 1 WON!"
+        else:
+            text = "PLAYER 2 WON!"
+        rendered_text = font.render(text, False, (255, 255, 255))
+        self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
+        pygame.display.flip()
+        while not (events()["closed"] or events()["clicked"]):
+            pass
+
 
     def turn_over(self):
-        # redraw the table coloring so the player label would get redrawn as well
-        self.table_coloring.redraw()
         self.turn_number += 1
 
     def free_hit(self):
@@ -171,15 +183,77 @@ class GameState:
             self.potted.remove(0)
             self.free_hit()
         if 8 in self.potted:
-            self.game_over()
+            if (self.is_1st_players_turn() and self.player1_pots_8ball) or \
+                    (not self.is_1st_players_turn() and self.player2_pots_8ball):
+                self.game_over(self.is_1st_players_turn())
+            else:
+                self.game_over(not self.is_1st_players_turn())
             self.potted.remove(8)
-        self.check_pool_rules()
-        self.white_ball_1st_hit_is_set = False
-        self.potted = []
+
+    def check_remaining(self):
+        # a check if all striped or solid balls were potted
+        stripes_remaining = False
+        solids_remaining = False
+        for remaining_ball in self.balls:
+            if remaining_ball.number != 0 or remaining_ball.number != 8:
+                stripes_remaining = stripes_remaining or remaining_ball.is_striped
+                solids_remaining = solids_remaining or not remaining_ball.is_striped
+        self.stripes_remaining = stripes_remaining
+        self.solids_remaining = solids_remaining
+
+        # decides if on of the players (or both) should be potting 8ball
+        if not self.stripes_remaining or not self.solids_remaining:
+            if not self.stripes_remaining:
+                if self.player1_stripes:
+                    self.player1_pots_8ball = True
+                else:
+                    self.player2_pots_8ball = True
+            # both player can have the 8 ball as a target at the same time
+            if not self.solids_remaining:
+                if not self.player1_stripes:
+                    self.player1_pots_8ball = True
+                else:
+                    self.player2_pots_8ball = True
+
+    def first_collision(self, ball_combination):
+        self.white_ball_1st_hit_is_set = True
+        self.white_ball_1st_hit_8ball = ball_combination[0].number == 8 or ball_combination[1].number == 8
+        if ball_combination[0].number == 0:
+            self.white_ball_1st_hit_is_stripes = ball_combination[1].is_striped
+        else:
+            self.white_ball_1st_hit_is_stripes = ball_combination[0].is_striped
 
     def check_pool_rules(self):
         turn_over = False
         free_hit = False
+
+        # checks if the 1st white ball hit is the same as the players target ball type
+        # for example if the first white hit of the white ball is a striped ball,
+        # but the player hits a solid ball, it is next players turn and he can move the white ball
+        if not self.white_ball_1st_hit_is_set:
+            free_hit = True
+            turn_over = True
+        else:
+            if self.stripes_decided and not self.white_ball_1st_hit_8ball:
+                if self.is_1st_players_turn():
+                    if not ((self.player1_stripes and self.white_ball_1st_hit_is_stripes) or
+                                (not self.player1_stripes and not self.white_ball_1st_hit_is_stripes)):
+                        free_hit = True
+                        turn_over = True
+                else:
+                    if not ((not self.player1_stripes and self.white_ball_1st_hit_is_stripes) or
+                                (self.player1_stripes and not self.white_ball_1st_hit_is_stripes)):
+                        free_hit = True
+                        turn_over = True
+
+            # checks if the 8ball was the first ball hit, and if so checks if the player needs to pot the 8ball
+            # and if not he gets penalised
+            if self.white_ball_1st_hit_8ball:
+                if not ((self.is_1st_players_turn() and self.player1_pots_8ball) or
+                            (not self.is_1st_players_turn() and self.player2_pots_8ball)):
+                    free_hit = True
+                    turn_over = True
+
         # if it wasnt decided which player goes for which type of balls
         # and the player potted the balls exclusively of one color (excluting white balls)
         # then it is decided based on which players turn it is right now and which type
@@ -193,29 +267,13 @@ class GameState:
                 # all balls potted were solids
                 self.player1_stripes = not self.is_1st_players_turn()
                 self.stripes_decided = True
+
         # checks which balls were potted
         only_stripes_potted = True
         only_solids_potted = True
         for potted_ball in self.potted:
             only_solids_potted = only_solids_potted and (potted_ball < 8)
             only_stripes_potted = only_stripes_potted and (potted_ball > 8)
-
-        # checks if the 1st white ball hit is the same as the players target ball type
-        # for example if the first white hit of the white ball is a striped ball,
-        # but the player hits a solid ball, it is next players turn and he can move the white ball
-        if not self.white_ball_1st_hit_is_set:
-            free_hit = True
-        elif self.stripes_decided:
-            if self.is_1st_players_turn():
-                if not ((self.player1_stripes and self.white_ball_1st_hit_is_stripes) or
-                            (not self.player1_stripes and not self.white_ball_1st_hit_is_stripes)):
-                    free_hit = True
-                    turn_over = True
-            else:
-                if not ((not self.player1_stripes and self.white_ball_1st_hit_is_stripes) or
-                            (self.player1_stripes and not self.white_ball_1st_hit_is_stripes)):
-                    free_hit = True
-                    turn_over = True
 
         # checks if the player potted any wrong ball types
         #if he pots a solid ball when he needs to pot striped balls, it is next players turn
@@ -235,6 +293,8 @@ class GameState:
             self.free_hit()
         if turn_over:
             self.turn_over()
+        self.white_ball_1st_hit_is_set = False
+        self.potted = []
 
 def events():
     closed = False
