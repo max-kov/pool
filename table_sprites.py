@@ -61,25 +61,10 @@ class TableColoring(pygame.sprite.Sprite):
 
     def update(self, game_state):
         self.redraw()
-        # generates the top left label (which players turn is it and if he can move the ball)
-        if game_state.is_1st_players_turn():
-            if game_state.can_move_white_ball:
-                top_right_text = self.font.render(config.player1_turn_label + "(free hit)", False,
-                                                  config.player1_cue_color)
-            else:
-                top_right_text = self.font.render(config.player1_turn_label, False, config.player1_cue_color)
-            text_pos = [config.table_margin + config.hole_radius * 3,
-                        config.table_margin - self.font.size(config.player1_turn_label)[1] / 2]
-        else:
-            if game_state.can_move_white_ball:
-                top_right_text = self.font.render(config.player2_turn_label + " (free hit)", False,
-                                                  config.player2_cue_color)
-            else:
-                top_right_text = self.font.render(config.player2_turn_label, False, config.player2_cue_color)
-            text_pos = [config.table_margin + config.hole_radius * 3,
-                        config.table_margin - self.font.size(config.player2_turn_label)[1] / 2]
-        self.image.blit(top_right_text, text_pos)
+        self.generate_top_left_label(game_state)
+        self.generate_target_balls(game_state)
 
+    def generate_target_balls(self, game_state):
         # draws the target balls for each players
         if game_state.stripes_decided:
             start_x = np.array([config.table_margin + config.hole_radius * 3,
@@ -90,26 +75,41 @@ class TableColoring(pygame.sprite.Sprite):
             self.image.blit(self.target_ball_text[1], [start_x[1], start_y + config.ball_radius / 2])
             start_x += self.font.size(config.player2_target_text)[0]
             for ball in game_state.balls:
+                do_draw = ball.number != 0 and ball.number != 8
+
+                # draw to player holds the players which the balls will be added to
+                draw_to_player = []
+
                 # sorts the balls into their places
-                if ball.number != 0 and ball.number != 8:
-                    if ball.is_striped:
-                        if game_state.player1_stripes:
-                            ball.create_image(self.image, (start_x[0], start_y))
-                            start_x[0] += config.ball_radius * 2 + config.target_ball_spacing
-                        else:
-                            ball.create_image(self.image, (start_x[1], start_y))
-                            start_x[1] += config.ball_radius * 2 + config.target_ball_spacing
+                if do_draw:
+                    if game_state.p1_striped_condition(ball.is_striped, not ball.is_striped):
+                        draw_to_player.append(1)
                     else:
-                        if not game_state.player1_stripes:
-                            ball.create_image(self.image, (start_x[0], start_y))
-                            start_x[0] += config.ball_radius * 2 + config.target_ball_spacing
-                        else:
-                            ball.create_image(self.image, (start_x[1], start_y))
-                            start_x[1] += config.ball_radius * 2 + config.target_ball_spacing
-                elif ball.number == 8:
+                        draw_to_player.append(2)
+
+                if ball.number == 8:
                     if game_state.player1_pots_8ball:
-                        ball.create_image(self.image, (start_x[0], start_y))
-                        start_x[0] += config.ball_radius * 2 + config.target_ball_spacing
+                        draw_to_player.append(1)
                     if game_state.player2_pots_8ball:
-                        ball.create_image(self.image, (start_x[1], start_y))
-                        start_x[1] += config.ball_radius * 2 + config.target_ball_spacing
+                        draw_to_player.append(2)
+
+                # draws the balls
+                for player in draw_to_player:
+                    # player-1 because lists start with 0
+                    ball.create_image(self.image, (start_x[player - 1], start_y))
+                    start_x[player - 1] += config.ball_radius * 2 + config.target_ball_spacing
+
+    def generate_top_left_label(self, game_state):
+        # generates the top left label (which players turn is it and if he can move the ball)
+        top_left_text = ""
+        if game_state.can_move_white_ball:
+            top_left_text += " (free hit)"
+        if game_state.is_1st_players_turn():
+            top_left_rendered_text = self.font.render(config.player1_turn_label + top_left_text,
+                                                      False, config.player1_cue_color)
+        else:
+            top_left_rendered_text = self.font.render(config.player2_turn_label + top_left_text,
+                                                      False, config.player2_cue_color)
+        text_pos = [config.table_margin + config.hole_radius * 3,
+                    config.table_margin - self.font.size(top_left_text)[1] / 2]
+        self.image.blit(top_left_rendered_text, text_pos)
