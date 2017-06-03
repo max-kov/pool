@@ -139,6 +139,7 @@ class Ball(pygame.sprite.Sprite):
         return physics.distance_less_equal(events["mouse_pos"], self.pos, config.ball_radius)
 
     def is_active(self, game_state, behind_separation_line=False):
+        game_state.cue.make_invisible()
         events = gamestate.events()
 
         while events["clicked"]:
@@ -154,3 +155,4 @@ class Ball(pygame.sprite.Sprite):
                 else:
                     self.move_to(events["mouse_pos"])
             game_state.redraw_all()
+        game_state.cue.make_visible(game_state.is_1st_players_turn())
