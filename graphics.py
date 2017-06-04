@@ -2,7 +2,7 @@ import numpy as np
 import pygame
 
 import config
-import gamestate
+import event
 
 
 class Canvas:
@@ -67,7 +67,7 @@ def draw_main_menu(game_state):
     # so changes its colour
     while button_clicked == 0:
         pygame.display.update()
-        user_events = gamestate.events()
+        user_events = event.events()
 
         for num in range(1, len(buttons)):
             if np.all((np.less(text_starting_place[num] - config.menu_spacing, user_events["mouse_pos"]),

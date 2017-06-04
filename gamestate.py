@@ -1,13 +1,16 @@
 import itertools
 import math
 import random
+from operator import xor
 
 import numpy as np
 import pygame
+import zope.event
 
 import ball
 import config
 import cue
+import event
 import graphics
 import table_sprites
 
@@ -16,6 +19,7 @@ class GameState:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(config.window_caption)
+        zope.event.subscribers.append(self.game_event_handler)
         self.canvas = graphics.Canvas()
         self.fps_clock = pygame.time.Clock()
 
@@ -30,6 +34,14 @@ class GameState:
         self.white_ball.move_to(config.white_ball_initial_pos, do_update=True)
         self.balls.add(self.white_ball)
         self.all_sprites.add(self.white_ball)
+
+    def game_event_handler(self, event):
+        if event.type == "POTTED":
+            self.table_coloring.update(self)
+            self.potted.append(event.data.number)
+        elif event.type == "COLLISION":
+            if not self.white_ball_1st_hit_is_set:
+                self.first_collision(event.data)
 
     def set_pool_balls(self):
         counter = [0, 0]
@@ -165,7 +177,7 @@ class GameState:
         rendered_text = font.render(text, False, (255, 255, 255))
         self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
         pygame.display.flip()
-        while not (events()["closed"] or events()["clicked"]):
+        while not (event.events()["closed"] or event.events()["clicked"]):
             pass
 
     def turn_over(self, penalize):
@@ -267,7 +279,7 @@ class GameState:
 
         # checks if the player potted any wrong ball types
         # if he pots a solid ball when he needs to pot striped balls, it is next players turn
-        if self.stripes_decided and len(self.potted) > 0 and (only_stripes_potted or only_solids_potted):
+        if self.stripes_decided and len(self.potted) > 0 and xor(only_stripes_potted, only_solids_potted):
             if self.p1_p2_condition(
                     not self.p1_striped_condition(only_stripes_potted, only_solids_potted),
                     not self.p1_striped_condition(only_solids_potted, only_stripes_potted)):
@@ -296,16 +308,3 @@ class GameState:
                     not self.p1_p2_condition(self.player1_pots_8ball, self.player2_pots_8ball):
                 self.turn_over(True)
 
-def events():
-    closed = False
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            closed = True
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                closed = True
-
-    return {"closed": closed,
-            "clicked": pygame.mouse.get_pressed()[0],
-            "mouse_pos": np.array(pygame.mouse.get_pos())}

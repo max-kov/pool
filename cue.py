@@ -4,7 +4,7 @@ import numpy as np
 import pygame
 
 import config
-import gamestate
+import event
 import physics
 
 
@@ -105,7 +105,7 @@ class Cue(pygame.sprite.Sprite):
             initial_mouse_pos, self.target_ball.pos)
 
         while events["clicked"]:
-            events = gamestate.events()
+            events = event.events()
             self.update_cue(game_state, initial_mouse_dist, events)
         # undraw leftover aiming lines
         self.draw_lines(game_state, self.target_ball, self.angle +

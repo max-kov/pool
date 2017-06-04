@@ -6,7 +6,7 @@ import pygame
 
 import collisiontests
 import config
-import gamestate
+import event
 import physics
 
 
@@ -140,10 +140,10 @@ class Ball(pygame.sprite.Sprite):
 
     def is_active(self, game_state, behind_separation_line=False):
         game_state.cue.make_invisible()
-        events = gamestate.events()
+        events = event.events()
 
         while events["clicked"]:
-            events = gamestate.events()
+            events = event.events()
             # checks if the user isn't trying to place the ball out of the table or inside another ball
             if np.all(np.less(config.table_margin + config.ball_radius + config.hole_radius, events["mouse_pos"])) and \
                     np.all(np.greater(config.resolution - config.table_margin - config.ball_radius - config.hole_radius,
