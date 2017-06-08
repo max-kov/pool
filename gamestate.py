@@ -24,7 +24,7 @@ class GameState:
         self.fps_clock = pygame.time.Clock()
 
     def fps(self):
-        return self.fps_clock.fps()
+        return self.fps_clock.get_fps()
 
     def mark_one_frame(self):
         self.fps_clock.tick(config.fps_limit)

@@ -19,7 +19,7 @@ class Ball(pygame.sprite.Sprite):
             # every point is a 3d coordinate on the ball
             # a circle will be drawn on the point if its Z component is >0 (is
             # # visible)
-            point_num = 50
+            point_num = config.ball_stripe_point_num
             self.stripe_circle = config.ball_radius * np.column_stack((np.cos(np.linspace(0, 2 * np.pi, point_num)),
                                                                        np.sin(np.linspace(
                                                                            0, 2 * np.pi, point_num)),
@@ -30,6 +30,8 @@ class Ball(pygame.sprite.Sprite):
         self.number = ball_number
         self.pos = np.zeros(2, dtype=float)
         self.velocity = np.zeros(2, dtype=float)
+        self.cumulitive_rotation_angle = 0
+        self.frames_since_last_update = self.number % 5
         # initial location of the white circle and number on the ball, a.k.a
         # ball label
         self.label_offset = np.array([0, 0, config.ball_radius])
@@ -42,41 +44,50 @@ class Ball(pygame.sprite.Sprite):
             font_obj = config.get_default_font(config.ball_label_text_size)
             self.text = font_obj.render(str(ball_number), False, (0, 0, 0))
             self.text_length = np.array(font_obj.size(str(ball_number)))
+            self.update_sprite()
             self.update()
+            self.top_left = self.pos - config.ball_radius
+            self.rect.center = self.pos.tolist()
 
     def move_to(self, pos, do_update=False):
         self.pos = np.array(pos, dtype=float)
-        if do_update:
-            self.update()
+        self.rect.center = self.pos.tolist()
 
     def add_force(self, force, time=1):
         # f = ma, v = u + at -> v = u + (f/m)*t
         self.velocity += (force / config.ball_mass) * time
 
     def update(self, *args):
-        self.velocity *= config.friction_coeff
-        self.pos += self.velocity
-
         if np.count_nonzero(self.velocity) > 0:
+            self.velocity *= config.friction_coeff
+            self.pos += self.velocity
+
             # updates label circle and number offset
             perpendicular_velocity = -np.cross(self.velocity, [0, 0, 1])
             # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
-            rotation_angle = np.hypot(
+            self.cumulitive_rotation_angle += np.hypot(
                 *(self.velocity)) * 2 / (config.ball_radius * np.pi)
-            transformation_matrix = physics.rotation_matrix(
-                perpendicular_velocity, -rotation_angle)
-            self.label_offset = np.matmul(
-                self.label_offset, transformation_matrix)
-            for i, stripe in enumerate(self.stripe_circle):
-                self.stripe_circle[i] = np.matmul(
-                    stripe, transformation_matrix)
 
-        if np.hypot(*self.velocity) < config.friction_threshold:
-            self.velocity = np.zeros(2)
+            # the program wont update the ball sprites if the ball didn't turn a certain amount
+            # and because the lag is less noticable when the ball is traveling fast
+            # the formula calculates the angle ball turned devided by the speed of the ball
+            if self.cumulitive_rotation_angle / np.hypot(*self.velocity) > config.speed_angle_threshold and \
+                            self.cumulitive_rotation_angle > config.visible_angle_threshold:
+                transformation_matrix = physics.rotation_matrix(
+                    perpendicular_velocity, -self.cumulitive_rotation_angle)
+                self.label_offset = np.matmul(
+                    self.label_offset, transformation_matrix)
+                for i, stripe in enumerate(self.stripe_circle):
+                    self.stripe_circle[i] = np.matmul(
+                        stripe, transformation_matrix)
 
-        self.update_sprite()
-        self.top_left = self.pos - config.ball_radius
-        self.rect.center = self.pos.tolist()
+                self.update_sprite()
+                self.cumulitive_rotation_angle = 0
+
+            if np.hypot(*self.velocity) < config.friction_threshold:
+                self.velocity = np.zeros(2)
+
+            self.rect.center = self.pos.tolist()
 
     def set_vector(self, new_velocity):
         self.velocity = np.array(new_velocity, dtype=float)
@@ -112,12 +123,10 @@ class Ball(pygame.sprite.Sprite):
 
         new_sprite.blit(
             label, self.label_offset[:2] + (sprite_dimension - label.get_size()) / 2)
-        for num, point in enumerate(self.stripe_circle):
+        for num, point in enumerate(self.stripe_circle[:-1]):
             if point[2] >= -1:
-                # ball.stripe_thickness*(1 + point[2]/ball.radius)) makes the circles
-                # near the edges smaller and circles on the top bigger
-                pygame.draw.circle(new_sprite, (255, 255, 255), config.ball_radius + point[:2].astype(int),
-                                   int(config.ball_stripe_thickness * (1 + point[2] / config.ball_radius)))
+                pygame.draw.line(new_sprite, (255, 255, 255), config.ball_radius + point[:2],
+                                 config.ball_radius + self.stripe_circle[num + 1][:2], config.ball_stripe_thickness)
 
         # applies a circular mask on the sprite using colorkey
         grid_2d = np.mgrid[-config.ball_radius:config.ball_radius +

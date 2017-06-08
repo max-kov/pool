@@ -23,7 +23,7 @@ fullscreen = False
 if not fullscreen:
     resolution = np.array([1000, 500])
 window_caption = "Pool"
-fps_limit = 100
+fps_limit = 60
 
 # table settings
 table_margin = 40
@@ -58,6 +58,8 @@ aiming_line_length = 14
 total_ball_num = 16
 ball_radius = 14
 ball_mass = 14
+speed_angle_threshold = 0.09
+visible_angle_threshold = 0.05
 ball_colors = [
     (255, 255, 255),
     (0, 200, 200),
@@ -76,7 +78,8 @@ ball_colors = [
     (50, 0, 0),
     (100, 0, 0)
 ]
-ball_stripe_thickness = 2
+ball_stripe_thickness = 5
+ball_stripe_point_num = 25
 # where the balls will be placed at the start
 # relative to screen resolution
 ball_starting_place_ratio = [0.75, 0.5]
