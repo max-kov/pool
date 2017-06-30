@@ -49,9 +49,10 @@ class Ball(pygame.sprite.Sprite):
             self.top_left = self.pos - config.ball_radius
             self.rect.center = self.pos.tolist()
 
-    def move_to(self, pos, do_update=False):
+    def move_to(self, pos, rect_update=True):
         self.pos = np.array(pos, dtype=float)
-        self.rect.center = self.pos.tolist()
+        if rect_update:
+            self.rect.center = self.pos.tolist()
 
     def add_force(self, force, time=1):
         # f = ma, v = u + at -> v = u + (f/m)*t

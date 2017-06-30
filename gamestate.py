@@ -31,7 +31,7 @@ class GameState:
 
     def create_white_ball(self):
         self.white_ball = ball.Ball(0)
-        self.white_ball.move_to(config.white_ball_initial_pos, do_update=True)
+        self.white_ball.move_to(config.white_ball_initial_pos)
         self.balls.add(self.white_ball)
         self.all_sprites.add(self.white_ball)
 
@@ -56,7 +56,7 @@ class GameState:
 
         for i in ball_placement_sequence:
             ball_iteration = ball.Ball(i)
-            ball_iteration.move_to(initial_place + coord_shift * counter, do_update=True)
+            ball_iteration.move_to(initial_place + coord_shift * counter)
             if counter[1] == counter[0]:
                 counter[0] += 1
                 counter[1] = -counter[0]

@@ -66,7 +66,7 @@ class TableColoring(pygame.sprite.Sprite):
 
     def generate_target_balls(self, game_state):
         # draws the target balls for each players
-        if game_state.stripes_decided:
+        if game_state.ball_assignment is not None:
             start_x = np.array([config.table_margin + config.hole_radius * 3,
                                 config.resolution[0] / 2 + config.hole_radius * 3])
             start_y = config.resolution[1] - config.table_margin - self.font.size(config.player1_target_text)[1] / 2

@@ -59,7 +59,7 @@ table_side_2 = table_sprites.TableSide([[0, 0], [10, 0]])
 ball1 = ball.Ball(0, pygame_initialised=False)
 ball2 = ball.Ball(0, pygame_initialised=False)
 
-ball1.move_to((0, 0))
+ball1.move_to((0, 0), False)
 ball1.set_vector((1, 1))
 
 fortyfive_degree_position = np.array(
@@ -71,32 +71,32 @@ class TestBall():
     # properly
 
     def test_distance1(self):
-        ball2.move_to((ball_radius * 2, 0))
+        ball2.move_to((ball_radius * 2, 0), False)
         ball2.set_vector((0, 0))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_distance2(self):
-        ball2.move_to((0, ball_radius * 2 + 1))
+        ball2.move_to((0, ball_radius * 2 + 1), False)
         ball2.set_vector((0, 0))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_distance3(self):
-        ball2.move_to((1, ball_radius * 2))
+        ball2.move_to((1, ball_radius * 2), False)
         ball2.set_vector((0, 0))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_distance4(self):
-        ball2.move_to((ball_radius * 2 - 1, 0))
+        ball2.move_to((ball_radius * 2 - 1, 0), False)
         ball2.set_vector((0, 0))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_distance5(self):
-        ball2.move_to((1, 0))
+        ball2.move_to((1, 0), False)
         ball2.set_vector((0, 0))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_distance6(self):
-        ball2.move_to(fortyfive_degree_position)
+        ball2.move_to(fortyfive_degree_position, False)
         ball2.set_vector((0, 0))
         assert physics.ball_collision_check(ball1, ball2)
 
@@ -105,70 +105,70 @@ class TestBall():
     def test_movement1(self):
         ball1.set_vector((1, 1))
 
-        ball2.move_to((-ball_radius, 0))
+        ball2.move_to((-ball_radius, 0), False)
         ball2.set_vector((0, 0))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_movement2(self):
         ball1.set_vector((1, 1))
 
-        ball2.move_to(fortyfive_degree_position)
+        ball2.move_to(fortyfive_degree_position, False)
         ball2.set_vector((1, 1))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_movement3(self):
         ball1.set_vector((1, 1))
 
-        ball2.move_to(fortyfive_degree_position)
+        ball2.move_to(fortyfive_degree_position, False)
         ball2.set_vector((0.9, 1))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_movement4(self):
         ball1.set_vector((1, 1))
 
-        ball2.move_to(-fortyfive_degree_position)
+        ball2.move_to(-fortyfive_degree_position, False)
         ball2.set_vector((1, 1))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_movement5(self):
         ball1.set_vector((1, 1))
 
-        ball2.move_to(-fortyfive_degree_position)
+        ball2.move_to(-fortyfive_degree_position, False)
         ball2.set_vector((1.1, 1))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_movement6(self):
         ball1.set_vector((0, 1))
 
-        ball2.move_to((ball_radius * 2, 0))
+        ball2.move_to((ball_radius * 2, 0), False)
         ball2.set_vector((0, 0))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_movement7(self):
         ball1.set_vector((0, 1))
 
-        ball2.move_to((0, ball_radius * 2))
+        ball2.move_to((0, ball_radius * 2), False)
         ball2.set_vector((200000000, 0))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_movement8(self):
         ball1.set_vector((0, 1))
 
-        ball2.move_to((0, ball_radius * 2))
+        ball2.move_to((0, ball_radius * 2), False)
         ball2.set_vector((200000000, 0.9))
         assert physics.ball_collision_check(ball1, ball2)
 
     def test_movement9(self):
         ball1.set_vector((0, 1))
 
-        ball2.move_to((0, ball_radius * 2))
+        ball2.move_to((0, ball_radius * 2), False)
         ball2.set_vector((200000000, 1))
         assert not physics.ball_collision_check(ball1, ball2)
 
     def test_movement10(self):
         ball1.set_vector((0, 1))
 
-        ball2.move_to((0, ball_radius * 2))
+        ball2.move_to((0, ball_radius * 2), False)
         ball2.set_vector((200000000, -200000000000))
         assert physics.ball_collision_check(ball1, ball2)
 
@@ -176,7 +176,7 @@ class TestBall():
         # stationary balls do not collide to conserve unnecessary computations
         ball1.set_vector((0, 0))
 
-        ball2.move_to((0, ball_radius * 2))
+        ball2.move_to((0, ball_radius * 2), False)
         ball2.set_vector((0, 0))
         assert not physics.ball_collision_check(ball1, ball2)
 
@@ -185,28 +185,28 @@ class TestBall():
     # balls wouldn't get stuck in the reflection lines
     def test_line_ball_collision_check1(self):
         ball1.move_to(table_side_1.middle +
-                      np.array([1., -1.]) * (ball_radius ** 0.5))
+                      np.array([1., -1.]) * (ball_radius ** 0.5), False)
         ball1.set_vector([1, -1])
         assert physics.line_ball_collision_check(table_side_1, ball1)
 
     def test_line_ball_collision_check2(self):
         ball1.move_to(table_side_1.middle +
-                      np.array([1., -1.]) * (ball_radius ** 0.5))
+                      np.array([1., -1.]) * (ball_radius ** 0.5), False)
         ball1.set_vector([-1, 1])
         assert not physics.line_ball_collision_check(table_side_1, ball1)
 
     def test_line_ball_collision_check3(self):
-        ball1.move_to(table_side_1.middle + 1)
+        ball1.move_to(table_side_1.middle + 1, False)
         ball1.set_vector([1, -1])
         assert physics.line_ball_collision_check(table_side_1, ball1)
 
     def test_line_ball_collision_check4(self):
-        ball1.move_to(table_side_1.middle + ball_radius)
+        ball1.move_to(table_side_1.middle + ball_radius, False)
         ball1.set_vector([-1, 1])
         assert not physics.line_ball_collision_check(table_side_1, ball1)
 
     def test_line_ball_collision5(self):
-        ball1.move_to([5, ball_radius])
+        ball1.move_to([5, ball_radius], False)
         ball1.set_vector([1, -1])
         assert physics.line_ball_collision_check(table_side_2, ball1)
         physics.collide_line_ball(table_side_2, ball1)
@@ -214,7 +214,7 @@ class TestBall():
 
     def test_line_ball_collision6(self):
         ball1.move_to(table_side_1.middle +
-                      np.array([1., -1.]) * (ball_radius ** 0.5))
+                      np.array([1., -1.]) * (ball_radius ** 0.5), False)
         ball1.set_vector([1, -1])
         assert physics.line_ball_collision_check(table_side_1, ball1)
         physics.collide_line_ball(table_side_1, ball1)
