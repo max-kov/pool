@@ -18,7 +18,7 @@ if button_pressed == 1:
 
         if game.all_not_moving():
             game.check_pool_rules()
-            game.cue.make_visible(game.is_1st_players_turn())
+            game.cue.make_visible(game.current_player)
             while game.all_not_moving() and not events["closed"]:
                 game.redraw_all()
                 events = event.events()

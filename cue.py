@@ -88,8 +88,8 @@ class Cue(pygame.sprite.Sprite):
     def is_clicked(self, events):
         return events["clicked"] and self.is_point_in_cue(events["mouse_pos"])
 
-    def make_visible(self, is_1st_players_turn):
-        if is_1st_players_turn:
+    def make_visible(self, current_player):
+        if current_player.value == 1:
             self.color = config.player1_cue_color
         else:
             self.color = config.player2_cue_color

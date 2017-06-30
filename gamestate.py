@@ -15,6 +15,16 @@ import graphics
 import table_sprites
 
 
+class BallType(Enum):
+    Striped = "stripes"
+    Solid = "solid"
+
+
+class Player(Enum):
+    Player1 = 1
+    Player2 = 2
+
+
 class GameState:
     def __init__(self):
         pygame.init()
@@ -75,7 +85,7 @@ class GameState:
 
     def create_variables(self):
         # game state variables
-        # game always starts with p1, so odd numbers are player1 turns
+        self.current_player = Player.Player1
         self.turn_ended = True
         self.white_ball_1st_hit_is_set = False
         self.white_ball_1st_hit_is_stripes = False
@@ -184,11 +194,12 @@ class GameState:
         if not self.turn_ended:
             self.turn_ended = True
             self.turn_number += 1
+            if self.current_player.value == 1:
+                self.current_player = Player.Player2
+            else:
+                self.current_player = Player.Player1
         if penalize:
             self.can_move_white_ball = True
-
-    def is_1st_players_turn(self):
-        return self.turn_number % 2 == 0
 
     def check_potted(self):
         self.can_move_white_ball = False
@@ -200,9 +211,9 @@ class GameState:
             self.turn_over(True)
         if 8 in self.potted:
             if self.p1_p2_condition(self.player1_pots_8ball, self.player2_pots_8ball):
-                self.game_over(self.is_1st_players_turn())
+                self.game_over(self.current_player.value == 1)
             else:
-                self.game_over(not self.is_1st_players_turn())
+                self.game_over(self.current_player.value == 2)
             self.potted.remove(8)
 
     def check_remaining(self):
@@ -242,48 +253,41 @@ class GameState:
 
     def p1_p2_condition(self, p1_condition, p2_condition):
         # returns a variable depending on which players move it is right now
-        if self.is_1st_players_turn():
+        if self.current_player.value == 1:
             return p1_condition
         else:
             return p2_condition
 
     def p1_striped_condition(self, striped_condition, solids_condition):
         # returns striped condition if p1 is potting stripes
-        if self.player1_stripes:
-            return striped_condition
-        else:
-            return solids_condition
+        if self.ball_assignment is not None:
+            if self.ball_assignment[Player.Player1] == BallType.Striped:
+                return striped_condition
+            else:
+                return solids_condition
 
 
     def potted_ball_rules(self):
-        # if it wasnt decided which player goes for which type of balls
-        # and the player potted the balls exclusively of one color (excluting white balls)
-        # then it is decided based on which players turn it is right now and which type
-        # of balls he potted
-        if not self.stripes_decided and len(self.potted) > 0:
-            if np.all(np.array(self.potted) > 8):
-                # all balls potted were stripes
-                self.player1_stripes = self.is_1st_players_turn()
-                self.stripes_decided = True
-            elif np.all(np.array(self.potted) < 8):
-                # all balls potted were solids
-                self.player1_stripes = not self.is_1st_players_turn()
-                self.stripes_decided = True
+        if len(self.potted) > 0:
+            # if it wasnt decided which player goes for which type of balls
+            # and the player potted the balls exclusively of one color (excluting white balls)
+            # then it is decided based on which players turn it is right now and which type
+            # of balls he potted
+            potted_stripe_count = len([x for x in self.potted if x > 8])
+            potted_solid_count = len([x for x in self.potted if x < 8])
+            only_stripes_potted = potted_solid_count == 0 and potted_stripe_count > 0
+            only_solids_potted = potted_stripe_count == 0 and potted_solid_count > 0
 
-        # checks which balls were potted
-        only_stripes_potted = True
-        only_solids_potted = True
-        for potted_ball in self.potted:
-            only_solids_potted = only_solids_potted and (potted_ball < 8)
-            only_stripes_potted = only_stripes_potted and (potted_ball > 8)
-
-        # checks if the player potted any wrong ball types
-        # if he pots a solid ball when he needs to pot striped balls, it is next players turn
-        if self.stripes_decided and len(self.potted) > 0 and xor(only_stripes_potted, only_solids_potted):
-            if self.p1_p2_condition(
-                    not self.p1_striped_condition(only_stripes_potted, only_solids_potted),
-                    not self.p1_striped_condition(only_solids_potted, only_stripes_potted)):
-                self.turn_over(False)
+            if only_solids_potted or only_stripes_potted:
+                selected_ball_type = BallType.Striped if only_stripes_potted else BallType.Solid
+                if self.ball_assignment is None:
+                    # TODO: Add current player to the class
+                    # unpacking a singular set - SO MACH HACK
+                    other_player, = set(Player) - {self.current_player}
+                    other_ball_type, = set(BallType) - {selected_ball_type}
+                    self.ball_assignment = {self.current_player: selected_ball_type, other_player: other_ball_type}
+                elif self.ball_assignment is not None and self.ball_assignment[self.current_player] != selected_ball_type:
+                    self.turn_over(False)
         else:
             self.turn_over(False)
 

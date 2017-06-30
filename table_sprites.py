@@ -104,7 +104,7 @@ class TableColoring(pygame.sprite.Sprite):
         top_left_text = ""
         if game_state.can_move_white_ball:
             top_left_text += " (free hit)"
-        if game_state.is_1st_players_turn():
+        if game_state.current_player.value == 1:
             top_left_rendered_text = self.font.render(config.player1_turn_label + top_left_text,
                                                       False, config.player1_cue_color)
         else:

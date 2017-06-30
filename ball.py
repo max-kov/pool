@@ -165,4 +165,4 @@ class Ball(pygame.sprite.Sprite):
                 else:
                     self.move_to(events["mouse_pos"])
             game_state.redraw_all()
-        game_state.cue.make_visible(game_state.is_1st_players_turn())
+        game_state.cue.make_visible(game_state.current_player)
