@@ -40,7 +40,7 @@ class GameState:
         self.fps_clock.tick(config.fps_limit)
 
     def create_white_ball(self):
-        self.white_ball = ball.Ball(0)
+        self.white_ball = ball.BallSprite(0)
         self.white_ball.move_to(config.white_ball_initial_pos)
         self.balls.add(self.white_ball)
         self.all_sprites.add(self.white_ball)
@@ -65,7 +65,7 @@ class GameState:
         random.shuffle(ball_placement_sequence)
 
         for i in ball_placement_sequence:
-            ball_iteration = ball.Ball(i)
+            ball_iteration = ball.BallSprite(i)
             ball_iteration.move_to(initial_place + coord_shift * counter)
             if counter[1] == counter[0]:
                 counter[0] += 1
@@ -221,7 +221,7 @@ class GameState:
         stripes_remaining = False
         solids_remaining = False
         for remaining_ball in self.balls:
-            if remaining_ball.number != 0 and remaining_ball.number != 8:
+            if remaining_ball.get_number() != 0 and remaining_ball.get_number() != 8:
                 stripes_remaining = stripes_remaining or remaining_ball.is_striped
                 solids_remaining = solids_remaining or not remaining_ball.is_striped
         self.stripes_remaining = stripes_remaining
@@ -233,8 +233,8 @@ class GameState:
 
     def first_collision(self, ball_combination):
         self.white_ball_1st_hit_is_set = True
-        self.white_ball_1st_hit_8ball = ball_combination[0].number == 8 or ball_combination[1].number == 8
-        if ball_combination[0].number == 0:
+        self.white_ball_1st_hit_8ball = ball_combination[0].get_number() == 8 or ball_combination[1].get_number() == 8
+        if ball_combination[0].get_number() == 0:
             self.white_ball_1st_hit_is_stripes = ball_combination[1].is_striped
         else:
             self.white_ball_1st_hit_is_stripes = ball_combination[0].is_striped

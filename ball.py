@@ -10,11 +10,51 @@ import event
 import physics
 
 
-class Ball(pygame.sprite.Sprite):
-    def __init__(self, ball_number, pygame_initialised=True):
-        self.color = config.ball_colors[ball_number]
-        self.is_striped = ball_number > 8
+# TODO: The biggest problem here is that this class tries to encode too much.
+# Best to split it into 2 - Ball & Renderer. Ball would deal with all of the physical stuff and Rednerer would deal
+# with pygame. This would make the code so much more readable.
+class Ball():
+    def __init__(self, ball_number):
+        self.number = ball_number
+        self.pos = np.zeros(2, dtype=float)
+        self.velocity = np.zeros(2, dtype=float)
 
+    # TODO: how about exert_force? You are not adding force, really. Also apply_force.
+    def add_force(self, force, time=1):
+        # f = ma, v = u + at -> v = u + (f/m)*t
+        self.velocity += (force / config.ball_mass) * time
+
+    def set_velocity(self, new_velocity):
+        self.velocity = np.array(new_velocity, dtype=float)
+
+    def get_velocity(self):
+        return self.velocity
+
+    def get_pos(self):
+        return self.pos
+
+    def get_number(self):
+        return self.number
+
+    def move_to(self, pos):
+        self.pos = np.array(pos, dtype=float)
+
+    def update(self, *args):
+        if np.count_nonzero(self.velocity) > 0:
+            self.velocity *= config.friction_coeff
+            self.pos += self.velocity
+
+            if np.hypot(*self.velocity) < config.friction_threshold:
+                self.velocity = np.zeros(2)
+
+
+class BallSprite(pygame.sprite.Sprite, Ball):
+    def __init__(self, ball_number):
+        self.color = config.ball_colors[ball_number]
+        # TODO: Why not reuse the BallType defined in gamestate? Perhaps move it into this file actually
+        self.is_striped = ball_number > 8
+        Ball.__init__(self, ball_number)
+        pygame.sprite.Sprite.__init__(self)
         if self.is_striped:
             # every point is a 3d coordinate on the ball
             # a circle will be drawn on the point if its Z component is >0 (is
@@ -26,72 +66,43 @@ class Ball(pygame.sprite.Sprite):
                                                                        np.zeros(point_num)))
         else:
             self.stripe_circle = []
-
-        self.number = ball_number
-        self.pos = np.zeros(2, dtype=float)
-        self.velocity = np.zeros(2, dtype=float)
         self.cumulitive_rotation_angle = 0
         self.frames_since_last_update = self.number % 5
         # initial location of the white circle and number on the ball, a.k.a
         # ball label
         self.label_offset = np.array([0, 0, config.ball_radius])
         self.label_size = config.ball_radius // 2
-
-        # if pygame was not initialised (like when testing)
-        # the class wont try to create fonts and update
-        if pygame_initialised:
-            pygame.sprite.Sprite.__init__(self)
-            font_obj = config.get_default_font(config.ball_label_text_size)
-            self.text = font_obj.render(str(ball_number), False, (0, 0, 0))
-            self.text_length = np.array(font_obj.size(str(ball_number)))
-            self.update_sprite()
-            self.update()
-            self.top_left = self.pos - config.ball_radius
-            self.rect.center = self.pos.tolist()
-
-    def move_to(self, pos, rect_update=True):
-        self.pos = np.array(pos, dtype=float)
-        if rect_update:
-            self.rect.center = self.pos.tolist()
-
-    def add_force(self, force, time=1):
-        # f = ma, v = u + at -> v = u + (f/m)*t
-        self.velocity += (force / config.ball_mass) * time
+        font_obj = config.get_default_font(config.ball_label_text_size)
+        self.text = font_obj.render(str(ball_number), False, (0, 0, 0))
+        self.text_length = np.array(font_obj.size(str(ball_number)))
+        self.update_sprite()
+        self.update()
+        self.top_left = self.get_pos() - config.ball_radius
+        self.rect.center = self.get_pos().tolist()
 
     def update(self, *args):
-        if np.count_nonzero(self.velocity) > 0:
-            self.velocity *= config.friction_coeff
-            self.pos += self.velocity
+        Ball.update(self)
+        # updates label circle and number offset
+        perpendicular_velocity = -np.cross(self.get_velocity(), [0, 0, 1])
+        # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
+        self.cumulitive_rotation_angle += np.hypot(
+            *(self.get_velocity())) * 2 / (config.ball_radius * np.pi)
 
-            # updates label circle and number offset
-            perpendicular_velocity = -np.cross(self.velocity, [0, 0, 1])
-            # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
-            self.cumulitive_rotation_angle += np.hypot(
-                *(self.velocity)) * 2 / (config.ball_radius * np.pi)
+        # the program wont update the ball sprites if the ball didn't turn a certain amount
+        # and because the lag is less noticable when the ball is traveling fast
+        # the formula calculates the angle ball turned devided by the speed of the ball
+        if self.cumulitive_rotation_angle / np.hypot(*self.velocity) > config.speed_angle_threshold and \
+                        self.cumulitive_rotation_angle > config.visible_angle_threshold:
+            transformation_matrix = physics.rotation_matrix(
+                perpendicular_velocity, -self.cumulitive_rotation_angle)
+            self.label_offset = np.matmul(
+                self.label_offset, transformation_matrix)
+            for i, stripe in enumerate(self.stripe_circle):
+                self.stripe_circle[i] = np.matmul(
+                    stripe, transformation_matrix)
 
-            # the program wont update the ball sprites if the ball didn't turn a certain amount
-            # and because the lag is less noticable when the ball is traveling fast
-            # the formula calculates the angle ball turned devided by the speed of the ball
-            if self.cumulitive_rotation_angle / np.hypot(*self.velocity) > config.speed_angle_threshold and \
-                            self.cumulitive_rotation_angle > config.visible_angle_threshold:
-                transformation_matrix = physics.rotation_matrix(
-                    perpendicular_velocity, -self.cumulitive_rotation_angle)
-                self.label_offset = np.matmul(
-                    self.label_offset, transformation_matrix)
-                for i, stripe in enumerate(self.stripe_circle):
-                    self.stripe_circle[i] = np.matmul(
-                        stripe, transformation_matrix)
-
-                self.update_sprite()
-                self.cumulitive_rotation_angle = 0
-
-            if np.hypot(*self.velocity) < config.friction_threshold:
-                self.velocity = np.zeros(2)
-
-            self.rect.center = self.pos.tolist()
-
-    def set_vector(self, new_velocity):
-        self.velocity = np.array(new_velocity, dtype=float)
+            self.cumulitive_rotation_angle = 0
+            self.update_sprite()
 
     def update_sprite(self):
         sprite_dimension = np.repeat([config.ball_radius * 2], 2)
@@ -140,13 +151,18 @@ class Ball(pygame.sprite.Sprite):
 
         self.image = new_sprite
         self.rect = self.image.get_rect()
-        self.top_left = self.pos - config.ball_radius
+        self.top_left = self.get_pos() - config.ball_radius
+        self.rect.center = self.get_pos().tolist()
 
     def create_image(self, surface, coords):
         surface.blit(self.image, coords)
 
     def is_clicked(self, events):
-        return physics.distance_less_equal(events["mouse_pos"], self.pos, config.ball_radius)
+        return physics.distance_less_equal(events["mouse_pos"], self.get_pos(), config.ball_radius)
+
+    def move_to(self, pos):
+        Ball.move_to(self, pos)
+        self.rect.center = self.get_pos().tolist()
 
     def is_active(self, game_state, behind_separation_line=False):
         game_state.cue.make_invisible()
