@@ -11,7 +11,7 @@ import physics
 
 def resolve_all_collisions(balls, holes, table_sides):
     def ball_hole_collision_check(ball, hole):
-        if physics.distance_less_equal(ball.pos, hole.pos, config.hole_radius):
+        if physics.distance_less_equal(ball.ball.pos, hole.pos, config.hole_radius):
             zope.event.notify(event.GameEvent("POTTED", ball))
             return True
         else:
@@ -22,16 +22,16 @@ def resolve_all_collisions(balls, holes, table_sides):
         balls, holes, True, False, ball_hole_collision_check)
 
     for line_ball_combination in itertools.product(table_sides, balls):
-        if physics.line_ball_collision_check(*line_ball_combination):
-            physics.collide_line_ball(*line_ball_combination)
+        if physics.line_ball_collision_check(line_ball_combination[0], line_ball_combination[1].ball):
+            physics.collide_line_ball(line_ball_combination[0], line_ball_combination[1].ball)
 
     ball_list = balls.sprites()
     # ball list is shuffled to randomize ball collisions on the 1st break
     random.shuffle(ball_list)
 
     for ball_combination in itertools.combinations(ball_list, 2):
-        if physics.ball_collision_check(*ball_combination):
-            physics.collide_balls(*ball_combination)
+        if physics.ball_collision_check(ball_combination[0].ball, ball_combination[1].ball):
+            physics.collide_balls(ball_combination[0].ball, ball_combination[1].ball)
             zope.event.notify(event.GameEvent("COLLISION", ball_combination))
 
 def check_if_ball_touches_balls(target_ball_pos, target_ball_number, game_state):

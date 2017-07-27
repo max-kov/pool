@@ -118,7 +118,7 @@ class GameState:
     def all_not_moving(self):
         return_value = True
         for ball in self.balls:
-            if np.count_nonzero(ball.velocity) > 0:
+            if np.count_nonzero(ball.ball.velocity) > 0:
                 return_value = False
                 break
         return return_value
@@ -221,7 +221,7 @@ class GameState:
         stripes_remaining = False
         solids_remaining = False
         for remaining_ball in self.balls:
-            if remaining_ball.get_number() != 0 and remaining_ball.get_number() != 8:
+            if remaining_ball.number != 0 and remaining_ball.number != 8:
                 stripes_remaining = stripes_remaining or remaining_ball.is_striped
                 solids_remaining = solids_remaining or not remaining_ball.is_striped
         self.stripes_remaining = stripes_remaining
@@ -233,8 +233,8 @@ class GameState:
 
     def first_collision(self, ball_combination):
         self.white_ball_1st_hit_is_set = True
-        self.white_ball_1st_hit_8ball = ball_combination[0].get_number() == 8 or ball_combination[1].get_number() == 8
-        if ball_combination[0].get_number() == 0:
+        self.white_ball_1st_hit_8ball = ball_combination[0].number == 8 or ball_combination[1].number == 8
+        if ball_combination[0].number == 0:
             self.white_ball_1st_hit_is_stripes = ball_combination[1].is_striped
         else:
             self.white_ball_1st_hit_is_stripes = ball_combination[0].is_striped

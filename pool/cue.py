@@ -26,7 +26,7 @@ class Cue(pygame.sprite.Sprite):
         self.image.fill((200, 200, 200))
         self.image.set_colorkey((200, 200, 200))
         self.rect = self.image.get_rect()
-        self.rect.center = self.target_ball.get_pos().tolist()
+        self.rect.center = self.target_ball.ball.pos.tolist()
 
     def update(self, *args):
         if self.visible:
@@ -45,9 +45,9 @@ class Cue(pygame.sprite.Sprite):
             pygame.draw.polygon(self.image, self.color,
                                 rectangle_points_from_circle + self.sprite_size)
 
-            self.points_on_screen = rectangle_points_from_circle + self.target_ball.get_pos()
+            self.points_on_screen = rectangle_points_from_circle + self.target_ball.ball.pos
             self.rect = self.image.get_rect()
-            self.rect.center = self.target_ball.get_pos().tolist()
+            self.rect.center = self.target_ball.ball.pos.tolist()
         else:
             self.clear_canvas()
 
@@ -68,7 +68,7 @@ class Cue(pygame.sprite.Sprite):
 
     def update_cue_displacement(self, mouse_pos, initial_mouse_dist):
         displacement = physics.point_distance(
-            mouse_pos, self.target_ball.get_pos()) - initial_mouse_dist + config.ball_radius
+            mouse_pos, self.target_ball.ball.pos) - initial_mouse_dist + config.ball_radius
         if displacement > config.cue_max_displacement:
             self.displacement = config.cue_max_displacement
         elif displacement < config.ball_radius:
@@ -77,7 +77,7 @@ class Cue(pygame.sprite.Sprite):
             self.displacement = displacement
 
     def draw_lines(self, game_state, target_ball, angle, color):
-        cur_pos = np.copy(target_ball.get_pos())
+        cur_pos = np.copy(target_ball.ball.pos)
         diff = np.array([math.sin(angle), math.cos(angle)])
 
         while config.resolution[1] > cur_pos[1] > 0 and config.resolution[0] > cur_pos[0] > 0:
@@ -102,7 +102,7 @@ class Cue(pygame.sprite.Sprite):
     def cue_is_active(self, game_state, events):
         initial_mouse_pos = events["mouse_pos"]
         initial_mouse_dist = physics.point_distance(
-            initial_mouse_pos, self.target_ball.get_pos())
+            initial_mouse_pos, self.target_ball.ball.pos)
 
         while events["clicked"]:
             events = event.events()
@@ -122,14 +122,14 @@ class Cue(pygame.sprite.Sprite):
             self.displacement -= change_in_disp
             self.update()
             pygame.display.flip()
-        self.target_ball.add_force(new_velocity)
+        self.target_ball.ball.add_force(new_velocity)
         self.displacement = config.ball_radius
         self.visible = False
 
     def update_cue(self, game_state, initial_mouse_dist, events):
         # updates cue position
         current_mouse_pos = events["mouse_pos"]
-        displacement_from_ball_to_mouse = self.target_ball.get_pos() - current_mouse_pos
+        displacement_from_ball_to_mouse = self.target_ball.ball.pos - current_mouse_pos
         self.update_cue_displacement(current_mouse_pos, initial_mouse_dist)
         prev_angle = self.angle
         # hack to avoid div by zero
