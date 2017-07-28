@@ -10,16 +10,12 @@ import event
 import physics
 
 
-# TODO: The biggest problem here is that this class tries to encode too much.
-# Best to split it into 2 - Ball & Renderer. Ball would deal with all of the physical stuff and Rednerer would deal
-# with pygame. This would make the code so much more readable.
 class Ball():
     def __init__(self):
         self.pos = np.zeros(2, dtype=float)
         self.velocity = np.zeros(2, dtype=float)
 
-    # TODO: how about exert_force? You are not adding force, really. Also apply_force.
-    def add_force(self, force, time=1):
+    def apply_force(self, force, time=1):
         # f = ma, v = u + at -> v = u + (f/m)*t
         self.velocity += (force / config.ball_mass) * time
 
@@ -30,35 +26,59 @@ class Ball():
         self.pos = np.array(pos, dtype=float)
 
     def update(self, *args):
-        if np.count_nonzero(self.velocity) > 0:
-            self.velocity *= config.friction_coeff
-            self.pos += self.velocity
+        self.velocity *= config.friction_coeff
+        self.pos += self.velocity
 
-            if np.hypot(*self.velocity) < config.friction_threshold:
-                self.velocity = np.zeros(2)
+        if np.hypot(*self.velocity) < config.friction_threshold:
+            self.velocity = np.zeros(2)
+
+
+class StripedBall():
+    def __init__(self):
+        # every point is a 3d coordinate on the ball
+        # a circle will be drawn on the point if its Z component is >0 (is
+        # # visible)
+        point_num = config.ball_stripe_point_num
+        self.stripe_circle = config.ball_radius * np.column_stack((np.cos(np.linspace(0, 2 * np.pi, point_num)),
+                                                                   np.sin(np.linspace(
+                                                                       0, 2 * np.pi, point_num)),
+                                                                   np.zeros(point_num)))
+
+    def update_stripe(self, transformation_matrix):
+        for i, stripe in enumerate(self.stripe_circle):
+            self.stripe_circle[i] = np.matmul(
+                stripe, transformation_matrix)
+
+    def draw_stripe(self, sprite):
+        for num, point in enumerate(self.stripe_circle[:-1]):
+            if point[2] >= -1:
+                pygame.draw.line(sprite, (255, 255, 255), config.ball_radius + point[:2],
+                                 config.ball_radius + self.stripe_circle[num + 1][:2], config.ball_stripe_thickness)
+
+
+class SolidBall():
+    def __init__(self):
+        pass
+
+    def update_stripe(self, *args):
+        pass
+
+    def draw_stripe(self, *args):
+        pass
 
 
 class BallSprite(pygame.sprite.Sprite):
     def __init__(self, ball_number):
         self.number = ball_number
         self.color = config.ball_colors[ball_number]
-        # TODO: Why not reuse the BallType defined in gamestate? Perhaps move it into this file actually
         self.is_striped = ball_number > 8
         self.ball = Ball()
-        pygame.sprite.Sprite.__init__(self)
         if self.is_striped:
-            # every point is a 3d coordinate on the ball
-            # a circle will be drawn on the point if its Z component is >0 (is
-            # # visible)
-            point_num = config.ball_stripe_point_num
-            self.stripe_circle = config.ball_radius * np.column_stack((np.cos(np.linspace(0, 2 * np.pi, point_num)),
-                                                                       np.sin(np.linspace(
-                                                                           0, 2 * np.pi, point_num)),
-                                                                       np.zeros(point_num)))
+            self.ball_stripe = StripedBall()
         else:
-            self.stripe_circle = []
+            self.ball_stripe = SolidBall()
+        pygame.sprite.Sprite.__init__(self)
         self.cumulitive_rotation_angle = 0
-        self.frames_since_last_update = self.number % 5
         # initial location of the white circle and number on the ball, a.k.a
         # ball label
         self.label_offset = np.array([0, 0, config.ball_radius])
@@ -72,29 +92,26 @@ class BallSprite(pygame.sprite.Sprite):
         self.rect.center = self.ball.pos.tolist()
 
     def update(self, *args):
-        self.ball.update()
-        # updates label circle and number offset
-        perpendicular_velocity = -np.cross(self.ball.velocity, [0, 0, 1])
-        # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
-        self.cumulitive_rotation_angle += np.hypot(
-            *(self.ball.velocity)) * 2 / (config.ball_radius * np.pi)
+        if np.hypot(*self.ball.velocity) != 0:
+            # updates label circle and number offset
+            perpendicular_velocity = -np.cross(self.ball.velocity, [0, 0, 1])
+            # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
+            self.cumulitive_rotation_angle += np.hypot(
+                *(self.ball.velocity)) * 2 / (config.ball_radius * np.pi)
 
-        # the program wont update the ball sprites if the ball didn't turn a certain amount
-        # and because the lag is less noticable when the ball is traveling fast
-        # the formula calculates the angle ball turned devided by the speed of the ball
-        if self.cumulitive_rotation_angle / np.hypot(*self.ball.velocity) > config.speed_angle_threshold and \
-                        self.cumulitive_rotation_angle > config.visible_angle_threshold and np.linalg.norm(
-            self.ball.velocity) != 0:
-            transformation_matrix = physics.rotation_matrix(
-                perpendicular_velocity, -self.cumulitive_rotation_angle)
-            self.label_offset = np.matmul(
-                self.label_offset, transformation_matrix)
-            for i, stripe in enumerate(self.stripe_circle):
-                self.stripe_circle[i] = np.matmul(
-                    stripe, transformation_matrix)
-
-            self.cumulitive_rotation_angle = 0
-            self.update_sprite()
+            # the program wont update the ball sprites if the ball didn't turn a certain amount
+            # and because the lag is less noticable when the ball is traveling fast
+            # the formula calculates the angle ball turned devided by the speed of the ball
+            if self.cumulitive_rotation_angle / np.hypot(*self.ball.velocity) > config.speed_angle_threshold and \
+                            self.cumulitive_rotation_angle > config.visible_angle_threshold:
+                transformation_matrix = physics.rotation_matrix(
+                    perpendicular_velocity, -self.cumulitive_rotation_angle)
+                self.label_offset = np.matmul(
+                    self.label_offset, transformation_matrix)
+                self.ball_stripe.update_stripe(transformation_matrix)
+                self.cumulitive_rotation_angle = 0
+                self.update_sprite()
+            self.ball.update()
 
     def update_sprite(self):
         sprite_dimension = np.repeat([config.ball_radius * 2], 2)
@@ -127,10 +144,7 @@ class BallSprite(pygame.sprite.Sprite):
 
         new_sprite.blit(
             label, self.label_offset[:2] + (sprite_dimension - label.get_size()) / 2)
-        for num, point in enumerate(self.stripe_circle[:-1]):
-            if point[2] >= -1:
-                pygame.draw.line(new_sprite, (255, 255, 255), config.ball_radius + point[:2],
-                                 config.ball_radius + self.stripe_circle[num + 1][:2], config.ball_stripe_thickness)
+        self.ball_stripe.draw_stripe(new_sprite)
 
         # applies a circular mask on the sprite using colorkey
         grid_2d = np.mgrid[-config.ball_radius:config.ball_radius +

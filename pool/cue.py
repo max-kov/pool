@@ -122,7 +122,7 @@ class Cue(pygame.sprite.Sprite):
             self.displacement -= change_in_disp
             self.update()
             pygame.display.flip()
-        self.target_ball.ball.add_force(new_velocity)
+        self.target_ball.ball.apply_force(new_velocity)
         self.displacement = config.ball_radius
         self.visible = False
 
