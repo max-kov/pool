@@ -1,5 +1,6 @@
 import itertools
 import math
+from enum import Enum
 
 import numpy as np
 import pygame
@@ -31,6 +32,11 @@ class Ball():
 
         if np.hypot(*self.velocity) < config.friction_threshold:
             self.velocity = np.zeros(2)
+
+
+class BallType(Enum):
+    Striped = "stripes"
+    Solid = "solid"
 
 
 class StripedBall():
@@ -71,12 +77,13 @@ class BallSprite(pygame.sprite.Sprite):
     def __init__(self, ball_number):
         self.number = ball_number
         self.color = config.ball_colors[ball_number]
-        self.is_striped = ball_number > 8
-        self.ball = Ball()
-        if self.is_striped:
-            self.ball_stripe = StripedBall()
-        else:
+        if ball_number <= 8:
+            self.ball_type = BallType.Solid
             self.ball_stripe = SolidBall()
+        else:
+            self.ball_type = BallType.Striped
+            self.ball_stripe = StripedBall()
+        self.ball = Ball()
         pygame.sprite.Sprite.__init__(self)
         self.cumulitive_rotation_angle = 0
         # initial location of the white circle and number on the ball, a.k.a

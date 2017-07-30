@@ -13,11 +13,7 @@ import cue
 import event
 import graphics
 import table_sprites
-
-
-class BallType(Enum):
-    Striped = "stripes"
-    Solid = "solid"
+from ball import BallType
 
 
 class Player(Enum):
@@ -88,7 +84,6 @@ class GameState:
         self.current_player = Player.Player1
         self.turn_ended = True
         self.white_ball_1st_hit_is_set = False
-        self.white_ball_1st_hit_is_stripes = False
         self.potted = []
         self.balls = pygame.sprite.Group()
         self.holes = pygame.sprite.Group()
@@ -97,10 +92,7 @@ class GameState:
         self.stripes_decided = False
         self.player1_stripes = False
         self.can_move_white_ball = True
-        self.stripes_remaining = True
-        self.solids_remaining = True
-        self.player1_pots_8ball = False
-        self.player2_pots_8ball = False
+        self.potting_8ball = None
         self.table_sides = []
 
     def is_behind_line_break(self):
@@ -210,7 +202,7 @@ class GameState:
             self.potted.remove(0)
             self.turn_over(True)
         if 8 in self.potted:
-            if self.p1_p2_condition(self.player1_pots_8ball, self.player2_pots_8ball):
+            if self.potting_8ball[self.current_player]:
                 self.game_over(self.current_player.value == 1)
             else:
                 self.game_over(self.current_player.value == 2)
@@ -222,25 +214,25 @@ class GameState:
         solids_remaining = False
         for remaining_ball in self.balls:
             if remaining_ball.number != 0 and remaining_ball.number != 8:
-                stripes_remaining = stripes_remaining or remaining_ball.is_striped
-                solids_remaining = solids_remaining or not remaining_ball.is_striped
-        self.stripes_remaining = stripes_remaining
-        self.solids_remaining = solids_remaining
+                stripes_remaining = stripes_remaining or remaining_ball.ball_type == BallType.Striped
+                solids_remaining = solids_remaining or not remaining_ball.ball_type == BallType.Striped
+        ball_type_remaining = {BallType.Solid: solids_remaining, BallType.Striped: stripes_remaining}
 
         # decides if on of the players (or both) should be potting 8ball
-        self.player1_pots_8ball = self.p1_striped_condition(not stripes_remaining, not solids_remaining)
-        self.player2_pots_8ball = self.p1_striped_condition(not solids_remaining, not stripes_remaining)
+        self.potting_8ball = {Player.Player1: not ball_type_remaining[self.ball_assignment[Player.Player1]],
+                              Player.Player2: not ball_type_remaining[self.ball_assignment[Player.Player2]]}
 
     def first_collision(self, ball_combination):
         self.white_ball_1st_hit_is_set = True
         self.white_ball_1st_hit_8ball = ball_combination[0].number == 8 or ball_combination[1].number == 8
         if ball_combination[0].number == 0:
-            self.white_ball_1st_hit_is_stripes = ball_combination[1].is_striped
+            self.white_ball_1st_hit_type = ball_combination[1].ball_type
         else:
-            self.white_ball_1st_hit_is_stripes = ball_combination[0].is_striped
+            self.white_ball_1st_hit_type = ball_combination[0].ball_type
 
     def check_pool_rules(self):
-        self.check_remaining()
+        if self.ball_assignment is not None:
+            self.check_remaining()
         self.check_potted()
         self.first_hit_rule()
         self.potted_ball_rules()
@@ -250,22 +242,6 @@ class GameState:
         self.white_ball_1st_hit_is_set = False
         self.turn_ended = False
         self.potted = []
-
-    def p1_p2_condition(self, p1_condition, p2_condition):
-        # returns a variable depending on which players move it is right now
-        if self.current_player.value == 1:
-            return p1_condition
-        else:
-            return p2_condition
-
-    def p1_striped_condition(self, striped_condition, solids_condition):
-        # returns striped condition if p1 is potting stripes
-        if self.ball_assignment is not None:
-            if self.ball_assignment[Player.Player1] == BallType.Striped:
-                return striped_condition
-            else:
-                return solids_condition
-
 
     def potted_ball_rules(self):
         if len(self.potted) > 0:
@@ -286,7 +262,8 @@ class GameState:
                     other_player, = set(Player) - {self.current_player}
                     other_ball_type, = set(BallType) - {selected_ball_type}
                     self.ball_assignment = {self.current_player: selected_ball_type, other_player: other_ball_type}
-                elif self.ball_assignment is not None and self.ball_assignment[self.current_player] != selected_ball_type:
+                    self.potting_8ball = {self.current_player: False, other_player: False}
+                elif self.ball_assignment[self.current_player] != selected_ball_type:
                     self.turn_over(False)
         else:
             self.turn_over(False)
@@ -297,18 +274,13 @@ class GameState:
         # but the player hits a solid ball, it is next players turn and he can move the white ball
         if not self.white_ball_1st_hit_is_set:
             self.turn_over(True)
-        else:
-            if self.stripes_decided and not self.white_ball_1st_hit_8ball:
-                if self.p1_p2_condition(
-                        not self.p1_striped_condition(self.white_ball_1st_hit_is_stripes,
-                                                      not self.white_ball_1st_hit_is_stripes),
-                        not self.p1_striped_condition(not self.white_ball_1st_hit_is_stripes,
-                                                      self.white_ball_1st_hit_is_stripes)):
+        elif self.ball_assignment is not None:
+            if not self.white_ball_1st_hit_8ball:
+                if self.ball_assignment[self.current_player] != self.white_ball_1st_hit_type:
                     self.turn_over(True)
 
             # checks if the 8ball was the first ball hit, and if so checks if the player needs to pot the 8ball
             # and if not he gets penalised
-            if self.white_ball_1st_hit_8ball and \
-                    not self.p1_p2_condition(self.player1_pots_8ball, self.player2_pots_8ball):
+            if self.white_ball_1st_hit_8ball and self.potting_8ball[self.current_player]:
                 self.turn_over(True)
 

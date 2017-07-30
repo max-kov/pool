@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 
 import config
+import gamestate
 
 
 class Hole(pygame.sprite.Sprite):
@@ -82,15 +83,15 @@ class TableColoring(pygame.sprite.Sprite):
 
                 # sorts the balls into their places
                 if do_draw:
-                    if game_state.p1_striped_condition(ball.is_striped, not ball.is_striped):
+                    if game_state.ball_assignment[gamestate.Player.Player1] == ball.ball_type:
                         draw_to_player.append(1)
                     else:
                         draw_to_player.append(2)
 
                 if ball.number == 8:
-                    if game_state.player1_pots_8ball:
+                    if game_state.potting_8ball[gamestate.Player.Player1]:
                         draw_to_player.append(1)
-                    if game_state.player2_pots_8ball:
+                    if game_state.potting_8ball[gamestate.Player.Player2]:
                         draw_to_player.append(2)
 
                 # draws the balls

@@ -38,7 +38,7 @@ def check_if_ball_touches_balls(target_ball_pos, target_ball_number, game_state)
     touches_other_balls = False
     for ball in game_state.balls:
         if target_ball_number != ball.number and \
-                physics.distance_less_equal(ball.pos, target_ball_pos, config.ball_radius * 2):
+                physics.distance_less_equal(ball.ball.pos, target_ball_pos, config.ball_radius * 2):
             touches_other_balls = True
             break
     return touches_other_balls
