@@ -55,6 +55,7 @@ You can also check test coverage by installing `pip install pytest-coverage` and
 
 ## Built With
 
+* [Python](https://www.python.org/) 3.5 or 3.6
 * [Pygame](http://www.pygame.org/) - 2d graphics library
 * [Numpy](http://www.numpy.org/) - Scientific computing library, used here for vector opertations
 * [Travis CI](https://travis-ci.org/) and [CodeClimate](https://codeclimate.com/) - Testing and code analysis
