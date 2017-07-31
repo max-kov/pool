@@ -10,7 +10,6 @@ import zope.event
 import ball
 import config
 import cue
-import event
 import graphics
 import table_sprites
 from ball import BallType
@@ -99,7 +98,8 @@ class GameState:
         self.stripes_decided = False
         self.player1_stripes = False
         self.can_move_white_ball = True
-        self.potting_8ball = None
+        self.is_game_over = False
+        self.potting_8ball = {Player.Player1: False, Player.Player2: False}
         self.table_sides = []
 
     def is_behind_line_break(self):
@@ -186,8 +186,15 @@ class GameState:
         rendered_text = font.render(text, False, (255, 255, 255))
         self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
         pygame.display.flip()
-        while not (event.events()["closed"] or event.events()["clicked"]):
-            pass
+        pygame.event.clear()
+        paused = True
+        while paused:
+            event = pygame.event.wait()
+            if event.type == pygame.QUIT:
+                paused = False
+            elif event.type == pygame.KEYDOWN:
+                paused = False
+        self.is_game_over = True
 
     def turn_over(self, penalize):
         if not self.turn_ended:
@@ -201,8 +208,7 @@ class GameState:
             self.can_move_white_ball = True
 
     def check_potted(self):
-        self.can_move_white_ball = False
-        # if white ball is potted, it will be created again and placed in the middle
+        self.can_move_white_ball = False  # if white ball is potted, it will be created again and placed in the middle
         if 0 in self.potted:
             self.create_white_ball()
             self.cue.target_ball = self.white_ball
@@ -213,7 +219,7 @@ class GameState:
                 self.game_over(self.current_player.value == 1)
             else:
                 self.game_over(self.current_player.value == 2)
-            self.potted.remove(8)
+
 
     def check_remaining(self):
         # a check if all striped or solid balls were potted
@@ -264,7 +270,6 @@ class GameState:
             if only_solids_potted or only_stripes_potted:
                 selected_ball_type = BallType.Striped if only_stripes_potted else BallType.Solid
                 if self.ball_assignment is None:
-                    # TODO: Add current player to the class
                     # unpacking a singular set - SO MACH HACK
                     other_player, = set(Player) - {self.current_player}
                     other_ball_type, = set(BallType) - {selected_ball_type}
@@ -282,12 +287,10 @@ class GameState:
         if not self.white_ball_1st_hit_is_set:
             self.turn_over(True)
         elif self.ball_assignment is not None:
-            if not self.white_ball_1st_hit_8ball:
-                if self.ball_assignment[self.current_player] != self.white_ball_1st_hit_type:
+            if not self.white_ball_1st_hit_8ball and self.ball_assignment[
+                self.current_player] != self.white_ball_1st_hit_type:
                     self.turn_over(True)
-
             # checks if the 8ball was the first ball hit, and if so checks if the player needs to pot the 8ball
             # and if not he gets penalised
-            if self.white_ball_1st_hit_8ball and self.potting_8ball[self.current_player]:
-                self.turn_over(True)
-
+            elif self.white_ball_1st_hit_8ball:
+                self.turn_over(not self.potting_8ball[self.current_player])

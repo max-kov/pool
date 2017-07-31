@@ -42,12 +42,8 @@ def triangle_area(side1, side2, side3):
     # used to determine if the user is clicking on the cue stick
     # herons formula
     half_perimetre = abs((side1 + side2 + side3) * 0.5)
-    try:
-        return math.sqrt(half_perimetre * (half_perimetre - abs(side1)) * (half_perimetre - abs(side2)) * (
+    return math.sqrt(half_perimetre * (half_perimetre - abs(side1)) * (half_perimetre - abs(side2)) * (
             half_perimetre - abs(side3)))
-    except:
-        # not a triangle
-        return 0
 
 
 def rotation_matrix(axis, theta):
