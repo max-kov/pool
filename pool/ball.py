@@ -85,7 +85,6 @@ class BallSprite(pygame.sprite.Sprite):
             self.ball_stripe = StripedBall()
         self.ball = Ball()
         pygame.sprite.Sprite.__init__(self)
-        self.cumulitive_rotation_angle = 0
         # initial location of the white circle and number on the ball, a.k.a
         # ball label
         self.label_offset = np.array([0, 0, config.ball_radius])
@@ -103,21 +102,14 @@ class BallSprite(pygame.sprite.Sprite):
             # updates label circle and number offset
             perpendicular_velocity = -np.cross(self.ball.velocity, [0, 0, 1])
             # angle formula is angle=((ballspeed*2)/(pi*r*2))*2
-            self.cumulitive_rotation_angle += np.hypot(
+            rotation_angle = -np.hypot(
                 *(self.ball.velocity)) * 2 / (config.ball_radius * np.pi)
-
-            # the program wont update the ball sprites if the ball didn't turn a certain amount
-            # and because the lag is less noticable when the ball is traveling fast
-            # the formula calculates the angle ball turned devided by the speed of the ball
-            if self.cumulitive_rotation_angle / np.hypot(*self.ball.velocity) > config.speed_angle_threshold and \
-                            self.cumulitive_rotation_angle > config.visible_angle_threshold:
-                transformation_matrix = physics.rotation_matrix(
-                    perpendicular_velocity, -self.cumulitive_rotation_angle)
-                self.label_offset = np.matmul(
-                    self.label_offset, transformation_matrix)
-                self.ball_stripe.update_stripe(transformation_matrix)
-                self.cumulitive_rotation_angle = 0
-                self.update_sprite()
+            transformation_matrix = physics.rotation_matrix(
+                perpendicular_velocity, rotation_angle)
+            self.label_offset = np.matmul(
+                self.label_offset, transformation_matrix)
+            self.ball_stripe.update_stripe(transformation_matrix)
+            self.update_sprite()
             self.ball.update()
 
     def update_sprite(self):

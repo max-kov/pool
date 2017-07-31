@@ -62,7 +62,6 @@ class Cue(pygame.sprite.Sprite):
         triangle_areas = np.sum(
             calc_area(triangle_sides, np.roll(triangle_sides, -1), rect_sides))
         rect_area = rect_sides[0] * rect_sides[1]
-
         # +1 to prevent rounding errors
         return rect_area + 1 >= triangle_areas
 
@@ -111,7 +110,7 @@ class Cue(pygame.sprite.Sprite):
         self.draw_lines(game_state, self.target_ball, self.angle +
                         math.pi, config.table_color)
 
-        if self.displacement > config.ball_radius:
+        if self.displacement > config.ball_radius+config.cue_safe_displacement:
             self.ball_hit()
 
     def ball_hit(self):
