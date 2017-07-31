@@ -14,6 +14,7 @@ import event
 import graphics
 import table_sprites
 from ball import BallType
+from collisiontests import check_if_ball_touches_balls
 
 
 class Player(Enum):
@@ -37,7 +38,13 @@ class GameState:
 
     def create_white_ball(self):
         self.white_ball = ball.BallSprite(0)
-        self.white_ball.move_to(config.white_ball_initial_pos)
+        ball_pos = config.white_ball_initial_pos
+        while check_if_ball_touches_balls(ball_pos, 0, self.balls):
+            ball_pos = [random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                       int(config.white_ball_initial_pos[0])),
+                        random.randint(int(config.table_margin + config.ball_radius + config.hole_radius),
+                                       int(config.resolution[1] - config.ball_radius - config.hole_radius))]
+        self.white_ball.move_to(ball_pos)
         self.balls.add(self.white_ball)
         self.all_sprites.add(self.white_ball)
 

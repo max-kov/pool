@@ -34,9 +34,10 @@ def resolve_all_collisions(balls, holes, table_sides):
             physics.collide_balls(ball_combination[0].ball, ball_combination[1].ball)
             zope.event.notify(event.GameEvent("COLLISION", ball_combination))
 
-def check_if_ball_touches_balls(target_ball_pos, target_ball_number, game_state):
+
+def check_if_ball_touches_balls(target_ball_pos, target_ball_number, balls):
     touches_other_balls = False
-    for ball in game_state.balls:
+    for ball in balls:
         if target_ball_number != ball.number and \
                 physics.distance_less_equal(ball.ball.pos, target_ball_pos, config.ball_radius * 2):
             touches_other_balls = True
