@@ -13,7 +13,7 @@ import cue
 import graphics
 import table_sprites
 from ball import BallType
-from collisiontests import check_if_ball_touches_balls
+from collisions import check_if_ball_touches_balls
 
 
 class Player(Enum):
@@ -190,9 +190,7 @@ class GameState:
         paused = True
         while paused:
             event = pygame.event.wait()
-            if event.type == pygame.QUIT:
-                paused = False
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 paused = False
         self.is_game_over = True
 

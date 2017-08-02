@@ -10,14 +10,16 @@ class GameEvent():
 
 def events():
     closed = False
+    quit = False
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             closed = True
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                closed = True
+                quit = True
 
-    return {"closed": closed,
+    return {"quit_to_main_menu": quit,
+            "closed": closed,
             "clicked": pygame.mouse.get_pressed()[0],
             "mouse_pos": np.array(pygame.mouse.get_pos())}

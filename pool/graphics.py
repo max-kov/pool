@@ -82,6 +82,8 @@ def iterate_until_button_press(buttons, game_state, text_ending_place, text_star
             else:
                 game_state.canvas.surface.blit(
                     buttons[num][0], text_starting_place[num])
+        if user_events["closed"] or user_events["quit_to_main_menu"]:
+            button_clicked = len(buttons)-1
     return button_clicked
 
 
