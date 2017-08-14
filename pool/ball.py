@@ -35,7 +35,7 @@ class Ball():
 
 
 class BallType(Enum):
-    Striped = "stripes"
+    Striped = "striped"
     Solid = "solid"
 
 
@@ -64,12 +64,6 @@ class StripedBall():
 
 class SolidBall():
     def __init__(self):
-        pass
-
-    def update_stripe(self, *args):
-        pass
-
-    def draw_stripe(self, *args):
         pass
 
 
@@ -108,7 +102,8 @@ class BallSprite(pygame.sprite.Sprite):
                 perpendicular_velocity, rotation_angle)
             self.label_offset = np.matmul(
                 self.label_offset, transformation_matrix)
-            self.ball_stripe.update_stripe(transformation_matrix)
+            if self.ball_type.value=="striped":
+                self.ball_stripe.update_stripe(transformation_matrix)
             self.update_sprite()
             self.ball.update()
 
@@ -143,7 +138,8 @@ class BallSprite(pygame.sprite.Sprite):
 
         new_sprite.blit(
             label, self.label_offset[:2] + (sprite_dimension - label.get_size()) / 2)
-        self.ball_stripe.draw_stripe(new_sprite)
+        if self.ball_type.value == "striped":
+            self.ball_stripe.draw_stripe(new_sprite)
 
         # applies a circular mask on the sprite using colorkey
         grid_2d = np.mgrid[-config.ball_radius:config.ball_radius +

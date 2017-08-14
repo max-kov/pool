@@ -50,6 +50,8 @@ class GameState:
     def game_event_handler(self, event):
         if event.type == "POTTED":
             self.table_coloring.update(self)
+            self.balls.remove(event.data)
+            self.all_sprites.remove(event.data)
             self.potted.append(event.data.number)
         elif event.type == "COLLISION":
             if not self.white_ball_1st_hit_is_set:

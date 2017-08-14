@@ -1,7 +1,6 @@
 import itertools
 import random
 
-import pygame
 import zope.event
 
 import config
@@ -10,17 +9,12 @@ import physics
 
 
 def resolve_all_collisions(balls, holes, table_sides):
-    def ball_hole_collision_check(ball, hole):
-        if physics.distance_less_equal(ball.ball.pos, hole.pos, config.hole_radius):
-            zope.event.notify(event.GameEvent("POTTED", ball))
-            return True
-        else:
-            return False
-
     # destroys any circles that are in a hole
-    pygame.sprite.groupcollide(
-        balls, holes, True, False, ball_hole_collision_check)
+    for ball_hole_combination in itertools.product(balls, holes):
+        if physics.distance_less_equal(ball_hole_combination[0].ball.pos, ball_hole_combination[1].pos, config.hole_radius):
+            zope.event.notify(event.GameEvent("POTTED", ball_hole_combination[0]))
 
+    # collides balls with the table where it is needed
     for line_ball_combination in itertools.product(table_sides, balls):
         if physics.line_ball_collision_check(line_ball_combination[0], line_ball_combination[1].ball):
             physics.collide_line_ball(line_ball_combination[0], line_ball_combination[1].ball)
@@ -28,6 +22,7 @@ def resolve_all_collisions(balls, holes, table_sides):
     ball_list = balls.sprites()
     # ball list is shuffled to randomize ball collisions on the 1st break
     random.shuffle(ball_list)
+
 
     for ball_combination in itertools.combinations(ball_list, 2):
         if physics.ball_collision_check(ball_combination[0].ball, ball_combination[1].ball):
