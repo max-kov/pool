@@ -3,15 +3,14 @@ import math
 import random
 from operator import xor
 
-import numpy as np
-import pygame
-import zope.event
-
 import ball
 import config
 import cue
 import graphics
+import numpy as np
+import pygame
 import table_sprites
+import zope.event
 from ball import BallType
 from collisions import check_if_ball_touches_balls
 
@@ -200,7 +199,7 @@ class GameState:
         if not self.turn_ended:
             self.turn_ended = True
             self.turn_number += 1
-            if self.current_player.value == 1:
+            if self.current_player == Player.Player1:
                 self.current_player = Player.Player2
             else:
                 self.current_player = Player.Player1
@@ -216,9 +215,9 @@ class GameState:
             self.turn_over(True)
         if 8 in self.potted:
             if self.potting_8ball[self.current_player]:
-                self.game_over(self.current_player.value == 1)
+                self.game_over(self.current_player == Player.Player1)
             else:
-                self.game_over(self.current_player.value == 2)
+                self.game_over(self.current_player == Player.Player1)
 
 
     def check_remaining(self):

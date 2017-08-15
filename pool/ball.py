@@ -2,13 +2,12 @@ import itertools
 import math
 from enum import Enum
 
-import numpy as np
-import pygame
-
 import collisions
 import config
 import event
+import numpy as np
 import physics
+import pygame
 
 
 class Ball():
@@ -102,7 +101,7 @@ class BallSprite(pygame.sprite.Sprite):
                 perpendicular_velocity, rotation_angle)
             self.label_offset = np.matmul(
                 self.label_offset, transformation_matrix)
-            if self.ball_type.value=="striped":
+            if self.ball_type == BallType.Striped:
                 self.ball_stripe.update_stripe(transformation_matrix)
             self.update_sprite()
             self.ball.update()
@@ -138,7 +137,7 @@ class BallSprite(pygame.sprite.Sprite):
 
         new_sprite.blit(
             label, self.label_offset[:2] + (sprite_dimension - label.get_size()) / 2)
-        if self.ball_type.value == "striped":
+        if self.ball_type == BallType.Striped:
             self.ball_stripe.draw_stripe(new_sprite)
 
         # applies a circular mask on the sprite using colorkey
