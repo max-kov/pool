@@ -24,7 +24,7 @@
 
 ## Installing
 ### Dependencies
-The pool game requires python 3.5 with modules pygame, numpy and zope.event.
+The pool game requires python 3.5 with modules [pygame](https://www.pygame.org/wiki/about), [numpy](http://www.numpy.org/) and [zope.event](https://docs.zope.org/zope.event/).
 
 ### Installing on most linux systems
 Install python 3.5 with pip and venv.
@@ -54,7 +54,7 @@ To run the tests we will require `pytest` module. To install it simply run
 pip install pytest
 ```
 
-To run the tests write `pytest` in the game folder. Pytest will recursively search for test files (which are initially located in tests folder).
+To run the tests write `PYTHONPATH=./pool py.test` in the game folder. Pytest will recursively search for test files (which are initially located in tests folder).
 You can also check test coverage by installing `pip install pytest-coverage` and executing
 `pytest --cov=.` in the pool folder. That will analyse which files and which lines of code are being tested by the tests.
 `.coveragerc` will prevent the module from analysing test files as well.

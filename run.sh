@@ -6,13 +6,10 @@ else
     if !(python3 -c "import venv" &> /dev/null;) then
         echo no venv module was found in python3
         echo please check README.md for instructions
-    fi
-    if !(python3 -c "import pip" &> /dev/null;) then
+    elif !(python3 -c "import pip" &> /dev/null;) then
         echo no pip module was found in python3
         echo please check README.md for instructions
-    fi
-    if (python3 -c "import venv" &> /dev/null;) &&
-    (python3 -c "import pip" &> /dev/null;) then
+    else
         if [ -e pool/bin/activate ]; then
             source pool/bin/activate
         else
