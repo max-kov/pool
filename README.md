@@ -7,38 +7,44 @@
         <img src="https://travis-ci.org/max-kov/pool.svg?branch=table_rework"
              alt="build status">
              </a> 
-    <a href="https://codeclimate.com/github/max-kov/pool/coverage">
-        <img src="https://codeclimate.com/github/max-kov/pool/badges/coverage.svg" />
-    </a>
 </p>
 
 <p align="center"><b> A pool game written entirely in python! </b></p>
 
 
-![Alt text](/../screenshots/PoolRecording.gif?raw=true "Game gif")
+![Alt text](/../screenshots/poolgif.gif?raw=true "Game gif")
 
+
+## Features
+* Realistic collisions based on a two-dimensional Newtonian model.
+* Simple configuration file (config.py) with many changeable options like ball size, ball colour, cue length/thickness and many more.
+* Algorithms which render ball sprites using rotation matrices.
+* Tests for collision functions and other math related functions.
+* A small, but highly scalable game menu.
 
 ## Installing
+### Dependencies
+The pool game requires python 3.5 with modules pygame, numpy and zope.event.
 
-### Most linux systems
-Firstly, clone the github code. Run
+### Installing on most linux systems
+Install python 3.5 with pip and venv.
+
+```
+sudo apt install python3.5 python-pip python-venv
+```
+
+Then, clone the github code and run the game using run.sh, which will setup a virtual python environment with the aforementioned modules.
 
 ```
 git clone https://github.com/max-kov/pool
 cd pool
+./run.sh
 ```
-
-in the linux terminal. To install the requirements with pip run
-
-```
-sudo pip install -r requirements.txt
-```
-
-You can now start the program using `python main.py`
 
 ### Windows
 
-Download [python](https://www.python.org/downloads/), [pygame](http://www.pygame.org/download.shtml) and [numpy](https://sourceforge.net/projects/numpy/files/NumPy/) (often is included with python), then download the program and run `main.py`.
+Download [python 3.5](https://www.python.org/downloads/release/python-353/), [zope.event](https://pypi.python.org/pypi/zope.event), [pygame](http://www.pygame.org/download.shtml), [numpy](https://sourceforge.net/projects/numpy/files/NumPy/) (often is included with python) and then download the program and run `main.py`.
+Alternatively, [add python to the path variable](https://stackoverflow.com/a/4855685) and run `python -m pip install -r requirements.txt` in the *administrator* cmd in the game folder to install the dependencies.
 
 ## Running the tests
 
@@ -55,7 +61,7 @@ You can also check test coverage by installing `pip install pytest-coverage` and
 
 ## Built With
 
-* [Python](https://www.python.org/) 3.5 or 3.6
+* [Python 3.5](https://www.python.org/)
 * [Pygame](http://www.pygame.org/) - 2d graphics library
 * [Numpy](http://www.numpy.org/) - Scientific computing library, used here for vector opertations
 * [Travis CI](https://travis-ci.org/) and [CodeClimate](https://codeclimate.com/) - Testing and code analysis
