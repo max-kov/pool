@@ -20,11 +20,11 @@
 * Simple configuration file (config.py) with many changeable options like ball size, ball colour, cue length/thickness and many more.
 * Algorithms which render ball sprites using rotation matrices.
 * Tests for collision functions and other math related functions.
-* A small, but highly scalable game menu.
+* A small and configurable game menu.
 
 ## Installing
 ### Dependencies
-The pool game requires python 3.5 with modules [pygame](https://www.pygame.org/wiki/about), [numpy](http://www.numpy.org/) and [zope.event](https://docs.zope.org/zope.event/).
+The pool game requires python 3.5 with modules which are listed in `requirements.txt` .
 
 ### Installing on most linux systems
 Install python 3.5 with pip and venv.
@@ -43,8 +43,8 @@ cd pool
 
 ### Windows
 
-Download [python 3.5](https://www.python.org/downloads/release/python-353/), [zope.event](https://pypi.python.org/pypi/zope.event), [pygame](http://www.pygame.org/download.shtml), [numpy](https://sourceforge.net/projects/numpy/files/NumPy/) (often is included with python) and then download the program and run `main.py`.
-Alternatively, [add python to the path variable](https://stackoverflow.com/a/4855685) and run `python -m pip install -r requirements.txt` in the *administrator* cmd in the game folder to install the dependencies.
+Download [python 3.5](https://www.python.org/downloads/release/python-353/), [zope.event](https://pypi.python.org/pypi/zope.event), [pygame](http://www.pygame.org/download.shtml), [numpy](https://sourceforge.net/projects/numpy/files/NumPy/) and [pip](https://docs.python.org/3/installing/index.html#pip-not-installed) (pip and numpy are often included with python) and then download the program and run `main.py`.
+Alternatively, [add python to the path variable](https://superuser.com/a/143121) and run `python -m pip install -r requirements.txt` in the *administrator* cmd in the game folder to install the dependencies.
 
 ## Running the tests
 
@@ -64,4 +64,4 @@ You can also check test coverage by installing `pip install pytest-coverage` and
 * [Python 3.5](https://www.python.org/)
 * [Pygame](http://www.pygame.org/) - 2d graphics library
 * [Numpy](http://www.numpy.org/) - Scientific computing library, used here for vector opertations
-* [Travis CI](https://travis-ci.org/) and [CodeClimate](https://codeclimate.com/) - Testing and code analysis
+* [Travis CI](https://travis-ci.org/max-kov/pool) and [CodeClimate](https://codeclimate.com/github/max-kov/pool) - Testing and code analysis
