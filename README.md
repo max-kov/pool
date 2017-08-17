@@ -43,8 +43,8 @@ cd pool
 
 ### Windows
 
-Download [python 3.5](https://www.python.org/downloads/release/python-353/), [zope.event](https://pypi.python.org/pypi/zope.event), [pygame](http://www.pygame.org/download.shtml), [numpy](https://sourceforge.net/projects/numpy/files/NumPy/) and [pip](https://docs.python.org/3/installing/index.html#pip-not-installed) (pip and numpy are often included with python) and then download the program and run `main.py`.
-Alternatively, [add python to the path variable](https://superuser.com/a/143121) and run `python -m pip install -r requirements.txt` in the *administrator* cmd in the game folder to install the dependencies.
+Download [python 3.5](https://www.python.org/downloads/release/python-353/) with [pip](https://docs.python.org/3/installing/index.html#pip-not-installed) then [add python to the path variable](https://superuser.com/a/143121) and run `python -m pip install -r requirements.txt` in the *administrator* cmd in the game folder to install the dependencies. Finally, start `main.py` to run the game.
+
 
 ## Running the tests
 
