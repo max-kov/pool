@@ -26,15 +26,12 @@
 ### Dependencies
 The pool game requires python 3.5 with modules which are listed in `requirements.txt` .
 
-### Installing on most linux systems
+### Installing on debian-based linux distributions
 Install python 3.5 with pip and venv.
-
 ```
-sudo apt install python3.5 python-pip python-venv
+sudo apt install python3.5 python3-pip python3-venv
 ```
-
 Then, clone the github code and run the game using run.sh, which will setup a virtual python environment with the aforementioned modules.
-
 ```
 git clone https://github.com/max-kov/pool
 cd pool
@@ -43,20 +40,27 @@ cd pool
 
 ### Windows
 
-Download [python 3.5](https://www.python.org/downloads/release/python-353/) with [pip](https://docs.python.org/3/installing/index.html#pip-not-installed) then [add python to the path variable](https://superuser.com/a/143121) and run `python -m pip install -r requirements.txt` in the *administrator* cmd in the game folder to install the dependencies. Finally, start `main.py` to run the game.
-
+Download [python 3.5](https://www.python.org/downloads/release/python-353/) with [pip](https://docs.python.org/3/installing/index.html#pip-not-installed) then [add python to the path variable](https://superuser.com/a/143121) and run
+```
+python3 -m pip install -r requirements.txt
+```
+in the *administrator* cmd in the game folder to install the dependencies. Finally, start `main.py` to run the game.
 
 ## Running the tests
 
-To run the tests we will require `pytest` module. To install it simply run
-
+To run the tests we will need extra modules. Run
 ```
-pip install pytest
+pip3 install -r test_requirements.txt
 ```
-
-To run the tests write `PYTHONPATH=./pool py.test` in the game folder. Pytest will recursively search for test files (which are initially located in tests folder).
-You can also check test coverage by installing `pip install pytest-coverage` and executing
-`pytest --cov=.` in the pool folder. That will analyse which files and which lines of code are being tested by the tests.
+in the game folder to install the testing modules. To run the tests write
+```
+PYTHONPATH=./pool pytest tests/
+```
+You can also check test coverage by executing
+```
+PYTHONPATH=./pool pytest --cov=. tests/
+```
+That will analyse which files and which lines of code were executed by the tests.
 `.coveragerc` will prevent the module from analysing test files as well.
 
 ## Built With
