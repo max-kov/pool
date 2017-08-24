@@ -27,16 +27,23 @@
 The pool game requires python 3.5 with modules which are listed in `requirements.txt` .
 
 ### Installing on debian-based linux distributions
-Install python 3.5 with pip and venv.
+Install python 3.5 with pip, venv and pygame dependencies
 ```
-sudo apt install python3.5 python3-pip python3-venv
+sudo apt-get build-dep python-pygame
+sudo apt-get install python-dev python3 python3-pip python3-venv
 ```
 Then, clone the github code and run the game using run.sh, which will setup a virtual python environment with the aforementioned modules.
 ```
-git clone https://github.com/max-kov/pool
+git clone git://github.com/max-kov/pool.git
 cd pool
 ./run.sh
 ```
+If the pygame installation **fails**, it's most likely due to apt not having any URIs in sources.list file. To fix execute
+```
+sudo sed -i -- 's/#deb-src/deb-src/g' /etc/apt/sources.list && sudo sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
+sudo apt-get update
+```
+and run the installation procedure again.
 
 ### Windows
 
