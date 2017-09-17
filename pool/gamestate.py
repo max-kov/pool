@@ -3,14 +3,16 @@ import math
 import random
 from operator import xor
 
+import numpy as np
+import pygame
+import zope.event
+
 import ball
 import config
 import cue
+import event
 import graphics
-import numpy as np
-import pygame
 import table_sprites
-import zope.event
 from ball import BallType
 from collisions import check_if_ball_touches_balls
 
@@ -24,6 +26,7 @@ class GameState:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(config.window_caption)
+        event.set_allowed_events()
         zope.event.subscribers.append(self.game_event_handler)
         self.canvas = graphics.Canvas()
         self.fps_clock = pygame.time.Clock()
@@ -219,7 +222,6 @@ class GameState:
             else:
                 self.game_over(self.current_player == Player.Player1)
 
-
     def check_remaining(self):
         # a check if all striped or solid balls were potted
         stripes_remaining = False
@@ -288,7 +290,7 @@ class GameState:
         elif self.ball_assignment is not None:
             if not self.white_ball_1st_hit_8ball and self.ball_assignment[
                 self.current_player] != self.white_ball_1st_hit_type:
-                    self.turn_over(True)
+                self.turn_over(True)
             # checks if the 8ball was the first ball hit, and if so checks if the player needs to pot the 8ball
             # and if not he gets penalised
             elif self.white_ball_1st_hit_8ball:
