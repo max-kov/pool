@@ -2,12 +2,13 @@ import itertools
 import math
 from enum import Enum
 
+import numpy as np
+import pygame
+
 import collisions
 import config
 import event
-import numpy as np
 import physics
-import pygame
 
 
 class Ball():
@@ -42,7 +43,7 @@ class StripedBall():
     def __init__(self):
         # every point is a 3d coordinate on the ball
         # a circle will be drawn on the point if its Z component is >0 (is
-        # # visible)
+        # visible)
         point_num = config.ball_stripe_point_num
         self.stripe_circle = config.ball_radius * np.column_stack((np.cos(np.linspace(0, 2 * np.pi, point_num)),
                                                                    np.sin(np.linspace(

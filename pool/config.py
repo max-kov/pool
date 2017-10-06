@@ -105,7 +105,7 @@ menu_spacing = 10
 menu_title_font_size = 40
 menu_option_font_size = 20
 
-# ingame ball target variables
+# in-game ball target variables
 player1_target_text = 'P1 balls - '
 player2_target_text = 'P2 balls - '
 target_ball_spacing = 3

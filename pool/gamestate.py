@@ -128,7 +128,7 @@ class GameState:
 
     def generate_table(self):
         table_side_points = np.empty((1, 2))
-        # holes_x and holes_y holds the possible xs and ys table holes
+        # holes_x and holes_y holds the possible xs and ys of the table holes
         # with a position ID in the second tuple field
         # so the top left hole has id 1,1
         holes_x = [(config.table_margin, 1), (config.resolution[0] /
@@ -146,11 +146,13 @@ class GameState:
             self.holes.add(table_sprites.Hole(hole_pos[0][0], hole_pos[1][0]))
             # this will generate the diagonal, vertical and horizontal table
             # pieces which will reflect the ball when it hits the table sides
-            # they are generated using 4x2 offset matrices (4 points around the hole)
-            # with the first point of the matrix is the starting point and the
+            #
+            # they are generated using 4x2 offset matrices (4 2d points around the hole)
+            # with the first point in the matrix is the starting point and the
             # last point is the ending point, these 4x2 matrices are
             # concatenated together
-            # also the martices must be flipped using numpy.flipud()
+            #
+            # the martices must be flipped using numpy.flipud()
             # after reflecting them using 2x1 reflection matrices, otherwise
             # starting and ending points would be reversed
             if hole_pos[0][1] == 2:
@@ -181,7 +183,6 @@ class GameState:
         graphics.add_separation_line(self.canvas)
 
     def game_over(self, p1_won):
-        # when the game is over a message is displayed
         font = config.get_default_font(config.game_over_label_font_size)
         if p1_won:
             text = "PLAYER 1 WON!"
@@ -283,8 +284,8 @@ class GameState:
 
     def first_hit_rule(self):
         # checks if the 1st white ball hit is the same as the players target ball type
-        # for example if the first white hit of the white ball is a striped ball,
-        # but the player hits a solid ball, it is next players turn and he can move the white ball
+        # for example if the current player hits a striped ball with the whit ball
+        # but he should be potting solid balls, it is next players turn and he can move the white ball
         if not self.white_ball_1st_hit_is_set:
             self.turn_over(True)
         elif self.ball_assignment is not None:

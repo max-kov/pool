@@ -47,10 +47,8 @@ def triangle_area(side1, side2, side3):
 
 
 def rotation_matrix(axis, theta):
-    """
-    Return the rotation matrix associated with counterclockwise rotation about
-    the given axis by theta radians.
-    """
+    # Return the rotation matrix associated with counterclockwise rotation about
+    # the given axis by theta radians.
     axis = np.asarray(axis)
     axis = axis / math.sqrt(np.dot(axis, axis))
     a = math.cos(theta / 2.0)
