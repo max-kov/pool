@@ -49,13 +49,13 @@ and run the installation procedure again.
 
 Download [python 3.5](https://www.python.org/downloads/release/python-353/) with [pip](https://docs.python.org/3/installing/index.html#pip-not-installed) then [add python to the path variable](https://superuser.com/a/143121) and run
 ```
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
-in the *administrator* cmd in the game folder to install the dependencies. Finally, start `main.py` to run the game.
+in the *administrator* cmd in the game folder to install the dependencies. Finally, start `main.py` to run the game. You might have to use `python3` instead of `python` depending if you have python2 installed. To check that you are using the right vesrion, write `python` in the console to see what version is used.
 
 ## Running the tests
 
-To run the tests we will need extra modules. Run
+You can always see the results of the latest build [here](https://travis-ci.org/max-kov/pool). If you want to run the tests yourself, we will need extra modules. (On linux) Run
 ```
 pip3 install -r test_requirements.txt
 ```
@@ -67,8 +67,7 @@ You can also check test coverage by executing
 ```
 PYTHONPATH=./pool pytest --cov=. tests/
 ```
-That will analyse which files and which lines of code were executed by the tests.
-`.coveragerc` will prevent the module from analysing test files as well.
+That will analyse which files and which lines of code were executed by the tests.`.coveragerc` will prevent the module from analysing test files as well. 
 
 ## Built With
 
