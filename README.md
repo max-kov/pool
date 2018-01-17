@@ -1,8 +1,5 @@
 <h1 align="center"> Pool </h1>
 <p align="center">
-    <a href="https://codeclimate.com/github/max-kov/pool">
-        <img src="https://codeclimate.com/github/max-kov/pool/badges/gpa.svg"
-             alt="CodeClimate">
     <a href="https://travis-ci.org/max-kov/pool">
         <img src="https://travis-ci.org/max-kov/pool.svg?branch=table_rework"
              alt="build status">
