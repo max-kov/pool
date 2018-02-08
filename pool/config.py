@@ -104,6 +104,8 @@ menu_margin = 20
 menu_spacing = 10
 menu_title_font_size = 40
 menu_option_font_size = 20
+exit_button = 2
+play_game_button = 1
 
 # in-game ball target variables
 player1_target_text = 'P1 balls - '

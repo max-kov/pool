@@ -4,13 +4,14 @@ import collisions
 import event
 import gamestate
 import graphics
+import config
 
 was_closed = False
 while not was_closed:
     game = gamestate.GameState()
     button_pressed = graphics.draw_main_menu(game)
 
-    if button_pressed == 1:
+    if button_pressed == config.play_game_button:
         game.start_pool()
         events = event.events()
         while not (events["closed"] or game.is_game_over or events["quit_to_main_menu"]):
@@ -31,7 +32,7 @@ while not was_closed:
                         game.white_ball.is_active(game, game.is_behind_line_break())
         was_closed = events["closed"]
 
-    if button_pressed == 2:
+    if button_pressed == config.exit_button:
         was_closed = True
 
 pygame.quit()
