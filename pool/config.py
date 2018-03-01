@@ -94,6 +94,7 @@ ball_label_text_size = 10
 # friction threshold then it is stopped
 friction_threshold = 0.06
 friction_coeff = 0.99
+collision_friction = 0.9
 
 # menu
 menu_text_color = (255, 255, 255)
