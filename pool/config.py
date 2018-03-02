@@ -94,7 +94,9 @@ ball_label_text_size = 10
 # friction threshold then it is stopped
 friction_threshold = 0.06
 friction_coeff = 0.99
-ball_collision_friction = 0.9
+# 1 - perfectly elastic ball collisions
+# 0 - perfectly inelastic collisions
+coeff_of_restitution = 0.9
 line_collision_friction = 0.9
 
 # menu
