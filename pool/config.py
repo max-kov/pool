@@ -96,8 +96,8 @@ friction_threshold = 0.06
 friction_coeff = 0.99
 # 1 - perfectly elastic ball collisions
 # 0 - perfectly inelastic collisions
-coeff_of_restitution = 0.9
-line_collision_friction = 0.9
+ball_coeff_of_restitution = 0.9
+table_coeff_of_restitution = 0.9
 
 # menu
 menu_text_color = (255, 255, 255)

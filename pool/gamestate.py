@@ -1,7 +1,7 @@
 import itertools
 import math
 import random
-from operator import xor
+from enum import Enum
 
 import numpy as np
 import pygame
@@ -83,13 +83,13 @@ class GameState:
         self.all_sprites.add(self.balls)
 
     def start_pool(self):
-        self.create_variables()
+        self.reset_state()
         self.generate_table()
         self.set_pool_balls()
         self.cue = cue.Cue(self.white_ball)
         self.all_sprites.add(self.cue)
 
-    def create_variables(self):
+    def reset_state(self):
         # game state variables
         self.current_player = Player.Player1
         self.turn_ended = True
@@ -99,8 +99,7 @@ class GameState:
         self.holes = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.OrderedUpdates()
         self.turn_number = 0
-        self.stripes_decided = False
-        self.player1_stripes = False
+        self.ball_assignment = None
         self.can_move_white_ball = True
         self.is_game_over = False
         self.potting_8ball = {Player.Player1: False, Player.Player2: False}

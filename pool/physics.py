@@ -34,8 +34,8 @@ def collide_balls(ball1, ball2):
     ball1_dot = np.dot(ball1.velocity, collision)
     ball2_dot = np.dot(ball2.velocity, collision)
     # since the masses of the balls are the same, the velocity will just switch
-    ball1.velocity += (ball2_dot - ball1_dot) * collision * 0.5*(1+config.coeff_of_restitution)
-    ball2.velocity += (ball1_dot - ball2_dot) * collision * 0.5*(1+config.coeff_of_restitution)
+    ball1.velocity += (ball2_dot - ball1_dot) * collision * 0.5*(1+config.ball_coeff_of_restitution)
+    ball2.velocity += (ball1_dot - ball2_dot) * collision * 0.5*(1+config.ball_coeff_of_restitution)
 
 
 def triangle_area(side1, side2, side3):
@@ -93,7 +93,5 @@ def collide_line_ball(line, ball):
                                    np.hypot(*(displacement_to_second_point))
     perpendicular_vector = np.array(
         [-normalised_point_diff_vector[1], normalised_point_diff_vector[0]])
-    ball.velocity -= 2 * np.dot(perpendicular_vector,
-                                ball.velocity) * perpendicular_vector
-    # friction on line collision
-    ball.velocity *= config.line_collision_friction
+    ball.velocity -= 2 * np.dot(perpendicular_vector,ball.velocity) * \
+                     perpendicular_vector * 0.5*(1+config.table_coeff_of_restitution)
