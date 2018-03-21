@@ -1,7 +1,7 @@
 <h1 align="center"> Pool </h1>
 <p align="center">
     <a href="https://travis-ci.org/max-kov/pool">
-        <img src="https://travis-ci.org/max-kov/pool.svg?branch=table_rework"
+        <img src="https://travis-ci.org/max-kov/pool.svg?branch=master"
              alt="build status">
              </a> 
 </p>
