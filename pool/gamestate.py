@@ -220,7 +220,7 @@ class GameState:
             if self.potting_8ball[self.current_player]:
                 self.game_over(self.current_player == Player.Player1)
             else:
-                self.game_over(self.current_player == Player.Player1)
+                self.game_over(self.current_player != Player.Player1)
 
     def check_remaining(self):
         # a check if all striped or solid balls were potted
